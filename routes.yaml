@@ -1,0 +1,7 @@
+app_name: account-filing-api
+group: internalapi
+weight: 999998
+routes:
+  1: ^/actuator/health
+  2: ^/account-filing.*
+
