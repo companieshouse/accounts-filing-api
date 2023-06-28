@@ -7,11 +7,10 @@
 		<artifactId>companies-house-parent</artifactId>
 		<version>1.3.1</version>
 	</parent>
-
-	<artifactId>account-filing-api</artifactId>
+	<artifactId>accounts-filing-api</artifactId>
 	<version>unversioned</version>
-	<name>account-filing-api</name>
-	<description>Handles operations required for account filing</description>
+	<name>accounts-filing-api</name>
+	<description>Handles operations required for accounts filing</description>
 	<properties>
 		<java.version>11</java.version>
 
@@ -22,6 +21,7 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
 		<dependency-check-plugin.version>8.2.1</dependency-check-plugin.version>
+
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
 		<jib-maven-plugin.version>3.1.1</jib-maven-plugin.version>
@@ -35,20 +35,17 @@
 		<!-- internal -->
 		<structured-logging.version>1.9.14</structured-logging.version>
 		<api-sdk-manager-java-library.version>1.0.6</api-sdk-manager-java-library.version>
+		<private-api-sdk-java.version>2.0.227</private-api-sdk-java.version>
 		<api-helper-java-library.version>1.4.5</api-helper-java-library.version>
-		<api-security-java-version>0.2.17</api-security-java-version>
+		<api-helper-java.version>1.4.3</api-helper-java.version>
+		<api-security-java-version>0.4.0</api-security-java-version>
 
 		<!-- java apis libs -->
 		<jaxb-api.version>2.3.1</jaxb-api.version>
-		<istack-commons-runtime.version>4.1.1</istack-commons-runtime.version>
+
 	</properties>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>uk.gov.companieshouse</groupId>
-				<artifactId>api-security-java</artifactId>
-				<version>${api-security-java-version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
@@ -85,7 +82,9 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 	<dependencies>
+		<!-- springboot apis support libs starts-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -97,11 +96,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -126,6 +120,8 @@
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
 		</dependency>
+		<!-- spring boot apis support libs ends-->
+		<!-- CH apis support libs starts-->
 		<dependency>
 			<groupId>uk.gov.companieshouse</groupId>
 			<artifactId>structured-logging</artifactId>
@@ -144,14 +140,21 @@
 		</dependency>
 		<dependency>
 			<groupId>uk.gov.companieshouse</groupId>
+			<artifactId>private-api-sdk-java</artifactId>
+			<version>${private-api-sdk-java.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.gov.companieshouse</groupId>
 			<artifactId>api-helper-java</artifactId>
 			<version>${api-helper-java-library.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.gov.companieshouse</groupId>
-			<artifactId>private-api-sdk-java</artifactId>
-			<version>2.0.263</version>
+			<artifactId>api-security-java</artifactId>
+			<version>${api-security-java-version}</version>
 		</dependency>
+		<!-- CH apis support libs ends-->
+		<!-- Junit testing libs starts-->
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite</artifactId>
@@ -198,21 +201,6 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-xml</artifactId>
-			<version>2.14.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.istack</groupId>
-			<artifactId>istack-commons-runtime</artifactId>
-			<version>${istack-commons-runtime.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>5.3.26</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-core</artifactId>
 			<version>9.0.73</version>
@@ -223,10 +211,11 @@
 			<version>5.7.7</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot</artifactId>
-			<version>3.1.1</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>5.3.26</version>
 		</dependency>
+		<!-- Junit testing libs end-->
 	</dependencies>
 
 	<build>
@@ -251,12 +240,9 @@
 					<argLine>-Dfile.encoding=UTF-8</argLine>
 					<argLine>${surefireArgLine}</argLine>
 					<excludes>
-						<exclude>**/uk.gov.companieshouse.account.validator.Runner.java</exclude>
+						<exclude>**/uk.gov.companieshouse.file.transfer.service.Runner.java</exclude>
 					</excludes>
 					<skipTests>${skip.unit.tests}</skipTests>
-					<environmentVariables>
-						<IXBRL_TO_PDF_URI>http://random.api.url</IXBRL_TO_PDF_URI>
-					</environmentVariables>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -318,7 +304,7 @@
 					<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 					<skipITs>${skip.integration.tests}</skipITs>
 					<includes>
-						<include>**/uk.gov.companieshouse.account.validator.Runner.java</include>
+						<include>**/uk.gov.companieshouse.file.transfer.service.java</include>
 					</includes>
 				</configuration>
 			</plugin>

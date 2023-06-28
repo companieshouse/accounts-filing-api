@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Start script for account-filing-api
+# Start script for accounts-filing-api
 
 APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -8,9 +8,9 @@ if [[ -z "${MESOS_SLAVE_PID}" ]]; then
 
     source ~/.chs_env/private_env
     source ~/.chs_env/global_env
-    source ~/.chs_env/account-filing-api/env
+    source ~/.chs_env/accounts-filing-api/env
 
-    PORT="${ACCOUNT_FILING_API_PORT}"
+    PORT="${ACCOUNTS_FILING_API_PORT}"
 
 else
 
@@ -31,7 +31,7 @@ else
 
 fi
 
-exec java ${JAVA_MEM_ARGS} -jar -Dserver.port="${PORT}" "${APP_DIR}/account-filing-api.jar"
+exec java ${JAVA_MEM_ARGS} -jar -Dserver.port="${PORT}" "${APP_DIR}/accounts-filing-api.jar"
 
 # debug settings
-#exec java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=21097 -jar -Dserver.port="${PORT}" "${APP_DIR}/account-filing-api.jar"
+#exec java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=21097 -jar -Dserver.port="${PORT}" "${APP_DIR}/accounts-filing-api.jar"

@@ -1,13 +1,13 @@
-package uk.gov.companieshouse.account.filing;
+package uk.gov.companieshouse.accounts.filing;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AccountFilingApiApplication {
+public class AccountsFilingApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AccountFilingApiApplication.class, args);
+		SpringApplication.run(AccountsFilingApiApplication.class, args);
 	}
 
 }

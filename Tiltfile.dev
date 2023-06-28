@@ -5,7 +5,7 @@ local_resource(
 )
 
 custom_build(
-  ref = '169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/account-filing-api',
+  ref = '169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/accounts-filing-api',
   command = 'mvn compile jib:dockerBuild -Dimage=$EXPECTED_REF',
   live_update = [
     sync(
@@ -19,8 +19,8 @@ custom_build(
 
 load('ext://uibutton', 'cmd_button')
 
-cmd_button('account-filing-api:toggle',
-           argv=['sh', '-c', 'if [ "$(tilt status --resource account-filing-api)" = "enabled" ]; then tilt disable my_resource; else tilt enable account-filing-api; fi'],
+cmd_button('accounts-filing-api:toggle',
+           argv=['sh', '-c', 'if [ "$(tilt status --resource accounts-filing-api)" = "enabled" ]; then tilt disable my_resource; else tilt enable accounts-filing-api; fi'],
            resource='my_resource',
            icon_name='power_settings_new',
            text='Toggle')

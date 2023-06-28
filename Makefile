@@ -1,4 +1,4 @@
-artifact_name       := account-filing-api
+artifact_name       := accounts-filing-api
 version             := "unversioned"
 
 .PHONY: all
@@ -55,6 +55,6 @@ sonar:
 sonar-pr-analysis:
 	mvn sonar:sonar -P sonar-pr-analysis
 
-.PHONY: dependency-check
-dependency-check:
+.PHONY: security-check
+security-check:
 	mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=4 -DassemblyAnalyzerEnabled=false
