@@ -1,4 +1,4 @@
-# Compiled class file
+s# Compiled class file
 *.class
 
 # Log file
@@ -40,4 +40,4 @@ uploads/
 # VS Code
 settings.json
 
-account-filing-api.jar
+accounts-filing-api.jar
