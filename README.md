@@ -1,4 +1,4 @@
-# account-filing-api
+# accounts-filing-api
 A service to manage user's account for all their filings.This application is written using the [Spring Boot](http://projects.spring.io/spring-boot/) Java framework.
 
 ## Requirements

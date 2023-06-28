@@ -15,8 +15,8 @@
 		<java.version>11</java.version>
 
 		<maven-build-helper-plugin.version>3.2.0</maven-build-helper-plugin.version>
-		<spring-boot-dependencies.version>3.1.1</spring-boot-dependencies.version>
-		<spring-boot-maven-plugin.version>3.1.1</spring-boot-maven-plugin.version>
+		<spring-boot-dependencies.version>2.7.10</spring-boot-dependencies.version>
+		<spring-boot-maven-plugin.version>2.7.10</spring-boot-maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 
@@ -199,21 +199,6 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-core</artifactId>
-			<version>9.0.73</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-config</artifactId>
-			<version>5.7.7</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-webmvc</artifactId>
-			<version>5.3.26</version>
 		</dependency>
 		<!-- Junit testing libs end-->
 	</dependencies>
