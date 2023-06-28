@@ -1,5 +1,5 @@
 local_resource(
-  name = 'dev:account-filing-api',
+  name = 'dev:accounts-filing-api',
   cmd = 'mvn compile',
   deps = ['src/main']
 )
