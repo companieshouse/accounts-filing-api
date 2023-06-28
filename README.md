@@ -1,5 +1,5 @@
 # accounts-filing-api
-A service to manage user's account for all their filings.This application is written using the [Spring Boot](http://projects.spring.io/spring-boot/) Java framework.
+A backend service allowing users to submit accounts in zip format. This application is written using the [Spring Boot](http://projects.spring.io/spring-boot/) Java framework.
 
 ## Requirements
 In order to run the API locally you'll need the following installed on your machine:
