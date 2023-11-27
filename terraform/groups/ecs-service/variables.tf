@@ -46,6 +46,10 @@ variable "use_fargate" {
   description = "If true, sets the required capabilities for all containers in the task definition to use FARGATE, false uses EC2"
   default     = false
 }
+variable "accounts_filing_api_version" {
+  type        = string
+  description = "The version of the accounts filing api container to run."
+}
 # ------------------------------------------------------------------------------
 # Service environment variable configs
 # ------------------------------------------------------------------------------
