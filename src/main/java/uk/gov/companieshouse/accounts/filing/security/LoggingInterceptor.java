@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class LoggingInterceptor implements HandlerInterceptor, RequestLogger {
-    private final Logger logger = null;
+    private Logger logger;
 
 
 @Override
