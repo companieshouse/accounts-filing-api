@@ -8,7 +8,7 @@ import uk.gov.companieshouse.accounts.filing.security.LoggingInterceptor;
 
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
-    private final LoggingInterceptor loggingInterceptor;
+    /*private final LoggingInterceptor loggingInterceptor;
 
     @Autowired
     public WebMvcConfig(LoggingInterceptor loggingInterceptor) {
@@ -18,5 +18,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor);
-    }
+    }*/
 }
