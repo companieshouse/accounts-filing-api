@@ -24,7 +24,7 @@
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-		<jib-maven-plugin.version>3.1.1</jib-maven-plugin.version>
+		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<test-containers.version>1.19.2</test-containers.version>
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<skip.integration.tests>false</skip.integration.tests>
@@ -109,6 +109,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
@@ -335,5 +339,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
