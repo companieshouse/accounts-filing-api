@@ -17,13 +17,11 @@ locals {
     "vpc_name"             = local.service_secrets["vpc_name"]
     "chs_api_key"          = local.service_secrets["chs_api_key"]
     "internal_api_url"     = local.service_secrets["internal_api_url"]
-    "cache_server"         = local.service_secrets["cache_server"]
   }
 
   vpc_name             = local.service_secrets["vpc_name"]
   chs_api_key          = local.service_secrets["chs_api_key"]
   internal_api_url     = local.service_secrets["internal_api_url"]
-  cache_server         = local.service_secrets["cache_server"]
 
   # create a map of secret name => secret arn to pass into ecs service module
   # using the trimprefix function to remove the prefixed path from the secret name
@@ -39,7 +37,6 @@ locals {
 
   task_secrets = [
     { "name" : "CHS_API_KEY", "valueFrom" : "${local.service_secrets_arn_map.chs_api_key}" },
-    { "name" : "CACHE_SERVER", "valueFrom" : "${local.service_secrets_arn_map.cache_server}" },
     { "name" : "INTERNAL_API_URL", "valueFrom" : "${local.service_secrets_arn_map.internal_api_url}" }
   ]
 
