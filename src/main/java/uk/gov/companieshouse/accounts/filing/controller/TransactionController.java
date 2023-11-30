@@ -37,8 +37,7 @@ public class TransactionController {
         if (accountValidationResultOptional.isEmpty())
             return ResponseEntity.notFound().build();
 
-        AccountsValidatorStatusApi accountValidationResult = accountValidationResultOptional.get();
-        accountValidationStrategy.saveFileValidationResult(accountsFilingId, accountValidationResult);
+        accountValidationStrategy.saveFileValidationResult(accountsFilingId, accountValidationResultOptional.get());
         return ResponseEntity.ok(new ValidationState(accountValidationResult.resultApi().fileValidationStatusApi().toString()));
     }
 
