@@ -38,9 +38,6 @@
 		<private-api-sdk-java.version>4.0.4</private-api-sdk-java.version>
 		<api-security-java-version>2.0.1</api-security-java-version>
 
-		<!-- java apis libs -->
-		<jaxb-api.version>2.3.1</jaxb-api.version>
-
 	</properties>
 	<dependencyManagement>
 		<dependencies>
