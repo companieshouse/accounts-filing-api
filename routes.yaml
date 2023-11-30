@@ -4,4 +4,5 @@ weight: 999998
 routes:
   1: ^/actuator/health
   2: ^/accounts-filing.*
+  3: ^/transactions/(.*)/accounts-filing/(.*)/.*
 

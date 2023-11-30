@@ -16,7 +16,6 @@ import uk.gov.companieshouse.logging.Logger;
 @Controller
 @RequestMapping("/accounts-filing")
 public class AccountsFilingController {
-
     private Logger logger;
     private CompanyRespository companyRespository;
 
