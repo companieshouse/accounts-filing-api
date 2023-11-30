@@ -51,11 +51,11 @@ class AccountsValidationServiceTest {
     @Mock
     AccountsValidatorAPI api;
 
-    AccountsValidationService service;
+    AccountsValidationServiceImpl service;
 
     @BeforeEach
     void setUp(){
-        service = new AccountsValidationService(
+        service = new AccountsValidationServiceImpl(
             logger, accountsFilingRepository, api);
     }
 

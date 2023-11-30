@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.ValidationState;
-import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationServiceImpl;
+import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -22,23 +22,23 @@ import uk.gov.companieshouse.logging.Logger;
 public class TransactionController {
 
     private final Logger logger;
-    private final AccountsValidationServiceImpl accountsValidationServiceImpl;
+    private final AccountsValidationService accountsValidationService;
 
     @Autowired
-    public TransactionController(AccountsValidationServiceImpl accountsValidationServiceImpl, Logger logger) {
-        this.accountsValidationServiceImpl = accountsValidationServiceImpl;
+    public TransactionController(AccountsValidationService accountsValidationService, Logger logger) {
+        this.accountsValidationService = accountsValidationService;
         this.logger = logger;
     }
     
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<ValidationState> fileValidationStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
-        Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationServiceImpl.validationStatusResult(fileId);
+        Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
         if (accountsValidationResultOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        accountsValidationServiceImpl.saveFileValidationResult(accountsFilingId, accountsValidationResultOptional.get());
+        accountsValidationService.saveFileValidationResult(accountsFilingId, accountsValidationResultOptional.get());
         return ResponseEntity.ok(new ValidationState(accountsValidationResultOptional.get().resultApi().fileValidationStatusApi().toString()));
     }
 
