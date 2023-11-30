@@ -29,12 +29,14 @@ public class ApplicationConfiguration {
     public InternalApiClient internalApiClient(
             @Value("${api.base.path}") String apiBasePath,
             @Value("${internal.api.base.path}") String internalApiBasePath,
+            @Value("${payments.api.base.path}") String paymentsApiBasePath,
             @Value("${internal.api.key}") String internalApiKey
     ) {
         ApiKeyHttpClient httpClient = new ApiKeyHttpClient(internalApiKey);
         InternalApiClient internalApiClient = new InternalApiClient(httpClient);
 
         internalApiClient.setBasePath(internalApiBasePath);
+        internalApiClient.setBasePaymentsPath(paymentsApiBasePath);
         internalApiClient.setInternalBasePath(internalApiBasePath);
 
         return internalApiClient;
