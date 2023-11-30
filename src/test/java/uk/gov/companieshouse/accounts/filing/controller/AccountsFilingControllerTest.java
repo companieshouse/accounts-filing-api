@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.gov.companieshouse.accounts.filing.model.ConfirmCompanyRecord;
-import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
+import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
+import uk.gov.companieshouse.accounts.filing.repository.CompanyRespository;
 import uk.gov.companieshouse.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -25,18 +25,18 @@ public class AccountsFilingControllerTest {
     @Mock
     Logger logger;
     @Mock
-    AccountsFilingRepository mockAccountsFilingRepository;
+    CompanyRespository mockCompanyRespository;
 
     @BeforeEach
     void setUp() {
         accountsFilingController = new AccountsFilingController(
-                logger, mockAccountsFilingRepository);
+                logger, mockCompanyRespository);
     }
 
     @Test
     public void test_createFilingRecord_for_SuccessResponse (){
-        ConfirmCompanyRecord mockRecord = new ConfirmCompanyRecord(null,"12345", "test123");
-        when(mockAccountsFilingRepository.save(any(ConfirmCompanyRecord.class))).thenReturn(mockRecord);
+        CompanyRecord mockRecord = new CompanyRecord(null,"12345", "test123");
+        when(mockCompanyRespository.save(any(CompanyRecord.class))).thenReturn(mockRecord);
         var response = accountsFilingController.confirmCompany("12345", "test123");
         assertEquals(mockRecord, response.getBody());
     }
@@ -49,8 +49,8 @@ public class AccountsFilingControllerTest {
 
     @Test
     public void test_createFilingRecord_for_RecordNotFound (){
-        ConfirmCompanyRecord mockRecord = new ConfirmCompanyRecord(null,"12345", "test123");
-        when(mockAccountsFilingRepository.save(any(ConfirmCompanyRecord.class))).thenThrow(new RuntimeException());
+        CompanyRecord mockRecord = new CompanyRecord(null,"12345", "test123");
+        when(mockCompanyRespository.save(any(CompanyRecord.class))).thenThrow(new RuntimeException());
         var response = accountsFilingController.confirmCompany("12345", "test123");
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }

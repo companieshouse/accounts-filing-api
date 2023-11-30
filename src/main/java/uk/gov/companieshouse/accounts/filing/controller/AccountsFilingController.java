@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.gov.companieshouse.accounts.filing.model.ConfimCompanyResponse;
-import uk.gov.companieshouse.accounts.filing.model.ConfirmCompanyRecord;
-import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
+import uk.gov.companieshouse.accounts.filing.model.ConfrimCompanyResponse;
+import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
+import uk.gov.companieshouse.accounts.filing.repository.CompanyRespository;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
@@ -18,18 +18,17 @@ import uk.gov.companieshouse.logging.Logger;
 public class AccountsFilingController {
 
     private Logger logger;
-    private AccountsFilingRepository accountsFilingRepository;
+    private CompanyRespository companyRespository;
 
     @Autowired
-    public AccountsFilingController(Logger logger, AccountsFilingRepository accountsFilingRepository) {
+    public AccountsFilingController(Logger logger, CompanyRespository companyRespository) {
         this.logger = logger;
-        this.accountsFilingRepository = accountsFilingRepository;
+        this.companyRespository = companyRespository;
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<?> checking(){
-        return ResponseEntity.ok().body("it is just for testing");
-
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> checking(){
+        return ResponseEntity.ok().body("OK");
     }
 
     @PutMapping("/company/{company_number}/confirm/{transaction_id}")
@@ -37,13 +36,13 @@ public class AccountsFilingController {
         logger.info(String.format("Saving company number %s",
                 companyNumber));
         if (transactionId == null || transactionId.isBlank()) {
-            return ConfimCompanyResponse.badRequest();
+            return ConfrimCompanyResponse.badRequest();
         }
         try {
-            ConfirmCompanyRecord companyRecord = new ConfirmCompanyRecord(null,companyNumber,transactionId);
-           return ConfimCompanyResponse.success(accountsFilingRepository.save(companyRecord));
+            CompanyRecord companyRecord = new CompanyRecord(null,companyNumber,transactionId);
+           return ConfrimCompanyResponse.success(companyRespository.save(companyRecord));
         } catch(Exception ex) {
-            return ConfimCompanyResponse.requestNotFound();
+            return ConfrimCompanyResponse.requestNotFound();
         }
     }
 }

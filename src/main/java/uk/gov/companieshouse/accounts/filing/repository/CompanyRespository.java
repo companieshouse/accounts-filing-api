@@ -1,10 +1,8 @@
 package uk.gov.companieshouse.accounts.filing.repository;
 
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-import uk.gov.companieshouse.accounts.filing.model.ConfirmCompanyRecord;
-
+import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
 @Repository
-public interface AccountsFilingRepository extends MongoRepository<ConfirmCompanyRecord, String> {
+public interface CompanyRespository extends MongoRepository<CompanyRecord, String> {
 }
