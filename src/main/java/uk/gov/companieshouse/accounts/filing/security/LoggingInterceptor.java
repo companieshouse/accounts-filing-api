@@ -15,11 +15,15 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoggingInterceptor implements HandlerInterceptor, RequestLogger {
     private final Logger logger;
 
+    /**
+     * Sets the logger used to log out request information.
+     *
+     * @param logger the configured logger
+     */
     @Autowired
-    public LoggingInterceptor(Logger logger){
+    public LoggingInterceptor(Logger logger) {
         this.logger = logger;
     }
-
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
