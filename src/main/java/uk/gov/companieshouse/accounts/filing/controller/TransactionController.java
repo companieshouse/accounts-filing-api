@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.ValidationState;
-import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationStrategy;
+import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationServiceImpl;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -22,24 +22,25 @@ import uk.gov.companieshouse.logging.Logger;
 public class TransactionController {
 
     private final Logger logger;
-    private final AccountsValidationStrategy accountValidationStrategy;
+    private final AccountsValidationServiceImpl accountsValidationServiceImpl;
 
     @Autowired
-    public TransactionController(AccountsValidationStrategy accountValidationStrategy, Logger logger) {
-        this.accountValidationStrategy = accountValidationStrategy;
+    public TransactionController(AccountsValidationServiceImpl accountsValidationServiceImpl, Logger logger) {
+        this.accountsValidationServiceImpl = accountsValidationServiceImpl;
         this.logger = logger;
     }
     
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<ValidationState> fileValidationStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
-        Optional<AccountsValidatorStatusApi> accountValidationResultOptional = accountValidationStrategy.validationStatusResult(fileId);
+        Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationServiceImpl.validationStatusResult(fileId);
 
-        if (accountValidationResultOptional.isEmpty())
+        if (accountsValidationResultOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
+        }
 
-        AccountsValidatorStatusApi accountValidationResult = accountValidationResultOptional.get();
-        accountValidationStrategy.saveFileValidationResult(accountsFilingId, accountValidationResult);
-        return ResponseEntity.ok(new ValidationState(accountValidationResult.resultApi().fileValidationStatusApi().toString()));
+        AccountsValidatorStatusApi accountsValidationResult = accountsValidationResultOptional.get();
+        accountsValidationServiceImpl.saveFileValidationResult(accountsFilingId, accountsValidationResult);
+        return ResponseEntity.ok(new ValidationState(accountsValidationResult.resultApi().fileValidationStatusApi().toString()));
     }
 
     /**

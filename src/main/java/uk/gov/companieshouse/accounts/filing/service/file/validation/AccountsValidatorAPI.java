@@ -12,12 +12,12 @@ import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 
 @Component
-public class AccountsValidationAPI {
+public class AccountsValidatorAPI {
 
     private final InternalApiClient internalApiClient;
 
     @Autowired
-    public AccountsValidationAPI(
+    public AccountsValidatorAPI(
             InternalApiClient internalApiClient) {
         this.internalApiClient = internalApiClient;
     }

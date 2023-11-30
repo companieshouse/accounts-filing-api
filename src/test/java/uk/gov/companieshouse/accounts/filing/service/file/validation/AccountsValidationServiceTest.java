@@ -49,7 +49,7 @@ class AccountsValidationServiceTest {
     ApiResponse<AccountsValidatorStatusApi> mockResponse;
 
     @Mock
-    AccountsValidationAPI api;
+    AccountsValidatorAPI api;
 
     AccountsValidationService service;
 

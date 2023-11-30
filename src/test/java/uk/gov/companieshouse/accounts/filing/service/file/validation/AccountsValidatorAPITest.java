@@ -28,7 +28,7 @@ import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
 
 
 @ExtendWith(MockitoExtension.class)
-class AccountsValidationAPITest {
+class AccountsValidatorAPITest {
 
 
     @Mock
@@ -40,11 +40,11 @@ class AccountsValidationAPITest {
     @Mock
     private ApiResponse<AccountsValidatorStatusApi> mockResponse;
 
-    private AccountsValidationAPI api;
+    private AccountsValidatorAPI api;
 
     @BeforeEach
     void setUp() {
-        this.api = new AccountsValidationAPI(internalApiClient);
+        this.api = new AccountsValidatorAPI(internalApiClient);
     }
 
     @Test

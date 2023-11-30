@@ -5,7 +5,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusA
 
 import java.util.Optional;
 
-public interface AccountsValidationStrategy {
+public interface AccountsValidationServiceImpl {
     
     public Optional<AccountsValidatorStatusApi> validationStatusResult(String fileId);
 

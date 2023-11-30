@@ -26,7 +26,7 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
 import uk.gov.companieshouse.accounts.filing.model.ValidationState;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationStrategy;
+import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationServiceImpl;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
@@ -42,7 +42,7 @@ class AccountsFilingTransactionControllerTest {
     Logger logger;
 
     @Mock
-    AccountsValidationStrategy accountValidationStrategy;
+    AccountsValidationServiceImpl accountsValidationServiceImpl;
 
     @Mock
     AccountsFilingRecord requestFilingStatus;
@@ -54,7 +54,7 @@ class AccountsFilingTransactionControllerTest {
     @BeforeEach
     void setUp() {
         controller = new TransactionController(
-            accountValidationStrategy,
+            accountsValidationServiceImpl,
             logger);
     }
 
@@ -68,7 +68,7 @@ class AccountsFilingTransactionControllerTest {
         AccountsValidatorStatusApi accountStatus = new AccountsValidatorStatusApi(fileId, fileName, "complete", accountStatusResult);
 
         // Given
-        when(accountValidationStrategy.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
+        when(accountsValidationServiceImpl.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         
         // When
         ResponseEntity<ValidationState> result = controller.fileValidationStatus(fileId, accountsFilingId);
@@ -79,7 +79,7 @@ class AccountsFilingTransactionControllerTest {
         ValidationState body = (ValidationState) result.getBody();
         assertNotNull(body);
         assertEquals("OK", body.state());
-        verify(accountValidationStrategy, times(1)).saveFileValidationResult(accountsFilingId, accountStatus);
+        verify(accountsValidationServiceImpl, times(1)).saveFileValidationResult(accountsFilingId, accountStatus);
     }
 
     @Test
@@ -89,7 +89,7 @@ class AccountsFilingTransactionControllerTest {
         String accountsFilingId = "accountsFilingId";
 
         // Given
-        when(accountValidationStrategy.validationStatusResult(fileId)).thenReturn(Optional.empty());
+        when(accountsValidationServiceImpl.validationStatusResult(fileId)).thenReturn(Optional.empty());
 
         // When
         ResponseEntity<ValidationState> result = controller.fileValidationStatus(fileId, accountsFilingId);

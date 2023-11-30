@@ -16,26 +16,26 @@ import uk.gov.companieshouse.logging.Logger;
 
 
 @Component
-public class AccountsValidationService implements AccountsValidationStrategy {
+public class AccountsValidationService implements AccountsValidationServiceImpl {
 
   private final Logger logger;
   private final AccountsFilingRepository requestFilingRepository;
-  private final AccountsValidationAPI accountsValidationAPI;
+  private final AccountsValidatorAPI accountsValidatorAPI;
 
   @Autowired
   public AccountsValidationService(
       Logger logger,
       AccountsFilingRepository requestFilingRepository,
-      AccountsValidationAPI accountsValidationAPI) {
+      AccountsValidatorAPI accountsValidatorAPI) {
     this.logger = logger;
     this.requestFilingRepository = requestFilingRepository;
-    this.accountsValidationAPI = accountsValidationAPI;
+    this.accountsValidatorAPI = accountsValidatorAPI;
   }
 
 
   @Override
   public Optional<AccountsValidatorStatusApi> validationStatusResult(final String fileId) {
-    ApiResponse<AccountsValidatorStatusApi> response = accountsValidationAPI.getValidationCheck(fileId);
+    ApiResponse<AccountsValidatorStatusApi> response = accountsValidatorAPI.getValidationCheck(fileId);
     HttpStatus status = HttpStatus.resolve(response.getStatusCode());
     switch (Objects.requireNonNull(status)) {
       case NOT_FOUND:
