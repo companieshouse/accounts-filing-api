@@ -24,7 +24,7 @@
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-		<jib-maven-plugin.version>3.1.1</jib-maven-plugin.version>
+		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<test-containers.version>1.19.2</test-containers.version>
 		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
 		<skip.integration.tests>false</skip.integration.tests>
@@ -35,7 +35,7 @@
 		<!-- internal -->
 		<structured-logging.version>2.0.3</structured-logging.version>
 		<api-sdk-manager-java-library.version>2.0.2</api-sdk-manager-java-library.version>
-		<private-api-sdk-java.version>3.0.6</private-api-sdk-java.version>
+		<private-api-sdk-java.version>4.0.4</private-api-sdk-java.version>
 		<api-helper-java-library.version>2.0.6</api-helper-java-library.version>
 		<api-helper-java.version>2.0.6</api-helper-java.version>
 		<api-security-java-version>1.0.2</api-security-java-version>
@@ -101,6 +101,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
 		</dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <scope>compile</scope>
+        </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
