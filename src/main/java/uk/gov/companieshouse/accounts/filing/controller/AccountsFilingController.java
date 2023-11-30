@@ -3,11 +3,13 @@ package uk.gov.companieshouse.accounts.filing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import uk.gov.companieshouse.accounts.filing.model.FilingRecord;
-import uk.gov.companieshouse.accounts.filing.model.FilingRequest;
-import uk.gov.companieshouse.accounts.filing.model.FilingResponse;
+import uk.gov.companieshouse.accounts.filing.model.ConfimCompanyResponse;
+import uk.gov.companieshouse.accounts.filing.model.ConfirmCompanyRecord;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -19,9 +21,9 @@ public class AccountsFilingController {
     private AccountsFilingRepository accountsFilingRepository;
 
     @Autowired
-    public AccountsFilingController(Logger logger,AccountsFilingRepository accountsFilingRepository) {
-        this.logger=logger;
-        this.accountsFilingRepository=accountsFilingRepository;
+    public AccountsFilingController(Logger logger, AccountsFilingRepository accountsFilingRepository) {
+        this.logger = logger;
+        this.accountsFilingRepository = accountsFilingRepository;
     }
 
     @GetMapping("/check")
@@ -30,20 +32,18 @@ public class AccountsFilingController {
 
     }
 
-    @PutMapping("/company/{company_number}/confirm")
-    public ResponseEntity<?> updateCompanyConfirmation(@PathVariable("company_number") int companyNumber, @RequestBody FilingRequest filingRequest){
-        logger.info(String.format(
-                "Processing company filing records for company number %s",
+    @PutMapping("/company/{company_number}/confirm/{transaction_id}")
+    public ResponseEntity<?> confirmCompany(@PathVariable("company_number") String companyNumber, @PathVariable("transaction_id")  String transactionId){
+        logger.info(String.format("Saving company number %s",
                 companyNumber));
-        if (filingRequest == null || filingRequest.getTransactionId().isEmpty()) {
-            return FilingResponse.badRequest();
+        if (transactionId == null || transactionId.isBlank()) {
+            return ConfimCompanyResponse.badRequest();
         }
         try {
-            var insertedFilingRecord = accountsFilingRepository.insert(new FilingRecord());
-            var record =  accountsFilingRepository.save(new FilingRecord(insertedFilingRecord.getId(), companyNumber, filingRequest.getTransactionId()));
-            return FilingResponse.success(record);
-        }catch(Exception ex){
-            return FilingResponse.requestNotFound();
+            ConfirmCompanyRecord companyRecord = new ConfirmCompanyRecord(null,companyNumber,transactionId);
+           return ConfimCompanyResponse.success(accountsFilingRepository.save(companyRecord));
+        } catch(Exception ex) {
+            return ConfimCompanyResponse.requestNotFound();
         }
     }
 }

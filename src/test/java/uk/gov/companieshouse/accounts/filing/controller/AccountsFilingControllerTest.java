@@ -7,16 +7,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.gov.companieshouse.accounts.filing.model.FilingRecord;
-import uk.gov.companieshouse.accounts.filing.model.FilingRequest;
+import uk.gov.companieshouse.accounts.filing.model.ConfirmCompanyRecord;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AccountsFilingControllerTest {
@@ -36,19 +35,23 @@ public class AccountsFilingControllerTest {
 
     @Test
     public void test_createFilingRecord_for_SuccessResponse (){
-        FilingRequest mockRequest = new FilingRequest(12345, "test123");
-        FilingRecord filingRecord = new FilingRecord();
-        FilingRecord expectedFilingRecord = new FilingRecord("insertedId", mockRequest.getCompanyNumber(), mockRequest.getTransactionId());
-
-        when(mockAccountsFilingRepository.insert(any(FilingRecord.class))).thenReturn(filingRecord);
-        when(mockAccountsFilingRepository.save(any(FilingRecord.class))).thenReturn(expectedFilingRecord);
-        var response = accountsFilingController.updateCompanyConfirmation(12345, mockRequest);
-        assertEquals(expectedFilingRecord, response.getBody());
+        ConfirmCompanyRecord mockRecord = new ConfirmCompanyRecord(null,"12345", "test123");
+        when(mockAccountsFilingRepository.save(any(ConfirmCompanyRecord.class))).thenReturn(mockRecord);
+        var response = accountsFilingController.confirmCompany("12345", "test123");
+        assertEquals(mockRecord, response.getBody());
     }
 
     @Test
     public void test_createFilingRecord_for_BadRequest (){
-        var response = accountsFilingController.updateCompanyConfirmation(12345, new FilingRequest(0, ""));
+        var response = accountsFilingController.confirmCompany("12345", "  ");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void test_createFilingRecord_for_RecordNotFound (){
+        ConfirmCompanyRecord mockRecord = new ConfirmCompanyRecord(null,"12345", "test123");
+        when(mockAccountsFilingRepository.save(any(ConfirmCompanyRecord.class))).thenThrow(new RuntimeException());
+        var response = accountsFilingController.confirmCompany("12345", "test123");
+        assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
 }
