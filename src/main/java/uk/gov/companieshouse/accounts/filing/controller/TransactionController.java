@@ -38,9 +38,8 @@ public class TransactionController {
             return ResponseEntity.notFound().build();
         }
 
-        AccountsValidatorStatusApi accountsValidationResult = accountsValidationResultOptional.get();
-        accountsValidationServiceImpl.saveFileValidationResult(accountsFilingId, accountsValidationResult);
-        return ResponseEntity.ok(new ValidationState(accountsValidationResult.resultApi().fileValidationStatusApi().toString()));
+        accountsValidationServiceImpl.saveFileValidationResult(accountsFilingId, accountsValidationResultOptional.get());
+        return ResponseEntity.ok(new ValidationState(accountsValidationResultOptional.get().resultApi().fileValidationStatusApi().toString()));
     }
 
     /**
