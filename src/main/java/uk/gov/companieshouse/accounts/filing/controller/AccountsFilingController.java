@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/accounts-filing")
 public class AccountsFilingController {
-
-    @GetMapping("/check")
-    public ResponseEntity<?> checking(){
-        return ResponseEntity.ok().body("it is just for testing");
-
+    
+    @GetMapping("/healthcheck")
+    public ResponseEntity<String> checking(){
+        return ResponseEntity.ok().body("OK");
     }
 }
