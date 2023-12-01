@@ -43,7 +43,7 @@ public class ApplicationConfiguration {
 
 
     /**
-     * Creates the internal user interceptor used by the application.
+     * Creates InternalUserInterceptor which checks the Api key has internal app privileges to access the application
      *
      * @return the internal user interceptor
      */
