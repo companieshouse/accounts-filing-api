@@ -29,7 +29,8 @@ public class ApplicationConfiguration {
      * @return the internal user interceptor
      */
     @Bean
-    public InternalUserInterceptor internalUserInterceptor() {return new InternalUserInterceptor(applicationNameSpace);
+    public InternalUserInterceptor internalUserInterceptor() {
+        return new InternalUserInterceptor(applicationNameSpace);
     }
 
 }
