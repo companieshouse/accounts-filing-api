@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.model.TransactionsRecord;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -70,17 +71,18 @@ class AccountsValidationServiceTest {
         String date = "01-01-2000";
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingRecord requestFilingStatus = AccountsFilingRecord.validateResult(accountFilingId, fileId, accountType);
+        TransactionsRecord requestFilingStatus = TransactionsRecord.validateResult(accountFilingId, fileId, accountType);
+        AccountsFilingRecord filingRecord = new AccountsFilingRecord(null,null,requestFilingStatus);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
-        when(accountsFilingRepository.save(requestFilingStatus)).thenReturn(requestFilingStatus);
+        when(accountsFilingRepository.save(filingRecord)).thenReturn(filingRecord);
 
         service.saveFileValidationResult(accountFilingId, accountsValidatorStatus);
 
-        verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
+        verify(accountsFilingRepository, times(1)).save(filingRecord);
     }
 
     @Test

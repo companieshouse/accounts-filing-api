@@ -3,26 +3,27 @@ package uk.gov.companieshouse.accounts.filing.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import uk.gov.companieshouse.accounts.filing.model.ConfrimCompanyResponse;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
 import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
-import uk.gov.companieshouse.accounts.filing.repository.CompanyRespository;
+import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
+
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/accounts-filing")
 public class AccountsFilingController {
     private Logger logger;
-    private CompanyRespository companyRespository;
+    private AccountsFilingRepository filingRepository;
 
     @Autowired
-    public AccountsFilingController(Logger logger, CompanyRespository companyRespository) {
+    public AccountsFilingController(Logger logger, AccountsFilingRepository filingRepository) {
         this.logger = logger;
-        this.companyRespository = companyRespository;
+        this.filingRepository = filingRepository;
     }
 
     @GetMapping("/healthcheck")
@@ -30,18 +31,52 @@ public class AccountsFilingController {
         return ResponseEntity.ok().body("OK");
     }
 
-    @PutMapping("/company/{company_number}/confirm/{transaction_id}")
-    public ResponseEntity<?> confirmCompany(@PathVariable("company_number") String companyNumber, @PathVariable("transaction_id")  String transactionId){
+    @PutMapping("/company/{companyNumber}/confirm/{transactionId}")
+    public ResponseEntity<?> confirmCompany(@PathVariable final String companyNumber, @PathVariable final String transactionId){
         logger.info(String.format("Saving company number %s",
                 companyNumber));
-        if (transactionId == null || transactionId.isBlank()) {
-            return ConfrimCompanyResponse.badRequest();
+        if (!isRequestValid(companyNumber) || !isRequestValid(transactionId)) {
+            return ResponseEntity.badRequest().build();
         }
         try {
-            CompanyRecord companyRecord = new CompanyRecord(null,companyNumber,transactionId);
-           return ConfrimCompanyResponse.success(companyRespository.save(companyRecord));
+            CompanyRecord companyRecord = new CompanyRecord(companyNumber,transactionId);
+            AccountsFilingRecord filingRecord = new AccountsFilingRecord(null,companyRecord,null);
+           return ResponseEntity.ok(new CompanyResponse(filingRepository.save(filingRecord).id()));
         } catch(Exception ex) {
-            return ConfrimCompanyResponse.requestNotFound();
+            return ResponseEntity.notFound().build();
         }
+    }
+
+    private boolean isRequestValid(String request) {
+        if (request == null || request.isBlank()) {
+            return false;
+        } else {
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$");
+            return pattern.matcher(request).matches();
+        }
+    }
+
+    /**
+     * Handles the exception thrown when there's a response problem
+     *
+     * @return 400 bad request response
+     */
+    @ExceptionHandler({ResponseException.class})
+    ResponseEntity<String> responseException(ResponseException e) {
+        logger.error("Unhandled response exception", e);
+        return ResponseEntity.badRequest().body("Api Response failed. " + e.getMessage());
+    }
+
+    /**
+     * Handles all un-caught exceptions
+     *
+     * @param ex the exception
+     * @return 500 internal server error response
+     */
+    @ExceptionHandler
+    ResponseEntity<String> exceptionHandler(Exception ex) {
+        logger.error("Unhandled exception", ex);
+
+        return ResponseEntity.internalServerError().build();
     }
 }
