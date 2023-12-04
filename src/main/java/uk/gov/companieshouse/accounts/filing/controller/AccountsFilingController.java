@@ -6,9 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
-import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -39,9 +38,8 @@ public class AccountsFilingController {
             return ResponseEntity.badRequest().build();
         }
         try {
-            CompanyRecord companyRecord = new CompanyRecord(companyNumber,transactionId);
-            AccountsFilingRecord filingRecord = new AccountsFilingRecord(null,companyRecord,null);
-           return ResponseEntity.ok(new CompanyResponse(filingRepository.save(filingRecord).id()));
+            AccountsFilingEntry entry = new AccountsFilingEntry(null, null, null,null,companyNumber,transactionId);
+           return ResponseEntity.ok(new CompanyResponse(filingRepository.save(entry).getAccountFilingId()));
         } catch(Exception ex) {
             return ResponseEntity.notFound().build();
         }

@@ -8,8 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
-import uk.gov.companieshouse.accounts.filing.model.CompanyRecord;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
@@ -35,15 +34,13 @@ public class AccountsFilingControllerTest {
         accountsFilingController = new AccountsFilingController(
                 logger, mockAccountsFilingRepository);
     }
-
     @Test
     public void test_confirmCompany_for_SuccessResponse (){
-        CompanyRecord mockRecord = new CompanyRecord("12345", "test123");
-        AccountsFilingRecord filingRecord = new AccountsFilingRecord("mockId",mockRecord,null);
-        when(mockAccountsFilingRepository.save(any(AccountsFilingRecord.class))).thenReturn(filingRecord);
+        AccountsFilingEntry filingEntry = new AccountsFilingEntry("mockAccountFilingId",null,null,null,"12345", "test123");
+        when(mockAccountsFilingRepository.save(any(AccountsFilingEntry.class))).thenReturn(filingEntry);
         ResponseEntity<?> response = accountsFilingController.confirmCompany("12345", "test123");
         CompanyResponse res = (CompanyResponse) response.getBody();
-        assertEquals(filingRecord.id(), res.id());
+        assertEquals(filingEntry.getAccountFilingId(), res.accountFilingId());
     }
 
     @Test
@@ -54,10 +51,9 @@ public class AccountsFilingControllerTest {
 
     @Test
     public void test_confirmCompany_for_RecordNotFound (){
-        CompanyRecord mockRecord = new CompanyRecord("12345", "test123");
-        AccountsFilingRecord filingRecord = new AccountsFilingRecord(null,mockRecord,null);
-        when(mockAccountsFilingRepository.save(any(AccountsFilingRecord.class))).thenThrow(new RuntimeException());
-        var response = accountsFilingController.confirmCompany("12345", "test123");
+        AccountsFilingEntry filingEntry = new AccountsFilingEntry("mockAccountFilingId",null,null,null,"12345", "test123");
+        when(mockAccountsFilingRepository.save(any(AccountsFilingEntry.class))).thenThrow(new RuntimeException());
+        ResponseEntity<?> response = accountsFilingController.confirmCompany("12345", "test123");
         assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
     }
 
