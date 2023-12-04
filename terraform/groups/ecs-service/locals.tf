@@ -6,7 +6,7 @@ locals {
   container_port            = "3000" # default port required here until prod docker container is built allowing port change via env var
   docker_repo               = "accounts-filing-api"
   lb_listener_rule_priority = 15
-  lb_listener_paths         = ["/accounts-filing.*", "/transactions/.*/accounts-filing.*"]
+  lb_listener_paths         = ["/accounts-filing/*", "/transactions/*/accounts-filing/*"]
   healthcheck_path          = "/accounts-filing/healthcheck" #healthcheck path for accounts-filing-api
   healthcheck_matcher       = "200"
 
