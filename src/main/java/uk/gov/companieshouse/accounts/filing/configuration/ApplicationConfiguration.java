@@ -3,6 +3,7 @@ package uk.gov.companieshouse.accounts.filing.configuration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.http.ApiKeyHttpClient;
@@ -29,18 +30,26 @@ public class ApplicationConfiguration {
     public InternalApiClient internalApiClient(
             @Value("${api.base.path}") String apiBasePath,
             @Value("${internal.api.base.path}") String internalApiBasePath,
-            @Value("${payments.api.base.path}") String paymentsApiBasePath,
             @Value("${internal.api.key}") String internalApiKey
     ) {
         ApiKeyHttpClient httpClient = new ApiKeyHttpClient(internalApiKey);
         InternalApiClient internalApiClient = new InternalApiClient(httpClient);
 
         internalApiClient.setBasePath(internalApiBasePath);
-        internalApiClient.setBasePaymentsPath(paymentsApiBasePath);
         internalApiClient.setInternalBasePath(internalApiBasePath);
 
         return internalApiClient;
     }
 
+
+    /**
+     * Creates InternalUserInterceptor which checks the Api key has internal app privileges to access the application
+     *
+     * @return the internal user interceptor
+     */
+    @Bean
+    public InternalUserInterceptor internalUserInterceptor() {
+        return new InternalUserInterceptor(applicationNameSpace);
+    }
 
 }
