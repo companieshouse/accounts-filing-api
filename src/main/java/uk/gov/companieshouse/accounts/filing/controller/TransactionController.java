@@ -39,6 +39,7 @@ public class TransactionController {
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
         }
 
+        //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
         return ResponseEntity.of(accountsValidationResultOptional);
     }
 
