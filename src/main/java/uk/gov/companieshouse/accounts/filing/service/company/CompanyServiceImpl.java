@@ -2,7 +2,6 @@ package uk.gov.companieshouse.accounts.filing.service.company;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;

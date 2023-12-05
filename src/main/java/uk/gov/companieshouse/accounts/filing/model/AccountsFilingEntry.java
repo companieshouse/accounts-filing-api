@@ -27,7 +27,6 @@ public class AccountsFilingEntry {
 
     @Field()
     private String companyNumber;
-
     public AccountsFilingEntry(String accountsFilingId, String fileId, String accountsType, PackageType packageType,
                                String transactionId, String companyNumber) {
         this.accountsFilingId = accountsFilingId;

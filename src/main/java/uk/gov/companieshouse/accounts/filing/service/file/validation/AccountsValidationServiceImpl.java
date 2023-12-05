@@ -62,7 +62,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
       freshEntry = entry.get();
       freshEntry.setFileId(fileId);
       freshEntry.setAccountsType(accountsType);
-    }else {
+    }else{
       freshEntry = new AccountsFilingEntry(accountFilingId, fileId, accountsType, null, null, null);
     }
     requestFilingRepository.save(freshEntry);
