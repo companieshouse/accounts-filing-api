@@ -56,8 +56,16 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   public void saveFileValidationResult(String accountFilingId, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
     String accountType = accountStatus.resultApi().data().accountType();
-    AccountsFilingEntry filingEntry = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null,null);
-    requestFilingRepository.save(filingEntry);
+    Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountFilingId);
+    AccountsFilingEntry freshEntry;
+    if(entry.isPresent()){
+      freshEntry = entry.get();
+      freshEntry.setFileId(fileId);
+      freshEntry.setAccountType(accountType);
+    }else {
+      freshEntry = new AccountsFilingEntry(accountFilingId, fileId, accountType, null, null, null);
+    }
+    requestFilingRepository.save(freshEntry);
 
     var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
                                 fileId, fileId, accountType);

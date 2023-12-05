@@ -3,6 +3,8 @@ package uk.gov.companieshouse.accounts.filing.service.file.validation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -76,6 +78,7 @@ class AccountsValidationServiceTest {
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
+        when(accountsFilingRepository.findById(anyString())).thenReturn(Optional.of(requestFilingStatus));
         when(accountsFilingRepository.save(requestFilingStatus)).thenReturn(requestFilingStatus);
 
         service.saveFileValidationResult(accountFilingId, accountsValidatorStatus);
