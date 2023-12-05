@@ -11,13 +11,13 @@ import org.springframework.data.annotation.Id;
 public class AccountsFilingEntry {
 
     @Id
-    private String accountFilingId;
+    private String accountsFilingId;
 
     @Field()
     private String fileId;
 
     @Field()
-    private String accountType;
+    private String accountsType;
 
     @Field()
     private PackageType packageType;
@@ -28,29 +28,29 @@ public class AccountsFilingEntry {
     @Field()
     private String companyNumber;
 
-    public AccountsFilingEntry(String accountFilingId, String fileId, String accountType, PackageType packageType,
+    public AccountsFilingEntry(String accountsFilingId, String fileId, String accountsType, PackageType packageType,
                                String transactionId, String companyNumber) {
-        this.accountFilingId = accountFilingId;
+        this.accountsFilingId = accountsFilingId;
         this.fileId = fileId;
-        this.accountType = accountType;
+        this.accountsType = accountsType;
         this.packageType = packageType;
         this.transactionId = transactionId;
         this.companyNumber = companyNumber;
     }
 
-    public AccountsFilingEntry(String accountFilingId) {
-        this.accountFilingId = accountFilingId;
+    public AccountsFilingEntry(String accountsFilingId) {
+        this.accountsFilingId = accountsFilingId;
     }
 
 
     public AccountsFilingEntry validateResult(String fileId, String accountType){
-        setAccountType(accountType);
+        setAccountsType(accountType);
         setFileId(fileId);
         return this;
     }
 
     public String getAccountFilingId() {
-        return accountFilingId;
+        return accountsFilingId;
     }
 
     public String getFileId() {
@@ -61,12 +61,12 @@ public class AccountsFilingEntry {
         this.fileId = fileId;
     }
 
-    public String getAccountType() {
-        return accountType;
+    public String getAccountsType() {
+        return accountsType;
     }
 
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
+    public void setAccountsType(String accountsType) {
+        this.accountsType = accountsType;
     }
 
     public PackageType getPackageType() {
@@ -89,9 +89,9 @@ public class AccountsFilingEntry {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((accountFilingId == null) ? 0 : accountFilingId.hashCode());
+        result = prime * result + ((accountsFilingId == null) ? 0 : accountsFilingId.hashCode());
         result = prime * result + ((fileId == null) ? 0 : fileId.hashCode());
-        result = prime * result + ((accountType == null) ? 0 : accountType.hashCode());
+        result = prime * result + ((accountsType == null) ? 0 : accountsType.hashCode());
         result = prime * result + ((packageType == null) ? 0 : packageType.hashCode());
         result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
         result = prime * result + ((companyNumber == null) ? 0 : companyNumber.hashCode());
@@ -104,20 +104,20 @@ public class AccountsFilingEntry {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         AccountsFilingEntry other = (AccountsFilingEntry) obj;
-        if (accountFilingId == null) {
-            if (other.accountFilingId != null)
+        if (accountsFilingId == null) {
+            if (other.accountsFilingId != null)
                 return false;
-        } else if (!accountFilingId.equals(other.accountFilingId))
+        } else if (!accountsFilingId.equals(other.accountsFilingId))
             return false;
         if (fileId == null) {
             if (other.fileId != null)
                 return false;
         } else if (!fileId.equals(other.fileId))
             return false;
-        if (accountType == null) {
-            if (other.accountType != null)
+        if (accountsType == null) {
+            if (other.accountsType != null)
                 return false;
-        } else if (!accountType.equals(other.accountType))
+        } else if (!accountsType.equals(other.accountsType))
             return false;
         if (packageType == null) {
             if (other.packageType != null)
@@ -139,8 +139,8 @@ public class AccountsFilingEntry {
 
     @Override
     public String toString() {
-        return "AccountsFilingEntry [accountFilingId=" + accountFilingId + ", fileId=" + fileId + ", accountType="
-                + accountType + ", packageType=" + packageType + ", transactionId=" + transactionId + ", companyNumber="
+        return "AccountsFilingEntry [accountsFilingId=" + accountsFilingId + ", fileId=" + fileId + ", accountsType="
+                + accountsType + ", packageType=" + packageType + ", transactionId=" + transactionId + ", companyNumber="
                 + companyNumber + "]";
     }
 

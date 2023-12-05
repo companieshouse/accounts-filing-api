@@ -33,7 +33,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidat
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
-class AccountsFilingTransactionControllerTest {
+class TransactionControllerTest {
     
     TransactionController controller;
     
