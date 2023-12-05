@@ -2,6 +2,7 @@ package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -84,6 +85,29 @@ class AccountsValidationServiceTest {
         service.saveFileValidationResult(accountFilingId, accountsValidatorStatus);
 
         verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
+    }
+
+    @Test
+    @DisplayName("When document is not found")
+    void testSaveFileValidationResult_when_document_not_found() {
+        String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
+        String accountStatus = "OK";
+        String accountFilingId = "accountFilingId";
+        String accountType = "accountType";
+        String fileName = "fileName";
+        String date = "01-01-2000";
+        String registationNumber = "0";
+        AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
+
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
+        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
+                validationStatus, accountsValidatorStatusApi);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
+
+        Optional<AccountsFilingEntry> accountsFilingEntry = Optional.empty();
+        when(accountsFilingRepository.findById(anyString())).thenReturn(accountsFilingEntry);
+        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveFileValidationResult(accountFilingId, accountsValidatorStatus));
+        assertEquals("document not found", exception.getMessage());
     }
 
     @Test

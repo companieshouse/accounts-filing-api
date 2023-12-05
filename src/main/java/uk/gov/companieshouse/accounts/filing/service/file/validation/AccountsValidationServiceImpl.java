@@ -53,22 +53,27 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   }
 
   @Override
-  public void saveFileValidationResult(String accountFilingId, AccountsValidatorStatusApi accountStatus) {
+  public void saveFileValidationResult(String accountsFilingId, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
     String accountsType = accountStatus.resultApi().data().accountType();
-    Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountFilingId);
+    Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountsFilingId);
     AccountsFilingEntry freshEntry;
-    if(entry.isPresent()){
-      freshEntry = entry.get();
-      freshEntry.setFileId(fileId);
-      freshEntry.setAccountsType(accountsType);
-    }else{
-      freshEntry = new AccountsFilingEntry(accountFilingId, fileId, accountsType, null, null, null);
+    if (entry.isPresent()) {
+       freshEntry = entry.get();
+       freshEntry.setFileId(fileId);
+       freshEntry.setAccountsType(accountsType);
+    } else {
+       var message = "document not found";
+       logger.errorContext(accountsFilingId, message, null, Map.of(
+              "expected", "accountsFilingId",
+              "actual", accountsFilingId
+       ));
+       throw new RuntimeException(message);
     }
     requestFilingRepository.save(freshEntry);
 
     var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
-                                fileId, fileId, accountsType);
+            fileId, fileId, accountsType);
     logger.debug(message);
   }
 

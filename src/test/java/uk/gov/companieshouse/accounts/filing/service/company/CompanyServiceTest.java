@@ -12,6 +12,7 @@ import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository
 import uk.gov.companieshouse.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -44,10 +45,7 @@ public class CompanyServiceTest {
     void testFailedToSaveCompanyNumberAndTransactionId() {
         AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123");
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenThrow(new RuntimeException("mockException"));
-        try{
-            service.saveCompanyNumberAndTransactionId("12345", "test123");
-        } catch (Exception ex){
-            assertEquals(ex.getMessage(), "mockException");
-        }
+        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123"));
+        assertEquals("mockException", exception.getMessage());
     }
 }
