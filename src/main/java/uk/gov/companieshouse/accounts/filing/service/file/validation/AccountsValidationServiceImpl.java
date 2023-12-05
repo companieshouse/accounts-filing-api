@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -56,15 +55,15 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   @Override
   public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
-    String accountType = accountStatus.resultApi().data().accountType();
+    String accountsType = accountStatus.resultApi().data().accountType();
 
-    accountsFilingEntry.setAccountType(accountType);
+    accountsFilingEntry.setAccountsType(accountsType);
     accountsFilingEntry.setFileId(fileId);
 
     requestFilingRepository.save(accountsFilingEntry);
 
     var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
-                                accountsFilingEntry.getAccountFilingId(), fileId, accountType);
+                                accountsFilingEntry.getAccountsFilingId(), fileId, accountsType);
     logger.debug(message);
   }
 
@@ -75,9 +74,11 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     if(filingEntry.isPresent()){
       return filingEntry.get();
     }
-    var message = String.format("Account filing id: %s could not be found.", accountsFilingId);
-    logger.error(message);
-    throw new ResponseException(message);
+    var message = "document not found";
+        logger.errorContext(accountsFilingId, message, null, Map.of(
+              "expected", "accountsFilingId",
+              "actual", accountsFilingId ));
+        throw new RuntimeException(message);
   }
 
 }

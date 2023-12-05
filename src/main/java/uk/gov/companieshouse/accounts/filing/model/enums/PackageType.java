@@ -13,7 +13,6 @@ public enum PackageType {
     OVERSEAS("overseas"),
     AUDIT_EXEMPT_SUBSIDIARY("Audit Exempt Subsidiary"),
     FILING_EXEMPT_SUBSIDIARY("Filing Exempt Subsidiary");
-    ;
 
     private final String type;
 
@@ -41,4 +40,3 @@ public enum PackageType {
         return Optional.empty();
     }
 }
-

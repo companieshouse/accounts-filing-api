@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -84,12 +83,12 @@ class AccountsValidationServiceTest {
         when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.empty());
 
         //then
-        assertThrows(ResponseException.class, () -> service.getFilingEntry(accountFilingId));
+        assertThrows(RuntimeException.class, () -> service.getFilingEntry(accountFilingId));
         verify(accountsFilingRepository, times(1)).findById(accountFilingId);
     }
 
     @Test
-    @DisplayName("Save an accounts validation results are save to the repository")
+    @DisplayName("Save an accounts validation results to the repository")
     void testSaveFileValidationResult() {
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
         String accountStatus = "OK";
@@ -99,9 +98,7 @@ class AccountsValidationServiceTest {
         String date = "01-01-2000";
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId);
-        requestFilingStatus.setAccountType(accountType);
-        requestFilingStatus.setFileId(fileId);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
