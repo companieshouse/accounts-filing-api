@@ -2,10 +2,7 @@ package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +60,35 @@ class AccountsValidationServiceTest {
     }
 
     @Test
-    @DisplayName("Save an accounts validation results are save to the repository")
+    @DisplayName("Get account filing entry from DB.")
+    void testGetFilingEntry() {
+        var accountFilingId = "accountFilingId";
+        var filingEntry = new AccountsFilingEntry(accountFilingId);
+        
+        //when
+        when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.of(filingEntry));
+
+        //then
+        var actualFilingEntry = service.getFilingEntry(accountFilingId);
+        assertThat(actualFilingEntry, is(filingEntry));
+        verify(accountsFilingRepository, times(1)).findById(accountFilingId);
+    }
+
+    @Test
+    @DisplayName("Failed to find account filing entry from DB.")
+    void testFailedToGetFilingEntry() {
+        var accountFilingId = "accountFilingId";
+
+        //when
+        when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(RuntimeException.class, () -> service.getFilingEntry(accountFilingId));
+        verify(accountsFilingRepository, times(1)).findById(accountFilingId);
+    }
+
+    @Test
+    @DisplayName("Save an accounts validation results to the repository")
     void testSaveFileValidationResult() {
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
         String accountStatus = "OK";
@@ -79,35 +104,11 @@ class AccountsValidationServiceTest {
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
-        when(accountsFilingRepository.findById(anyString())).thenReturn(Optional.of(requestFilingStatus));
         when(accountsFilingRepository.save(requestFilingStatus)).thenReturn(requestFilingStatus);
 
-        service.saveFileValidationResult(accountFilingId, accountsValidatorStatus);
+        service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus);
 
         verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
-    }
-
-    @Test
-    @DisplayName("When document is not found")
-    void testSaveFileValidationResult_when_document_not_found() {
-        String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
-        String accountStatus = "OK";
-        String accountFilingId = "accountFilingId";
-        String accountType = "accountType";
-        String fileName = "fileName";
-        String date = "01-01-2000";
-        String registationNumber = "0";
-        AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-
-        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
-        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
-                validationStatus, accountsValidatorStatusApi);
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
-
-        Optional<AccountsFilingEntry> accountsFilingEntry = Optional.empty();
-        when(accountsFilingRepository.findById(anyString())).thenReturn(accountsFilingEntry);
-        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveFileValidationResult(accountFilingId, accountsValidatorStatus));
-        assertEquals("document not found", exception.getMessage());
     }
 
     @Test

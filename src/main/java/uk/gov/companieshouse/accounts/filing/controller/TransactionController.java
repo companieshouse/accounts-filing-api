@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
-import uk.gov.companieshouse.accounts.filing.model.ValidationState;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.logging.Logger;
@@ -31,16 +31,16 @@ public class TransactionController {
     }
     
     @GetMapping("/file/{fileId}/status")
-    public ResponseEntity<ValidationState> fileValidationStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
-
+    public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
         Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
-        if (accountsValidationResultOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        if (accountsValidationResultOptional.isPresent()) {
+            AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
+            accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
         }
 
-        accountsValidationService.saveFileValidationResult(accountsFilingId, accountsValidationResultOptional.get());
-        return ResponseEntity.ok(new ValidationState(accountsValidationResultOptional.get().resultApi().fileValidationStatusApi().toString()));
+        //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
+        return ResponseEntity.of(accountsValidationResultOptional);
     }
 
     /**

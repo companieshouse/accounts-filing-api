@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import uk.gov.companieshouse.accounts.filing.model.ValidationState;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
@@ -56,31 +56,32 @@ class TransactionControllerTest {
 
     @Test
     @DisplayName("Request the validation status of a file")
-    void testRequestingFileValidationStatus() {
+    void testRequestingFileAccountsValidatorStatus() {
         String fileId = "fileId";
         String accountsFilingId = "accountsFilingId";
         String fileName = "fileName";
         var accountStatusResult = new AccountsValidatorResultApi(AccountsValidatorDataApi, null, AccountsValidatorValidationStatusApi.OK);
         AccountsValidatorStatusApi accountStatus = new AccountsValidatorStatusApi(fileId, fileName, "complete", accountStatusResult);
-
+        var filingEntry = new AccountsFilingEntry(accountsFilingId);
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
-        
+        when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
+
         // When
-        ResponseEntity<ValidationState> result = controller.fileValidationStatus(fileId, accountsFilingId);
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId, accountsFilingId);
 
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertInstanceOf(ValidationState.class, result.getBody());
-        ValidationState body = (ValidationState) result.getBody();
+        assertInstanceOf(AccountsValidatorStatusApi.class, result.getBody());
+        AccountsValidatorStatusApi body = (AccountsValidatorStatusApi) result.getBody();
         assertNotNull(body);
-        assertEquals("OK", body.state());
-        verify(accountsValidationService, times(1)).saveFileValidationResult(accountsFilingId, accountStatus);
+        assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
+        verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
     }
 
     @Test
     @DisplayName("Return 404 when the request the validation status is missing")
-    void testRequestingFileValidationStatusNotFound() {
+    void testRequestingFileAccountsValidatorStatusNotFound() {
         String fileId = "fileId";
         String accountsFilingId = "accountsFilingId";
 
@@ -88,7 +89,7 @@ class TransactionControllerTest {
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.empty());
 
         // When
-        ResponseEntity<ValidationState> result = controller.fileValidationStatus(fileId, accountsFilingId);
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId, accountsFilingId);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());

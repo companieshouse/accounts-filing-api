@@ -53,27 +53,32 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   }
 
   @Override
-  public void saveFileValidationResult(String accountsFilingId, AccountsValidatorStatusApi accountStatus) {
+  public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
     String accountsType = accountStatus.resultApi().data().accountType();
-    Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountsFilingId);
-    AccountsFilingEntry freshEntry;
-    if (entry.isPresent()) {
-        freshEntry = entry.get();
-        freshEntry.setFileId(fileId);
-        freshEntry.setAccountsType(accountsType);
-    } else {
-        var message = "document not found";
+
+    accountsFilingEntry.setAccountsType(accountsType);
+    accountsFilingEntry.setFileId(fileId);
+
+    requestFilingRepository.save(accountsFilingEntry);
+
+    var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
+                                accountsFilingEntry.getAccountsFilingId(), fileId, accountsType);
+    logger.debug(message);
+  }
+
+
+  @Override
+  public AccountsFilingEntry getFilingEntry(String accountsFilingId) {
+    Optional<AccountsFilingEntry> filingEntry = requestFilingRepository.findById(accountsFilingId);
+    if (filingEntry.isPresent()) {
+        return filingEntry.get();
+    }
+    var message = "document not found";
         logger.errorContext(accountsFilingId, message, null, Map.of(
               "expected", "accountsFilingId",
               "actual", accountsFilingId ));
         throw new RuntimeException(message);
-    }
-    requestFilingRepository.save(freshEntry);
-
-    var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
-            fileId, fileId, accountsType);
-    logger.debug(message);
   }
 
 }
