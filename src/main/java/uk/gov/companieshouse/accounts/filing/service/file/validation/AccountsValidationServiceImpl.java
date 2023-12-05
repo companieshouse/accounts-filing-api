@@ -59,16 +59,15 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountsFilingId);
     AccountsFilingEntry freshEntry;
     if (entry.isPresent()) {
-       freshEntry = entry.get();
-       freshEntry.setFileId(fileId);
-       freshEntry.setAccountsType(accountsType);
+        freshEntry = entry.get();
+        freshEntry.setFileId(fileId);
+        freshEntry.setAccountsType(accountsType);
     } else {
-       var message = "document not found";
-       logger.errorContext(accountsFilingId, message, null, Map.of(
+        var message = "document not found";
+        logger.errorContext(accountsFilingId, message, null, Map.of(
               "expected", "accountsFilingId",
-              "actual", accountsFilingId
-       ));
-       throw new RuntimeException(message);
+              "actual", accountsFilingId ));
+        throw new RuntimeException(message);
     }
     requestFilingRepository.save(freshEntry);
 
