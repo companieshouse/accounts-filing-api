@@ -32,6 +32,7 @@ public class TransactionController {
     
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<ValidationState> fileValidationStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
+
         Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
         if (accountsValidationResultOptional.isEmpty()) {

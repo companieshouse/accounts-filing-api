@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
@@ -53,13 +53,26 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   }
 
   @Override
-  public void saveFileValidationResult(String accountFilingId, AccountsValidatorStatusApi accountStatus) {
+  public void saveFileValidationResult(String accountsFilingId, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
-    String accountType = accountStatus.resultApi().data().accountType();
-    requestFilingRepository.save(AccountsFilingRecord.validateResult(accountFilingId, fileId, accountType));
+    String accountsType = accountStatus.resultApi().data().accountType();
+    Optional<AccountsFilingEntry> entry = requestFilingRepository.findById(accountsFilingId);
+    AccountsFilingEntry freshEntry;
+    if (entry.isPresent()) {
+        freshEntry = entry.get();
+        freshEntry.setFileId(fileId);
+        freshEntry.setAccountsType(accountsType);
+    } else {
+        var message = "document not found";
+        logger.errorContext(accountsFilingId, message, null, Map.of(
+              "expected", "accountsFilingId",
+              "actual", accountsFilingId ));
+        throw new RuntimeException(message);
+    }
+    requestFilingRepository.save(freshEntry);
 
     var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
-                                fileId, fileId, accountType);
+            fileId, fileId, accountsType);
     logger.debug(message);
   }
 

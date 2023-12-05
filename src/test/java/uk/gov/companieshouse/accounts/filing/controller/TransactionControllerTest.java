@@ -23,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
 import uk.gov.companieshouse.accounts.filing.model.ValidationState;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
@@ -34,7 +33,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidat
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
-class AccountsFilingTransactionControllerTest {
+class TransactionControllerTest {
     
     TransactionController controller;
     
@@ -43,9 +42,6 @@ class AccountsFilingTransactionControllerTest {
 
     @Mock
     AccountsValidationService accountsValidationService;
-
-    @Mock
-    AccountsFilingRecord requestFilingStatus;
 
     @Mock
     AccountsValidatorDataApi AccountsValidatorDataApi;
