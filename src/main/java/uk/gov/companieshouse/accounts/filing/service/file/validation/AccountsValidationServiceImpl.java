@@ -8,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
@@ -53,14 +54,30 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   }
 
   @Override
-  public void saveFileValidationResult(String accountFilingId, AccountsValidatorStatusApi accountStatus) {
+  public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry, AccountsValidatorStatusApi accountStatus) {
     String fileId = accountStatus.fileId();
     String accountType = accountStatus.resultApi().data().accountType();
-    requestFilingRepository.save(AccountsFilingRecord.validateResult(accountFilingId, fileId, accountType));
+
+    accountsFilingEntry.setAccountType(accountType);
+    accountsFilingEntry.setFileId(fileId);
+
+    requestFilingRepository.save(accountsFilingEntry);
 
     var message = String.format("Account filing id: %s has been updated to include file id: %s with account type: %s",
-                                fileId, fileId, accountType);
+                                accountsFilingEntry.getAccountFilingId(), fileId, accountType);
     logger.debug(message);
+  }
+
+
+  @Override
+  public AccountsFilingEntry getFilingEntry(String accountsFilingId) {
+    Optional<AccountsFilingEntry> filingEntry = requestFilingRepository.findById(accountsFilingId);
+    if(filingEntry.isPresent()){
+      return filingEntry.get();
+    }
+    var message = String.format("Account filing id: %s could not be found.", accountsFilingId);
+    logger.error(message);
+    throw new ResponseException(message);
   }
 
 }

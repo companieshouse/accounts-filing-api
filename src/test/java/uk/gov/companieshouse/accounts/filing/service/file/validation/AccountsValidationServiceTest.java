@@ -17,7 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.companieshouse.accounts.filing.model.AccountsFilingRecord;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -60,6 +61,34 @@ class AccountsValidationServiceTest {
     }
 
     @Test
+    @DisplayName("Get account filing entry from DB.")
+    void testGetFilingEntry() {
+        var accountFilingId = "accountFilingId";
+        var filingEntry = new AccountsFilingEntry(accountFilingId);
+        
+        //when
+        when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.of(filingEntry));
+
+        //then
+        var actualFilingEntry = service.getFilingEntry(accountFilingId);
+        assertThat(actualFilingEntry, is(filingEntry));
+        verify(accountsFilingRepository, times(1)).findById(accountFilingId);
+    }
+
+    @Test
+    @DisplayName("Failed to find account filing entry from DB.")
+    void testFailedToGetFilingEntry() {
+        var accountFilingId = "accountFilingId";
+
+        //when
+        when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(ResponseException.class, () -> service.getFilingEntry(accountFilingId));
+        verify(accountsFilingRepository, times(1)).findById(accountFilingId);
+    }
+
+    @Test
     @DisplayName("Save an accounts validation results are save to the repository")
     void testSaveFileValidationResult() {
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
@@ -70,7 +99,9 @@ class AccountsValidationServiceTest {
         String date = "01-01-2000";
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingRecord requestFilingStatus = AccountsFilingRecord.validateResult(accountFilingId, fileId, accountType);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId);
+        requestFilingStatus.setAccountType(accountType);
+        requestFilingStatus.setFileId(fileId);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
@@ -78,7 +109,7 @@ class AccountsValidationServiceTest {
 
         when(accountsFilingRepository.save(requestFilingStatus)).thenReturn(requestFilingStatus);
 
-        service.saveFileValidationResult(accountFilingId, accountsValidatorStatus);
+        service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus);
 
         verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
     }

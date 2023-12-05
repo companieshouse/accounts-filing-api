@@ -42,12 +42,10 @@ public class AccountsFilingEntry {
         this.accountFilingId = accountFilingId;
     }
 
-
-    public AccountsFilingEntry validateResult(String fileId, String accountType){
-        setAccountType(accountType);
-        setFileId(fileId);
-        return this;
+    AccountsFilingEntry() {
+        
     }
+
 
     public String getAccountFilingId() {
         return accountFilingId;
