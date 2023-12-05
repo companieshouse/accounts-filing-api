@@ -71,8 +71,8 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
   @Override
   public AccountsFilingEntry getFilingEntry(String accountsFilingId) {
     Optional<AccountsFilingEntry> filingEntry = requestFilingRepository.findById(accountsFilingId);
-    if(filingEntry.isPresent()){
-      return filingEntry.get();
+    if (filingEntry.isPresent()) {
+        return filingEntry.get();
     }
     var message = "document not found";
         logger.errorContext(accountsFilingId, message, null, Map.of(
