@@ -44,7 +44,7 @@ public class CompanyControllerTest {
     public void test_confirmCompany_for_SuccessResponse (){
         CompanyResponse mockResponse = new CompanyResponse("mockAccountsFilingId");
         when(mockCompanyService.saveCompanyNumberAndTransactionId(anyString(),anyString())).thenReturn(mockResponse);
-        var response = companyController.confirmCompany("12345", "test123");
+        var response = companyController.confirmCompany("12345", "test-123");
         CompanyResponse actualRes = (CompanyResponse) response.getBody();
         assertEquals(mockResponse.accountsFilingId(), actualRes.accountsFilingId());
     }

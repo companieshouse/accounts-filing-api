@@ -48,7 +48,7 @@ public class CompanyController {
         if (request == null || request.isBlank()) {
             return false;
         } else {
-            Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$");
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9-]+$");
             return pattern.matcher(request).matches();
         }
     }
