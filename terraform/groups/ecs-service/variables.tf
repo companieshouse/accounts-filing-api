@@ -65,6 +65,3 @@ variable "human_log" {
   type    = string
   default = "1"
 }
-variable "mongodb_url" {
-    type = string
-}

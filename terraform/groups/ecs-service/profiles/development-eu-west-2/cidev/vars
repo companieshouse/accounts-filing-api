@@ -3,4 +3,3 @@ aws_profile = "development-eu-west-2"
 
 api_url = "https://api.cidev.aws.chdev.org"
 log_level = "debug"
-mongodb_url = "mongodb://mongo/transactions_accounts"
