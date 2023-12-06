@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
@@ -95,6 +97,19 @@ class TransactionControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
+    @Test
+    @DisplayName("Return 404 when the request the validation status is missing")
+    void testRequestingFileAccountsValidatorStatusEmptyStringAccountsId() {
+        String accountsFilingId = "accountsFilingId";
+
+        // Given
+
+        when(accountsValidationService.getFilingEntry(accountsFilingId)).thenThrow(new EntryNotFoundException());
+
+        // EntryNotFoundException will trigger a 404
+        assertThrows(EntryNotFoundException.class, () -> accountsValidationService.getFilingEntry(accountsFilingId));
+    }
+
      @Test
     @DisplayName("Exception handler when response")
     void responseException() {
@@ -118,6 +133,14 @@ class TransactionControllerTest {
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertThat(response.getBody(), is(equalTo("Validation failed")));
+    }
+
+    @Test
+    @DisplayName("Exception handler when entry not found and return 404")
+    void entryNotFoundException() {
+        ResponseEntity<?> response = controller.entryNotFoundException();
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test

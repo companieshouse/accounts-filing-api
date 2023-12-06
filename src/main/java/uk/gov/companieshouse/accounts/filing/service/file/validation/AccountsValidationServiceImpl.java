@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -44,11 +47,13 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         return Optional.ofNullable(response.getData());
       default:
         var message = "Unexpected response status from account validator api when getting file details.";
-        logger.errorContext(fileId, message, null, Map.of(
+        
+        logger.errorContext(fileId, message, null, errorMessageMap(Map.of(
           "expected", "200 or 404",
           "status", response.getStatusCode()
-          ));
-        throw new RuntimeException(message);
+          )));
+        
+          throw new ResponseException(message);
     }
   }
 
@@ -74,11 +79,21 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     if (filingEntry.isPresent()) {
         return filingEntry.get();
     }
+
     var message = "document not found";
-        logger.errorContext(accountsFilingId, message, null, Map.of(
+        logger.errorContext(accountsFilingId, message, null, errorMessageMap(Map.of(
               "expected", "accountsFilingId",
-              "actual", accountsFilingId ));
-        throw new RuntimeException(message);
+              "actual", accountsFilingId )));
+        throw new EntryNotFoundException(message);
+  }
+
+  /**
+   * Makes immutable map; a mutable map.
+   * @param immutableMap
+   * @return
+   */
+  private Map<String, Object> errorMessageMap(Map<String, Object> immutableMap){
+    return new HashMap<>(immutableMap);
   }
 
 }

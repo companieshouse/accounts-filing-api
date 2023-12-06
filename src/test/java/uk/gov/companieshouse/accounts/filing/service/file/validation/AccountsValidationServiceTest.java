@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -83,7 +84,7 @@ class AccountsValidationServiceTest {
         when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.empty());
 
         //then
-        assertThrows(RuntimeException.class, () -> service.getFilingEntry(accountFilingId));
+        assertThrows(EntryNotFoundException.class, () -> service.getFilingEntry(accountFilingId));
         verify(accountsFilingRepository, times(1)).findById(accountFilingId);
     }
 

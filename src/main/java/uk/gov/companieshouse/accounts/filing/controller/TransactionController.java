@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
@@ -62,6 +63,11 @@ public class TransactionController {
     @ExceptionHandler({UriValidationException.class})
     ResponseEntity<String> validationException() {
         return ResponseEntity.badRequest().body("Validation failed");
+    }
+
+    @ExceptionHandler({EntryNotFoundException.class})
+    ResponseEntity<String> entryNotFoundException() {
+        return ResponseEntity.notFound().build();
     }
 
     /**
