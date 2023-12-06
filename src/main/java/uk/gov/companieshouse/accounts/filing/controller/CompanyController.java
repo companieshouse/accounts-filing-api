@@ -29,7 +29,7 @@ public class CompanyController {
     public ResponseEntity<?> confirmCompany(@PathVariable final String companyNumber, @PathVariable final String transactionId){
         logger.info(String.format("Saving company_number- %s  and transaction_id- %s ",
                 companyNumber, transactionId));
-        if (!isRequestValid(companyNumber) || !isRequestValid(transactionId)) {
+        if (!checkCompanyNumber(companyNumber) || !checkTransactionId(transactionId)) {
             return ResponseEntity.badRequest().build();
         }
         try {
@@ -40,16 +40,34 @@ public class CompanyController {
     }
 
     /**
-     * The method will check the input string is alphanumeric or not.
+     * The method will check the passed company number is in correct
+     * format or not. If it is in correct format, the method will return true
+     * else return false.
      *
      * @return boolean
      */
-    private boolean isRequestValid(String request) {
-        if (request == null || request.isBlank()) {
+    private boolean checkCompanyNumber(String companyNumber) {
+        if (companyNumber == null || companyNumber.isBlank()) {
             return false;
         } else {
             Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$");
-            return pattern.matcher(request).matches();
+            return pattern.matcher(companyNumber).matches();
+        }
+    }
+
+    /**
+     * The method will check the passed transaction id is in correct
+     * format or not. If it is in correct format, the method will return true
+     * else return false.
+     *
+     * @return boolean
+     */
+    private boolean checkTransactionId(String transactionId) {
+        if (transactionId == null || transactionId.isBlank()) {
+            return false;
+        } else {
+            Pattern pattern = Pattern.compile("^([0-9]{6}-[0-9]{6}-[0-9]{6})$");
+            return pattern.matcher(transactionId).matches();
         }
     }
 
