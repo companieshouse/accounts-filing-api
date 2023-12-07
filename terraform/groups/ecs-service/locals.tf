@@ -40,7 +40,7 @@ locals {
   task_secrets = [
     { "name" : "CHS_API_KEY", "valueFrom" : "${local.service_secrets_arn_map.chs_api_key}" },
     { "name" : "INTERNAL_API_URL", "valueFrom" : "${local.service_secrets_arn_map.internal_api_url}" },
-    { "name" : "MONGODB_URL", "value" : "${local.service_secrets_arn_map.mongodb_url}" }
+    { "name" : "MONGODB_URL", "valueFrom" : "${local.service_secrets_arn_map.mongodb_url}" }
   ]
 
   task_environment = [
