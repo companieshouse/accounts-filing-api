@@ -41,14 +41,12 @@ public class AccountsFilingEntry {
         this.accountsFilingId = accountsFilingId;
     }
 
-
-    public AccountsFilingEntry validateResult(String fileId, String accountType){
-        setAccountsType(accountType);
-        setFileId(fileId);
-        return this;
+    AccountsFilingEntry() {
+        
     }
 
-    public String getAccountFilingId() {
+
+    public String getAccountsFilingId() {
         return accountsFilingId;
     }
 

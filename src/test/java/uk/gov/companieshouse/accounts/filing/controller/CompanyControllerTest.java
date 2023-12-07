@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyControllerTest {
+class CompanyControllerTest {
 
     @InjectMocks
     CompanyController companyController;
@@ -41,7 +41,7 @@ public class CompanyControllerTest {
     }
     @Test
     @DisplayName("Return 200 on successfully confirming company")
-    public void test_confirmCompany_for_SuccessResponse (){
+    void test_confirmCompany_for_SuccessResponse (){
         CompanyResponse mockResponse = new CompanyResponse("mockAccountsFilingId");
         when(mockCompanyService.saveCompanyNumberAndTransactionId(anyString(),anyString())).thenReturn(mockResponse);
         var response = companyController.confirmCompany("CN123456", "000000-123456-000000");
@@ -51,7 +51,7 @@ public class CompanyControllerTest {
 
     @Test
     @DisplayName("Return 400 when either company number or Transaction Id are missing")
-    public void test_confirmCompany_for_BadRequest (){
+    void test_confirmCompany_for_BadRequest (){
         var response = companyController.confirmCompany("12345", "  ");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
@@ -72,7 +72,7 @@ public class CompanyControllerTest {
 
     @Test
     @DisplayName("Return 500 during unhandled runtime exception. For example mongodb services are down.")
-    public void test_confirmCompany_for_internal_server_error (){
+    void test_confirmCompany_for_internal_server_error (){
         CompanyResponse mockResponse = new CompanyResponse("mockAccountsFilingId");
         when(mockCompanyService.saveCompanyNumberAndTransactionId(anyString(),anyString())).thenThrow(new RuntimeException());
         ResponseEntity<?> response = companyController.confirmCompany("CN123456", "000000-123456-000000");
@@ -81,14 +81,14 @@ public class CompanyControllerTest {
 
     @Test
     @DisplayName("Return 400 when the request company number and Transaction Id are non alphanumeric")
-    public void test_confirmCompany_with_invalidRequest_return_BadRequest(){
+    void test_confirmCompany_with_invalidRequest_return_BadRequest(){
         var response = companyController.confirmCompany("@$$", "*^&^");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
     @Test
     @DisplayName("Return 400 when the request company number and Transaction Id are missing or empty")
-    public void test_confirmCompany_with_emptyInput_return_BadRequest(){
+    void test_confirmCompany_with_emptyInput_return_BadRequest(){
         var response = companyController.confirmCompany("   ", "");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
@@ -101,6 +101,8 @@ public class CompanyControllerTest {
         verify(logger).error("Unhandled exception", e);
         assertThat(response.getStatusCode(), CoreMatchers.is(HttpStatus.INTERNAL_SERVER_ERROR));
     }
+
+
 
     @Test
     @DisplayName("Exception handler when response")

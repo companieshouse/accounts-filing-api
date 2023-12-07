@@ -37,7 +37,7 @@ public class CompanyServiceTest {
         AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123");
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenReturn(mockEntry);
         CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123");
-        assertEquals(mockEntry.getAccountFilingId(), mockAccountsFilingId.accountsFilingId());
+        assertEquals(mockEntry.getAccountsFilingId(), mockAccountsFilingId.accountsFilingId());
     }
 
     @Test
