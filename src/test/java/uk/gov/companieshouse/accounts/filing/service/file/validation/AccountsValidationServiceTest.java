@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -110,6 +111,25 @@ class AccountsValidationServiceTest {
         service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus);
 
         verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
+    }
+
+    @Test
+    @DisplayName("Fail to deal with incomplete accounts validation result")
+    void testSaveFileValidationResultWithIncompleteAccountValidation() {
+
+        String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
+        String accountStatus = "OK";
+        String accountFilingId = "accountFilingId";
+        String accountType = "accountType";
+        String fileName = "fileName";
+        AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
+
+        AccountsValidatorDataApi accountsValidatorStatusApi = null;
+        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
+                                                                                              validationStatus, accountsValidatorStatusApi);
+
+        assertThrows(InvalidStateException.class, () -> service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus));
     }
 
     @Test

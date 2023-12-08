@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -57,7 +59,14 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry,
             AccountsValidatorStatusApi accountStatus) {
         String fileId = accountStatus.fileId();
-        String accountsType = accountStatus.resultApi().data().accountType();
+        Optional<AccountsValidatorDataApi> data = Optional.ofNullable(accountStatus.resultApi().data());
+        
+        if(data.isEmpty()){
+            var message = "File Validator is result is incomplete. Unable to obtain account type";
+            logger.error(message);
+            throw new InvalidStateException(message);
+        }
+        String accountsType = data.get().accountType();
 
         accountsFilingEntry.setAccountsType(accountsType);
         accountsFilingEntry.setFileId(fileId);
