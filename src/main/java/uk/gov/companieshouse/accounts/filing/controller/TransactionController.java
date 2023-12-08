@@ -8,14 +8,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.validation.Valid;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
+import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
+import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
@@ -24,15 +31,22 @@ public class TransactionController {
 
     private final Logger logger;
     private final AccountsValidationService accountsValidationService;
+    private final AccountsFilingService accountsFilingService;
+    private final TransactionService transactionService;
 
     @Autowired
-    public TransactionController(AccountsValidationService accountsValidationService, Logger logger) {
+    public TransactionController(AccountsValidationService accountsValidationService,
+                                 AccountsFilingService accountsFilingService,
+                                 TransactionService transactionService,
+                                 Logger logger) {
         this.accountsValidationService = accountsValidationService;
+        this.accountsFilingService = accountsFilingService;
+        this.transactionService = transactionService;
         this.logger = logger;
     }
     
     @GetMapping("/file/{fileId}/status")
-    public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
+    public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
         if (accountsValidationResultOptional.isPresent()) {
@@ -42,6 +56,25 @@ public class TransactionController {
 
         //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
         return ResponseEntity.of(accountsValidationResultOptional);
+    }
+
+    @PutMapping
+    public ResponseEntity<String> setPackageType(@PathVariable("transactionId") final String transactionId, 
+                                                 @PathVariable("accountsFilingId") final String accountsFilingId,
+                                                 @Valid @RequestBody final AccountsPackageType packageType)
+                                                 throws UriValidationException, EntryNotFoundException {
+        
+        AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
+        accountsFilingService.savePackageType(entry, packageType.type());
+        Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
+
+        if (optionalTransaction.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        transactionService.updateTransactionWithPackagetype(optionalTransaction.get(), accountsFilingId, packageType.type());
+        
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -65,6 +98,10 @@ public class TransactionController {
         return ResponseEntity.badRequest().body("Validation failed");
     }
 
+    /**
+     * Handles the exception thrown when an entry is not found by database or api.
+     * @return 404 not found response
+     */
     @ExceptionHandler({EntryNotFoundException.class})
     ResponseEntity<String> entryNotFoundException() {
         return ResponseEntity.notFound().build();
