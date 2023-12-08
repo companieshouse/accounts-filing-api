@@ -32,7 +32,7 @@ public class TransactionController {
     }
     
     @GetMapping("/file/{fileId}/status")
-    public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable final String fileId, @PathVariable final String accountsFilingId){
+    public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
         if (accountsValidationResultOptional.isPresent()) {
