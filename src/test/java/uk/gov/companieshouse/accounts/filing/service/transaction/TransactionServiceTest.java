@@ -129,16 +129,6 @@ class TransactionServiceTest {
     }
 
     @Test
-    void testUpdateTransactionWithPackagetypeWithNullTransaction() {
-        final Transaction transaction = null;
-        final var accountFilingId = "accountFilingId";
-        final var packageTypeString = "packageType";
-
-        assertThrows(IllegalArgumentException.class, () -> transactionService.updateTransactionWithPackagetype(transaction, accountFilingId, packageTypeString));
-        verify(logger, times(1)).error("transaction can not be null");
-    }
-
-    @Test
     void testUpdateTransactionWithPackagetypeWithInvalidParams() {
         final Transaction transaction = new Transaction();
         final String accountFilingId = null;

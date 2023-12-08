@@ -56,8 +56,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void updateTransaction(final Transaction transaction) {
 
-        checkTransactionIsNull(transaction);
-
         final ApiResponse<Void> response = transactionAPI.patch(transaction);
         final HttpStatus status = HttpStatus.resolve(response.getStatusCode());
         
@@ -73,8 +71,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void updateTransactionWithPackagetype(final Transaction transaction, final String accountsFilingId, final String packageType) {
-        
-        checkTransactionIsNull(transaction);
 
         checkUriVariablesAreNullOrBlank(accountsFilingId, packageType);
         
@@ -85,14 +81,6 @@ public class TransactionServiceImpl implements TransactionService {
         resource.setLinks(Collections.emptyMap());
         transaction.getResources().put(uri, resource);
         updateTransaction(transaction);
-    }
-
-    private void checkTransactionIsNull(Transaction transaction){
-        if(transaction == null){
-            var message = "transaction can not be null";
-            logger.error(message);
-            throw new IllegalArgumentException(message);
-        }
     }
 
     private void checkUriVariablesAreNullOrBlank(String ...variables){
