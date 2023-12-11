@@ -10,10 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -57,17 +59,17 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry,
             AccountsValidatorStatusApi accountStatus) {
         String fileId = accountStatus.fileId();
-        String accountsType = accountStatus.resultApi().data().accountType();
-
-        accountsFilingEntry.setAccountsType(accountsType);
-        accountsFilingEntry.setFileId(fileId);
-
-        requestFilingRepository.save(accountsFilingEntry);
+        AccountsValidatorDataApi data = Optional.ofNullable(accountStatus.resultApi().data())
+            .orElseThrow(InvalidStateException::new);
 
         var message = String.format(
                 "Account filing id: %s has been updated to include file id: %s with account type: %s",
-                accountsFilingEntry.getAccountsFilingId(), fileId, accountsType);
-        logger.debug(message);
+                accountsFilingEntry.getAccountsFilingId(), fileId, data.accountType());
+
+        accountsFilingEntry.setAccountsType(data.accountType());
+        accountsFilingEntry.setFileId(fileId);
+        requestFilingRepository.save(accountsFilingEntry);
+        logger.debugContext(accountsFilingEntry.getAccountsFilingId(), message, new HashMap<>());
     }
 
     @Override
