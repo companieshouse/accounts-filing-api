@@ -34,7 +34,7 @@
 
 		<!-- internal -->
 		<structured-logging.version>2.0.3</structured-logging.version>
-		<api-sdk-manager-java-library.version>3.0.1</api-sdk-manager-java-library.version>
+		<api-sdk-manager-java-library.version>3.0.2</api-sdk-manager-java-library.version>
 		<private-api-sdk-java.version>4.0.5</private-api-sdk-java.version>
 		<api-security-java-version>2.0.1</api-security-java-version>
 
@@ -125,6 +125,14 @@
 			<artifactId>snakeyaml</artifactId>
 			<version>2.0</version>
 		</dependency>
+		<!-- Temp addition for jackson-dataformat-yaml -->
+		<dependency>
+    		<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<!-- End -->
+
 		<!-- spring boot apis support libs ends-->
 		<!-- CH apis support libs starts-->
 		<dependency>
@@ -201,6 +209,14 @@
 			<artifactId>junit-jupiter-params</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Temp addition for spring-boot-starter -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.4.14</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- End -->
 		<!-- Junit testing libs end-->
 	</dependencies>
 
