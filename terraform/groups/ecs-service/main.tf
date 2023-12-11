@@ -20,7 +20,7 @@ terraform {
 }
 
 module "secrets" {
-  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.197"
+  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/secrets?ref=1.0.229"
 
   name_prefix = "${local.service_name}-${var.environment}"
   environment = var.environment
@@ -29,7 +29,7 @@ module "secrets" {
 }
 
 module "ecs-service" {
-  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/ecs-service?ref=1.0.197"
+  source = "git@github.com:companieshouse/terraform-modules//aws/ecs/ecs-service?ref=1.0.229"
 
   # Environmental configuration
   environment             = var.environment
@@ -66,6 +66,15 @@ module "ecs-service" {
   # Service environment variable and secret configs
   task_environment = local.task_environment
   task_secrets     = local.task_secrets
+
+  # Eric variables
+  use_eric_reverse_proxy  = local.use_eric_reverse_proxy
+  eric_port               = local.eric_port
+  eric_version            = local.eric_version
+  eric_cpus               = var.required_cpus
+  eric_memory             = var.required_memory
+  eric_environment        = local.eric_environment
+  eric_secrets            = local.eric_secrets
 
   depends_on = [module.secrets]
 }
