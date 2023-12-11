@@ -9,6 +9,7 @@ locals {
   lb_listener_paths         = ["/accounts-filing/*", "/transactions/*/accounts-filing/*"]
   healthcheck_path          = "/accounts-filing/healthcheck" #healthcheck path for accounts-filing-api
   healthcheck_matcher       = "200"
+  application_subnet_ids    = data.aws_subnets.application.ids
 
   # Enable Eric
   use_eric_reverse_proxy  = true
