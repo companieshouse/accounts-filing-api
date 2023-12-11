@@ -59,24 +59,17 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry,
             AccountsValidatorStatusApi accountStatus) {
         String fileId = accountStatus.fileId();
-        Optional<AccountsValidatorDataApi> data = Optional.ofNullable(accountStatus.resultApi().data());
-        
-        if(data.isEmpty()){
-            var message = "File Validator is result is incomplete. Unable to obtain account type";
-            logger.error(message);
-            throw new InvalidStateException(message);
-        }
-        String accountsType = data.get().accountType();
-
-        accountsFilingEntry.setAccountsType(accountsType);
-        accountsFilingEntry.setFileId(fileId);
-
-        requestFilingRepository.save(accountsFilingEntry);
+        AccountsValidatorDataApi data = Optional.ofNullable(accountStatus.resultApi().data())
+            .orElseThrow(InvalidStateException::new);
 
         var message = String.format(
                 "Account filing id: %s has been updated to include file id: %s with account type: %s",
-                accountsFilingEntry.getAccountsFilingId(), fileId, accountsType);
-        logger.debug(message);
+                accountsFilingEntry.getAccountsFilingId(), fileId, data.accountType());
+
+        accountsFilingEntry.setAccountsType(data.accountType());
+        accountsFilingEntry.setFileId(fileId);
+        requestFilingRepository.save(accountsFilingEntry);
+        logger.debugContext(accountsFilingEntry.getAccountsFilingId(), message, new HashMap<>());
     }
 
     @Override
