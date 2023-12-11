@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -86,7 +87,4 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
                 "actual", accountsFilingId)));
         throw new EntryNotFoundException(message);
     }
-
-
-
 }

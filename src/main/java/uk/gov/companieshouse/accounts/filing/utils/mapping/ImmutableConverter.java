@@ -13,7 +13,7 @@ public class ImmutableConverter {
      * @param immutableMap
      * @return
      */
-    public static Map<String, Object> toMutableMap(final Map<String, Object> immutableMap) {
+    public static <T> Map<String, T> toMutableMap(final Map<String, T> immutableMap) {
         return new HashMap<>(immutableMap);
     }
 }

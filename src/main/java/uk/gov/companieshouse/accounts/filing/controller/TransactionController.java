@@ -72,7 +72,7 @@ public class TransactionController {
             return ResponseEntity.notFound().build();
         }
 
-        transactionService.updateTransactionWithPackagetype(optionalTransaction.get(), accountsFilingId, packageType.type());
+        accountsFilingService.updateAccountsFilingTransaction(optionalTransaction.get(), accountsFilingId);
         
         return ResponseEntity.noContent().build();
     }

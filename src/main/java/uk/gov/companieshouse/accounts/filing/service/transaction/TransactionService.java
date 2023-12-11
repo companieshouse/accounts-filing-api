@@ -10,5 +10,4 @@ public interface TransactionService {
     
     public void updateTransaction(final Transaction transaction);
 
-    public void updateTransactionWithPackagetype(final Transaction transaction, final String accountFilingId, final String packageType);
 }

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateExcept
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
+import uk.gov.companieshouse.api.charges.TransactionsApi;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.accountvalidator.PrivateAccountsValidatorResourceHandler;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -35,8 +36,12 @@ import uk.gov.companieshouse.logging.Logger;
 @ExtendWith(MockitoExtension.class)
 class AccountsValidationServiceTest {
 
+
     @Mock
     AccountsFilingRepository accountsFilingRepository;
+
+    @Mock
+    TransactionsApi transactionsApi;
 
     @Mock
     InternalApiClient internalApiClient;
