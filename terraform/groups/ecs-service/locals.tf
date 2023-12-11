@@ -16,6 +16,9 @@ locals {
   eric_port               = "3001" # container port plus 1
   eric_version            = "latest"
 
+  stack_secrets              = jsondecode(data.vault_generic_secret.stack_secrets.data_json)
+  application_subnet_pattern = local.stack_secrets["application_subnet_pattern"]
+
   kms_alias       = "alias/${var.aws_profile}/environment-services-kms"
   service_secrets = jsondecode(data.vault_generic_secret.service_secrets.data_json)
 
