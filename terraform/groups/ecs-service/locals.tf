@@ -10,6 +10,11 @@ locals {
   healthcheck_path          = "/accounts-filing/healthcheck" #healthcheck path for accounts-filing-api
   healthcheck_matcher       = "200"
 
+  # Enable Eric
+  use_eric_reverse_proxy  = true
+  eric_port               = "3001" # container port plus 1
+  eric_version            = "latest"
+
   kms_alias       = "alias/${var.aws_profile}/environment-services-kms"
   service_secrets = jsondecode(data.vault_generic_secret.service_secrets.data_json)
 
@@ -47,5 +52,12 @@ locals {
     { "name" : "API_URL", "value" : "${var.api_url}" },
     { "name" : "HUMAN_LOG", "value" : "${var.human_log}" },
     { "name" : "LOG_LEVEL", "value" : "${var.log_level}" }
+  ]
+
+  eric_secrets = []
+
+  eric_environment = [
+    { "name": "LOGLEVEL", "value": "debug" },
+    { "name": "MODE", "value": "api" }
   ]
 }
