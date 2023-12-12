@@ -106,3 +106,9 @@ variable "human_log" {
   type    = string
   default = "1"
 }
+variable "account_api_url" {
+  type = string
+}
+variable "developer_hub_url" {
+  type = string
+}

@@ -4,6 +4,10 @@ aws_profile = "staging-eu-west-2"
 api_url = "https://private-api-staging.company-information.service.gov.uk"
 log_level = "info"
 
+# Eric variables
+account_api_url = "https://identity-staging.company-information.service.gov.uk"
+developer_hub_url = "https://developer-staging.company-information.service.gov.uk"
+
 # Scheduled scaling of tasks
 service_autoscale_enabled  = true
 service_scaledown_schedule = "55 19 * * ? *"
