@@ -46,10 +46,51 @@ variable "use_fargate" {
   description = "If true, sets the required capabilities for all containers in the task definition to use FARGATE, false uses EC2"
   default     = false
 }
+variable "use_capacity_provider" {
+  type        = bool
+  description = "Whether to use a capacity provider instead of setting a launch type for the service"
+  default     = true
+}
+variable "service_autoscale_enabled" {
+  type        = bool
+  description = "Whether to enable service autoscaling, including scheduled autoscaling"
+  default     = true
+}
+variable "service_autoscale_target_value_cpu" {
+  type        = number
+  description = "Target CPU percentage for the ECS Service to autoscale on"
+  default     = 50 # 100 disables autoscaling using CPU as a metric
+}
+variable "service_scaledown_schedule" {
+  type        = string
+  description = "The schedule to use when scaling down the number of tasks to zero."
+  # Typically used to stop all tasks in a service to save resource costs overnight.
+  # E.g. a value of '55 19 * * ? *' would be Mon-Sun 7:55pm.  An empty string indicates that no schedule should be created.
+
+  default     = ""
+}
+variable "service_scaleup_schedule" {
+  type        = string
+  description = "The schedule to use when scaling up the number of tasks to their normal desired level."
+  # Typically used to start all tasks in a service after it has been shutdown overnight.
+  # E.g. a value of '5 6 * * ? *' would be Mon-Sun 6:05am.  An empty string indicates that no schedule should be created.
+
+  default     = ""
+}
 variable "accounts_filing_api_version" {
   type        = string
   description = "The version of the accounts filing api container to run."
 }
+
+# ----------------------------------------------------------------------
+# Cloudwatch alerts
+# ----------------------------------------------------------------------
+variable "cloudwatch_alarms_enabled" {
+  description = "Whether to create a standard set of cloudwatch alarms for the service.  Requires an SNS topic to have already been created for the stack."
+  type        = bool
+  default     = true
+}
+
 # ------------------------------------------------------------------------------
 # Service environment variable configs
 # ------------------------------------------------------------------------------
@@ -64,4 +105,10 @@ variable "api_url" {
 variable "human_log" {
   type    = string
   default = "1"
+}
+variable "account_api_url" {
+  type = string
+}
+variable "developer_hub_url" {
+  type = string
 }

@@ -17,6 +17,14 @@ data "aws_vpc" "vpc" {
   }
 }
 
+#Get application subnet IDs
+data "aws_subnets" "application" {
+  filter {
+    name   = "tag:Name"
+    values = [local.application_subnet_pattern]
+  }
+}
+
 data "aws_ecs_cluster" "ecs_cluster" {
   cluster_name = "${local.name_prefix}-cluster"
 }

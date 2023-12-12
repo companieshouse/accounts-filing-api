@@ -3,3 +3,7 @@ aws_profile = "development-eu-west-2"
 
 api_url = "https://api.cidev.aws.chdev.org"
 log_level = "debug"
+
+# Eric Variables
+account_api_url = "https://account.cidev.aws.chdev.org"
+developer_hub_url = "https://developer.cidev.aws.chdev.org"
