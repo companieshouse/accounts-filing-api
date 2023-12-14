@@ -37,11 +37,11 @@ public class TransactionController {
     private final TransactionTransformer accountsFilingTransformer;
 
     @Autowired
-    public TransactionController(AccountsValidationService accountsValidationService,
-                                 AccountsFilingService accountsFilingService,
-                                 TransactionService transactionService,
-                                 TransactionTransformer accountsFilingTransformer,
-                                 Logger logger) {
+    public TransactionController(final AccountsValidationService accountsValidationService,
+                                 final AccountsFilingService accountsFilingService,
+                                 final TransactionService transactionService,
+                                 final TransactionTransformer accountsFilingTransformer,
+                                 final Logger logger) {
         this.accountsValidationService = accountsValidationService;
         this.accountsFilingService = accountsFilingService;
         this.accountsFilingTransformer = accountsFilingTransformer;
@@ -51,10 +51,11 @@ public class TransactionController {
     
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
-        Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
+        
+        final Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
         if (accountsValidationResultOptional.isPresent()) {
-            AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
+            final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
         }
 
@@ -68,9 +69,9 @@ public class TransactionController {
                                                  @Valid @RequestBody final AccountsPackageType packageType)
                                                  throws UriValidationException, EntryNotFoundException {
         
-        AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
+        final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
+        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
 
         if (optionalTransaction.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -88,7 +89,7 @@ public class TransactionController {
      * @return 400 bad request response
      */
     @ExceptionHandler({ResponseException.class})
-    ResponseEntity<String> responseException(ResponseException e) {
+    ResponseEntity<String> responseException(final ResponseException e) {
         logger.error("Unhandled response exception", e);
         return ResponseEntity.badRequest().body("Api Response failed. " + e.getMessage());
     }
@@ -119,7 +120,7 @@ public class TransactionController {
      * @return 500 internal server error response
      */
     @ExceptionHandler
-    ResponseEntity<String> exceptionHandler(Exception ex) {
+    ResponseEntity<String> exceptionHandler(final Exception ex) {
         logger.error("Unhandled exception", ex);
 
         return ResponseEntity.internalServerError().build();

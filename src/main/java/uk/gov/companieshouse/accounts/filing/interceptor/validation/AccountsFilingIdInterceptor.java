@@ -17,7 +17,7 @@ import uk.gov.companieshouse.logging.Logger;
 @Component
 public class AccountsFilingIdInterceptor implements HandlerInterceptor {
 
-    private static final String ACCOUNTS_FILING_REGEX_PATTERN = Constants.ACCOUNTS_FILING_REGEX_PATTERN;
+    private static final Pattern ACCOUNTS_FILING_PATTERN = Pattern.compile(Constants.ACCOUNTS_FILING_REGEX_PATTERN);
 
     private final Logger logger;
 
@@ -32,7 +32,6 @@ public class AccountsFilingIdInterceptor implements HandlerInterceptor {
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         final var accountsFilingId = pathVariables.get(Constants.ACCOUNT_FILING_ID_KEY);
         final var reqId = request.getHeader(Constants.ERIC_REQUEST_ID_KEY);
-        final Pattern pattern = Pattern.compile(ACCOUNTS_FILING_REGEX_PATTERN);
 
         if (accountsFilingId == null) {
             logger.infoContext(reqId, "Accounts Filing id was null", Collections.emptyMap());
@@ -40,17 +39,11 @@ public class AccountsFilingIdInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        if (pattern.matcher(accountsFilingId).matches()){
+        if (ACCOUNTS_FILING_PATTERN.matcher(accountsFilingId).matches()){
             return true;
         }
-        
-        if (accountsFilingId.isBlank()) {
-            logger.infoContext(reqId, "No Accounts Filing URL id supplied", Collections.emptyMap());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return false;
-        }
 
-        logger.infoContext(reqId, "Accounts Filing URL id failed to meet requirements", Collections.emptyMap());
+        logger.infoContext(reqId, "Accounts Filing URL id did not much allowed chars and length", Collections.emptyMap());
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return false;
         

@@ -16,7 +16,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private static final String TRANSACTION_URI = "**/transactions/**";
     private static final String ACCOUNTS_FILING_URI = "**/accounts-filing/**";
-    private static final String FILING_URI = "**/file/**";
+    private static final String FILE_URI = "**/file/**";
 
     private final LoggingInterceptor loggingInterceptor;
     private final InternalUserInterceptor internalUserInterceptor;
@@ -25,11 +25,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final FileIdInterceptor fileIdInterceptor;
 
     @Autowired
-    public WebMvcConfig(LoggingInterceptor loggingInterceptor,
-                        InternalUserInterceptor internalUserInterceptor,
-                        AccountsFilingIdInterceptor accountsFilingIdInterceptor,
-                        TransactionIdInterceptor transactionIdInterceptor,
-                        FileIdInterceptor fileIdInterceptor) {
+    public WebMvcConfig(final LoggingInterceptor loggingInterceptor,
+                        final InternalUserInterceptor internalUserInterceptor,
+                        final AccountsFilingIdInterceptor accountsFilingIdInterceptor,
+                        final TransactionIdInterceptor transactionIdInterceptor,
+                        final FileIdInterceptor fileIdInterceptor) {
         this.loggingInterceptor = loggingInterceptor;
         this.internalUserInterceptor = internalUserInterceptor;
         this.accountsFilingIdInterceptor = accountsFilingIdInterceptor;
@@ -59,6 +59,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private void addFileIdInterceptor(final InterceptorRegistry registry){
         registry.addInterceptor(fileIdInterceptor)
-                .addPathPatterns(FILING_URI);
+                .addPathPatterns(FILE_URI);
     }
 }

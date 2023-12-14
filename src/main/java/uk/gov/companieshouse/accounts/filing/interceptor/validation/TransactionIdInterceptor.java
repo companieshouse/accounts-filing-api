@@ -42,12 +42,6 @@ public class TransactionIdInterceptor implements HandlerInterceptor {
         if (Pattern.matches(TRANSACTION_ALLOWED_CHAR_PATTERN, transactionId)) {
             return true;
         }
-        
-        if (transactionId.isBlank()) {
-            logger.infoContext(reqId, "No transaction URL id supplied", Collections.emptyMap());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return false;
-        }
 
         logger.infoContext(reqId, "Transaction id did not much allowed chars and length", Collections.emptyMap());
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

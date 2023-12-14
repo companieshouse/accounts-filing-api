@@ -2,6 +2,7 @@ package uk.gov.companieshouse.accounts.filing.interceptor.validation;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +12,14 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.utils.constant.Constants;
 import uk.gov.companieshouse.logging.Logger;
 
 @Component
 public class FileIdInterceptor implements HandlerInterceptor {
 
-    private static final String FILE_ID_REGEX_PATTERN = Constants.FILE_ID_REGEX_PATTERN;
+    private static final Pattern FILE_ID_PATTERN = Pattern.compile(Constants.FILE_ID_REGEX_PATTERN);
 
     private final Logger logger;
 
@@ -32,7 +34,6 @@ public class FileIdInterceptor implements HandlerInterceptor {
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         final var fileId = pathVariables.get(Constants.FILE_ID_KEY);
         final var reqId = request.getHeader(Constants.ERIC_REQUEST_ID_KEY);
-        final Pattern pattern = Pattern.compile(FILE_ID_REGEX_PATTERN);
 
         if (fileId == null) {
             logger.infoContext(reqId, "File id was null", Collections.emptyMap());
@@ -40,17 +41,18 @@ public class FileIdInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        if (pattern.matcher(fileId).matches()){
-            return true;
-        }
-        
-        if (fileId.isBlank()) {
-            logger.infoContext(reqId, "No File URL id supplied", Collections.emptyMap());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return false;
+        try {
+            UUID.fromString(fileId);
+        } catch (IllegalArgumentException e) {
+            throw new UriValidationException();
         }
 
-        logger.infoContext(reqId, "File URL id failed to meet requirements", Collections.emptyMap());
+        if (FILE_ID_PATTERN.matcher(fileId).matches()){
+            return true;
+        }
+
+
+        logger.infoContext(reqId, "File URL id did not much allowed chars and length", Collections.emptyMap());
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return false;
         

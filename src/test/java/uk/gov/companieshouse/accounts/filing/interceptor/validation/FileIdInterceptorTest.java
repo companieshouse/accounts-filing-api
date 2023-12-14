@@ -23,7 +23,7 @@ import uk.gov.companieshouse.logging.Logger;
 @ExtendWith(MockitoExtension.class)
 class FileIdInterceptorTest {
 
-    private static final String FILE_ID = "a1-2".repeat(9);
+    private static final String FILE_ID = "11111111-1111-1111-1111-111111111111";
 
     @Mock
     private HttpServletRequest mockHttpServletRequest;
@@ -91,6 +91,21 @@ class FileIdInterceptorTest {
         Object mockHandler = new Object();
         var pathParameters = new HashMap<String, String>();
         pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, "A-".repeat(18));
+
+        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
+        when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
+        
+        assertFalse(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
+        assertEquals(400, mockHttpServletResponse.getStatus());
+    }
+
+    @Test
+    @DisplayName("Validate file id with invalid format in path return 400")
+    void testPreHandleFailedInvalidFormat() {
+        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
+        Object mockHandler = new Object();
+        var pathParameters = new HashMap<String, String>();
+        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, "1-".repeat(18));
 
         when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
         when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
