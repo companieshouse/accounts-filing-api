@@ -33,6 +33,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationExcep
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
+import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
@@ -60,6 +61,9 @@ class TransactionControllerTest {
     @Mock
     AccountsValidatorDataApi AccountsValidatorDataApi;
 
+    @Mock
+    TransactionTransformer accountsFilingTransformer;
+
 
     @BeforeEach
     void setUp() {
@@ -67,6 +71,7 @@ class TransactionControllerTest {
             accountsValidationService,
             accountsFilingService,
             transactionService,
+            accountsFilingTransformer,
             logger);
     }
 

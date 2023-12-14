@@ -21,6 +21,7 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
+import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -33,14 +34,17 @@ public class TransactionController {
     private final AccountsValidationService accountsValidationService;
     private final AccountsFilingService accountsFilingService;
     private final TransactionService transactionService;
+    private final TransactionTransformer accountsFilingTransformer;
 
     @Autowired
     public TransactionController(AccountsValidationService accountsValidationService,
                                  AccountsFilingService accountsFilingService,
                                  TransactionService transactionService,
+                                 TransactionTransformer accountsFilingTransformer,
                                  Logger logger) {
         this.accountsValidationService = accountsValidationService;
         this.accountsFilingService = accountsFilingService;
+        this.accountsFilingTransformer = accountsFilingTransformer;
         this.transactionService = transactionService;
         this.logger = logger;
     }
@@ -72,7 +76,8 @@ public class TransactionController {
             return ResponseEntity.notFound().build();
         }
 
-        accountsFilingService.updateAccountsFilingTransaction(optionalTransaction.get(), accountsFilingId);
+        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId);
+        transactionService.updateTransaction(optionalTransaction.get());
         
         return ResponseEntity.noContent().build();
     }
