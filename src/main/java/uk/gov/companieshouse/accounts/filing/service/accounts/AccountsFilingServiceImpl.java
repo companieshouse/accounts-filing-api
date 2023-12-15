@@ -11,6 +11,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationExcep
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.enums.PackageType;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
+import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.logging.Logger;
 
 @Service
@@ -43,10 +44,10 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         
         if (optionalEntry.isEmpty()) {
             var message = String.format("Entry with accountFilingId: %s was not found", accountsFilingId);
-            logger.errorContext(accountsFilingId, message, null, Map.of(
+            logger.errorContext(accountsFilingId, message, null, ImmutableConverter.toMutableMap(Map.of(
                 "expected", "accountsFilingEntry Object",
                 "status", "empty optional"
-                ));
+                )));
             throw new EntryNotFoundException(message);
         }
         return optionalEntry.get();
