@@ -12,7 +12,6 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.utils.constant.Constants;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -41,13 +40,7 @@ public class FileIdInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        try {
-            UUID.fromString(fileId);
-        } catch (IllegalArgumentException e) {
-            throw new UriValidationException();
-        }
-
-        if (FILE_ID_PATTERN.matcher(fileId).matches()){
+        if (FILE_ID_PATTERN.matcher(fileId).matches() && isUUID(fileId)){
             return true;
         }
 
@@ -56,5 +49,14 @@ public class FileIdInterceptor implements HandlerInterceptor {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return false;
         
+    }
+
+    private boolean isUUID(String uuidString) {
+         try {
+            UUID.fromString(uuidString);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 }
