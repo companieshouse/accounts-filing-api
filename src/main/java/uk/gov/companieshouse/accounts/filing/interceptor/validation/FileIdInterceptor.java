@@ -42,13 +42,11 @@ public class FileIdInterceptor implements HandlerInterceptor {
 
         if (FILE_ID_PATTERN.matcher(fileId).matches() && isUUID(fileId)){
             return true;
-        }
-
-
-        logger.infoContext(reqId, "File URL id did not much allowed chars and length", Collections.emptyMap());
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        return false;
-        
+        } else {
+            logger.infoContext(reqId, "File URL id did not much allowed chars and length", Collections.emptyMap());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return false;
+        }        
     }
 
     private boolean isUUID(String uuidString) {

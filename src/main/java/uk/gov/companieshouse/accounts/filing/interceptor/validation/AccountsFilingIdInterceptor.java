@@ -41,11 +41,10 @@ public class AccountsFilingIdInterceptor implements HandlerInterceptor {
 
         if (ACCOUNTS_FILING_PATTERN.matcher(accountsFilingId).matches()){
             return true;
+        } else {
+            logger.infoContext(reqId, "Accounts Filing URL id did not much allowed chars and length", Collections.emptyMap());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return false;
         }
-
-        logger.infoContext(reqId, "Accounts Filing URL id did not much allowed chars and length", Collections.emptyMap());
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        return false;
-        
     }
 }
