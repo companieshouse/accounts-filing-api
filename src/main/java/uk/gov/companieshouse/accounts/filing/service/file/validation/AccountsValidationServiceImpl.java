@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
+
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
@@ -48,7 +50,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             default:
                 var message = "Unexpected response status from account validator api when getting file details.";
 
-                logger.errorContext(fileId, message, null, errorMessageMap(Map.of(
+                logger.errorContext(fileId, message, null, ImmutableConverter.toMutableMap(Map.of(
                         "expected", "200 or 404",
                         "status", response.getStatusCode())));
                 throw new ResponseException(message);
@@ -80,20 +82,9 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         }
 
         var message = "document not found";
-        logger.errorContext(accountsFilingId, message, null, errorMessageMap(Map.of(
+        logger.errorContext(accountsFilingId, message, null, ImmutableConverter.toMutableMap(Map.of(
                 "expected", "accountsFilingId",
                 "actual", accountsFilingId)));
         throw new EntryNotFoundException(message);
     }
-
-    /**
-     * Makes immutable map; a mutable map.
-     * 
-     * @param immutableMap
-     * @return
-     */
-    private Map<String, Object> errorMessageMap(Map<String, Object> immutableMap) {
-        return new HashMap<>(immutableMap);
-    }
-
 }

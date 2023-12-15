@@ -45,7 +45,6 @@ public class AccountsFilingEntry {
         
     }
 
-
     public String getAccountsFilingId() {
         return accountsFilingId;
     }

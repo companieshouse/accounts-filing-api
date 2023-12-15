@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.model.enums;
 
-import java.util.Optional;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 
 public enum PackageType {
 
@@ -20,23 +20,21 @@ public enum PackageType {
         this.type = type;
     }
 
-    private String lowerCase(){
-        return this.type.toLowerCase();
+    @Override
+    public String toString() {
+        return this.type;
+
     }
 
-    public static Optional<PackageType> findPackageType(String packageString) {
+    public static PackageType findPackageType(String packageString) throws UriValidationException {
 
-        if(packageString == null){
-            return Optional.empty();
-        }
-
-        String formattedPackageString = packageString.strip().toLowerCase();
         for (PackageType packageType : PackageType.values()) {
-            if (packageType.lowerCase().contentEquals(formattedPackageString))
+            if (packageType.toString().equals(packageString))
             {
-                return Optional.of(packageType);
+                return packageType;
             }
         }
-        return Optional.empty();
+        
+        throw new UriValidationException(String.format("%s does not match a valid packageType", packageString));
     }
 }
