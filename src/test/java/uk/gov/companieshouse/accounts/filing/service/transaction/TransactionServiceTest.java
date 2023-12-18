@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,10 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
@@ -45,7 +49,7 @@ class TransactionServiceTest {
 
     @Test
     @DisplayName("Request a transaction")
-    void testGetTransaction() {
+    void testGetTransaction() throws ApiErrorResponseException, URIValidationException {
         final var transactionId = "transactionId";
         final var transaction = new Transaction();
         final ApiResponse<Transaction> apiResponse = new ApiResponse<>(200, Collections.emptyMap(), transaction);
@@ -60,8 +64,32 @@ class TransactionServiceTest {
     }
 
     @Test
+    @DisplayName("Request a transaction with non-matching id")
+    void testGetTransactionFailedWithNonMatchingId() throws ApiErrorResponseException, URIValidationException {
+        final var transactionId = "transactionId";
+        ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
+        when(exception.getStatusCode()).thenReturn(404);
+        when(transactionAPI.get(transactionId)).thenThrow(exception);
+
+        final Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
+
+        assertTrue(returnTransaction.isEmpty());      
+    }
+
+    @Test
+    @DisplayName("Request a transaction get 500 back")
+    void testGetTransactionFailedCausedByExternalService() throws ApiErrorResponseException, URIValidationException {
+        final var transactionId = "transactionId";
+        ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
+        when(exception.getStatusCode()).thenReturn(500);
+        when(transactionAPI.get(transactionId)).thenThrow(exception);
+
+        assertThrows(ExternalServiceException.class, () -> transactionService.getTransaction(transactionId));
+    }
+
+    @Test
     @DisplayName("Update a transaction")
-    void testUpdateTransaction() {
+    void testUpdateTransaction() throws ApiErrorResponseException,  URIValidationException {
         final var transaction = new Transaction();
         final ApiResponse<Void> apiResponse = new ApiResponse<>(204, Collections.emptyMap());
         
@@ -75,11 +103,11 @@ class TransactionServiceTest {
 
     @Test
     @DisplayName("Update a transaction returns wrong http status and throws exception")
-    void testUpdateTransactionAPIReturnWrongType() {
+    void testUpdateTransactionAPIReturnWrongType() throws ApiErrorResponseException, URIValidationException {
         final var transaction = new Transaction();
-        final ApiResponse<Void> apiResponse = new ApiResponse<>(500, Collections.emptyMap());
-        
-        when(transactionAPI.patch(transaction)).thenReturn(apiResponse);
+        ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
+        when(exception.getStatusCode()).thenReturn(401);
+        when(transactionAPI.patch(transaction)).thenThrow(exception);
         
         assertThrows(ResponseException.class, () -> transactionService.updateTransaction(transaction));
         verify(transactionAPI, times(1)).patch(transaction);
