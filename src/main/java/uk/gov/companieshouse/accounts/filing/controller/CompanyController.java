@@ -27,7 +27,7 @@ public class CompanyController {
     }
 
     @PutMapping("/company/{companyNumber}/confirm")
-    public ResponseEntity<?> confirmCompany(@PathVariable final String companyNumber, @PathVariable final String transactionId){
+    public ResponseEntity<?> confirmCompany(@PathVariable("companyNumber") final String companyNumber, @PathVariable("transactionId") final String transactionId){
         logger.info(String.format("Saving company_number- %s  and transaction_id- %s ",
                 companyNumber, transactionId));
         if (!checkCompanyNumber(companyNumber) || !checkTransactionId(transactionId)) {
