@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.api.error.ApiErrorResponseException;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -39,21 +43,22 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     }
 
     @Override
-    public Optional<AccountsValidatorStatusApi> validationStatusResult(final String fileId) {
-        ApiResponse<AccountsValidatorStatusApi> response = accountsValidatorAPI.getValidationCheck(fileId);
-        HttpStatus status = HttpStatus.resolve(response.getStatusCode());
-        switch (Objects.requireNonNull(status)) {
-            case NOT_FOUND:
-                return Optional.empty();
-            case OK:
-                return Optional.ofNullable(response.getData());
-            default:
-                var message = "Unexpected response status from account validator api when getting file details.";
+    public Optional<AccountsValidatorStatusApi> validationStatusResult(final String fileId) throws NullPointerException {
 
-                logger.errorContext(fileId, message, null, ImmutableConverter.toMutableMap(Map.of(
-                        "expected", "200 or 404",
-                        "status", response.getStatusCode())));
-                throw new ResponseException(message);
+        try {
+            ApiResponse<AccountsValidatorStatusApi> response = accountsValidatorAPI.getValidationCheck(fileId);
+            return Optional.ofNullable(response.getData());
+        } catch (ApiErrorResponseException e) {
+            int statusCode = e.getStatusCode();
+            final HttpStatus status = HttpStatus.resolve(statusCode);
+
+            if(Objects.requireNonNull(status) == HttpStatus.NOT_FOUND) {
+                return Optional.empty();
+            } else {
+                throw validationStatusResultThrowableExceptions(fileId, status);
+            }
+        } catch (URIValidationException e) {
+            throw new UriValidationException(e);
         }
     }
 
@@ -86,5 +91,20 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
                 "expected", "accountsFilingId",
                 "actual", accountsFilingId)));
         throw new EntryNotFoundException(message);
+    }
+
+    private RuntimeException validationStatusResultThrowableExceptions(final String fileId, final HttpStatus status) {
+        final var message = "Unexpected response status from account validator api when getting file details.";
+        final var externalIssueMessage = "External issue blocked getting validation status result.";
+        logger.errorContext(fileId, message, null, ImmutableConverter.toMutableMap(Map.of(
+            "expected", "200 or 404",
+            "status", status
+        )));
+
+        if(status == HttpStatus.INTERNAL_SERVER_ERROR) {
+            return new ExternalServiceException(externalIssueMessage);
+        } else {
+            throw new ResponseException(message);
+        }
     }
 }
