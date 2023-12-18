@@ -8,18 +8,21 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationExcep
 import uk.gov.companieshouse.logging.Logger;
 
 public class ControllerExceptionHandler {
-    
+
     private ControllerExceptionHandler() {
     }
 
-    
-    public static ResponseEntity<String> handleExpection(Exception ex, Logger logger){
-        switch (ex){
-            case ResponseException e: return responseException(e, logger);
-            case UriValidationException e: return validationException();
-            case EntryNotFoundException e: return entryNotFoundException();
+    public static ResponseEntity<String> handleExpection(Exception ex, Logger logger) {
+        switch (ex) {
+            case ResponseException e:
+                return responseException(e, logger);
+            case UriValidationException e:
+                return validationException();
+            case EntryNotFoundException e:
+                return entryNotFoundException();
 
-            default: return exceptionHandler(ex, logger);
+            default:
+                return exceptionHandler(ex, logger);
         }
 
     }
@@ -45,6 +48,7 @@ public class ControllerExceptionHandler {
 
     /**
      * Handles the exception thrown when an entry is not found by database or api.
+     * 
      * @return 404 not found response
      */
     private static ResponseEntity<String> entryNotFoundException() {
