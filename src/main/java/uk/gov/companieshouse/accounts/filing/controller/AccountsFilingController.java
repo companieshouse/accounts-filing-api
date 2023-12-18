@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import uk.gov.companieshouse.accounts.filing.controller.handler.controller.exception.ControllerExceptionHandler;
 import uk.gov.companieshouse.logging.Logger;
 
 @Controller
@@ -29,12 +30,10 @@ public class AccountsFilingController {
      * Handles all un-caught exceptions
      *
      * @param ex the exception
-     * @return 500 internal server error response
+     * @return response
      */
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(Exception ex) {
-        logger.error("Unhandled exception", ex);
-
-        return ResponseEntity.internalServerError().build();
+        return ControllerExceptionHandler.handleExpection(ex, logger);
     }
 }
