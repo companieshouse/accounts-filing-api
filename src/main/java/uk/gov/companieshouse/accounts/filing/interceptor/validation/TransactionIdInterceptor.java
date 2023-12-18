@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.interceptor.validation;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -34,7 +34,7 @@ public class TransactionIdInterceptor implements HandlerInterceptor {
         final var reqId = request.getHeader(Constants.ERIC_REQUEST_ID_KEY);
         
         if (transactionId == null){
-            logger.infoContext(reqId, "Transaction id was null", Collections.emptyMap());
+            logger.infoContext(reqId, "Transaction id was null", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return false;
         }
@@ -42,7 +42,7 @@ public class TransactionIdInterceptor implements HandlerInterceptor {
         if (Pattern.matches(TRANSACTION_ALLOWED_CHAR_PATTERN, transactionId)) {
             return true;
         } else {
-            logger.infoContext(reqId, "Transaction id did not much allowed chars and length", Collections.emptyMap());
+            logger.infoContext(reqId, "Transaction id did not much allowed chars and length", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return false;
         }

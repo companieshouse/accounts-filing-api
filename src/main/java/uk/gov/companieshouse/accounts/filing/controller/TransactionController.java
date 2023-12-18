@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
+import uk.gov.companieshouse.accounts.filing.controller.handler.controller.exception.ControllerExceptionHandler;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
@@ -84,45 +84,13 @@ public class TransactionController {
     }
 
     /**
-     * Handles the exception thrown when there's a response problem
-     *
-     * @return 400 bad request response
-     */
-    @ExceptionHandler({ResponseException.class})
-    ResponseEntity<String> responseException(final ResponseException e) {
-        logger.error("Unhandled response exception", e);
-        return ResponseEntity.badRequest().body("Api Response failed. " + e.getMessage());
-    }
-
-    /**
-     * Handles the exception thrown when there's a validation problem
-     *
-     * @return 400 bad request response
-     */
-    @ExceptionHandler({UriValidationException.class})
-    ResponseEntity<String> validationException() {
-        return ResponseEntity.badRequest().body("Validation failed");
-    }
-
-    /**
-     * Handles the exception thrown when an entry is not found by database or api.
-     * @return 404 not found response
-     */
-    @ExceptionHandler({EntryNotFoundException.class})
-    ResponseEntity<String> entryNotFoundException() {
-        return ResponseEntity.notFound().build();
-    }
-
-    /**
      * Handles all un-caught exceptions
      *
      * @param ex the exception
-     * @return 500 internal server error response
+     * @return response
      */
     @ExceptionHandler
-    ResponseEntity<String> exceptionHandler(final Exception ex) {
-        logger.error("Unhandled exception", ex);
-
-        return ResponseEntity.internalServerError().build();
+    ResponseEntity<String> exceptionHandler(Exception ex) {
+        return ControllerExceptionHandler.handleExpection(ex, logger);
     }
 }

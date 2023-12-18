@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.interceptor.validation;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -35,7 +35,7 @@ public class FileIdInterceptor implements HandlerInterceptor {
         final var reqId = request.getHeader(Constants.ERIC_REQUEST_ID_KEY);
 
         if (fileId == null) {
-            logger.infoContext(reqId, "File id was null", Collections.emptyMap());
+            logger.infoContext(reqId, "File id was null", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return false;
         }
@@ -43,7 +43,7 @@ public class FileIdInterceptor implements HandlerInterceptor {
         if (FILE_ID_PATTERN.matcher(fileId).matches() && isUUID(fileId)){
             return true;
         } else {
-            logger.infoContext(reqId, "File URL id did not much allowed chars and length", Collections.emptyMap());
+            logger.infoContext(reqId, "File URL id did not much allowed chars and length", new HashMap<>());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return false;
         }        

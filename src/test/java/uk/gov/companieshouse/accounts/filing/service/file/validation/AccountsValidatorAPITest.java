@@ -15,8 +15,6 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.accountvalidator.PrivateAccountsValidatorResourceHandler;
@@ -86,7 +84,7 @@ class AccountsValidatorAPITest {
             // when
 
             // then
-            assertThrows(UriValidationException.class, () -> api.getValidationCheck(fileId));
+            assertThrows(URIValidationException.class, () -> api.getValidationCheck(fileId));
         }
     }
 
@@ -107,7 +105,7 @@ class AccountsValidatorAPITest {
             // when
 
             // then
-            assertThrows(ResponseException.class, () -> api.getValidationCheck(fileId));
+            assertThrows(ApiErrorResponseException.class, () -> api.getValidationCheck(fileId));
         }
     }
 

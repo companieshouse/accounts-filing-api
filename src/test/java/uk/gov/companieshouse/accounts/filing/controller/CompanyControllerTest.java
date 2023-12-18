@@ -58,14 +58,14 @@ class CompanyControllerTest {
 
     @Test
     @DisplayName("Return 400 when when invalid transaction id is passed")
-    public void test_confirmCompany_with_invalid_transactionId_return_BadRequest (){
+    void test_confirmCompany_with_invalid_transactionId_return_BadRequest (){
         var response = companyController.confirmCompany("12345", "1234-1234");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
     @Test
     @DisplayName("Return 400 when when invalid company number id is passed")
-    public void test_confirmCompany_with_invalid_company_return_BadRequest (){
+    void test_confirmCompany_with_invalid_company_return_BadRequest (){
         var response = companyController.confirmCompany("test-1234", "000000-123456-000000");
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
@@ -73,7 +73,6 @@ class CompanyControllerTest {
     @Test
     @DisplayName("Return 500 during unhandled runtime exception. For example mongodb services are down.")
     void test_confirmCompany_for_internal_server_error (){
-        CompanyResponse mockResponse = new CompanyResponse("mockAccountsFilingId");
         when(mockCompanyService.saveCompanyNumberAndTransactionId(anyString(),anyString())).thenThrow(new RuntimeException());
         ResponseEntity<?> response = companyController.confirmCompany("CN123456", "000000-123456-000000");
         assertThat(response.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -107,7 +106,7 @@ class CompanyControllerTest {
     @Test
     @DisplayName("Exception handler when response")
     void responseException() {
-        ResponseEntity<?> response = companyController.responseException(new ResponseException());
+        ResponseEntity<?> response = companyController.exceptionHandler(new ResponseException());
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertThat((String) response.getBody(), containsString("Api Response failed."));
     }

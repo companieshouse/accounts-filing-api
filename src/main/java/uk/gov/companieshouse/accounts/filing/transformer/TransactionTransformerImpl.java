@@ -22,7 +22,6 @@ public class TransactionTransformerImpl implements TransactionTransformer {
         
         Map<String, String> links = ImmutableConverter.toMutableMap(
             Map.of(
-                "costs", uri+"/costs",
                 "resource", uri,
                 "validation_status", uri+"/validation-status"
             )

@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+
+import uk.gov.companieshouse.accounts.filing.controller.handler.controller.exception.ControllerExceptionHandler;
 import uk.gov.companieshouse.accounts.filing.service.company.CompanyService;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -72,27 +73,16 @@ public class CompanyController {
     }
 
     /**
-     * Handles the exception thrown when there's a response problem
-     *
-     * @return 400 bad request response
-     */
-    @ExceptionHandler({ResponseException.class})
-    ResponseEntity<String> responseException(ResponseException e) {
-        logger.error("Unhandled response exception", e);
-        return ResponseEntity.badRequest().body("Api Response failed. " + e.getMessage());
-    }
-
-    /**
      * Handles all un-caught exceptions
      *
      * @param ex the exception
-     * @return 500 internal server error response
+     * @return response
      */
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(Exception ex) {
-        logger.error("Unhandled exception", ex);
-        return ResponseEntity.internalServerError().build();
+        return ControllerExceptionHandler.handleExpection(ex, logger);
     }
 
+    
 }
 

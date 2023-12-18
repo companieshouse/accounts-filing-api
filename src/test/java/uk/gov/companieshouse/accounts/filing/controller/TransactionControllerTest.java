@@ -185,7 +185,7 @@ class TransactionControllerTest {
     void responseException() {
 
         // When
-        final ResponseEntity<?> response = controller.responseException(new ResponseException());
+        final ResponseEntity<?> response = controller.exceptionHandler(new ResponseException());
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -198,7 +198,7 @@ class TransactionControllerTest {
         // Given
 
         // When
-        final ResponseEntity<?> response = controller.validationException();
+        final ResponseEntity<?> response = controller.exceptionHandler(new UriValidationException());
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -208,7 +208,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Exception handler when entry not found and return 404")
     void entryNotFoundException() {
-        final ResponseEntity<?> response = controller.entryNotFoundException();
+        final ResponseEntity<?> response = controller.exceptionHandler(new EntryNotFoundException());
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -220,6 +220,18 @@ class TransactionControllerTest {
         final Exception e = new Exception();
 
         // When
+        final ResponseEntity<?> response = controller.exceptionHandler(e);
+
+        // Then
+        verify(logger).error("Unhandled exception", e);
+        assertThat(response.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    @DisplayName("Exception handler deals with NullPointerExpection and returns 500")
+    void exceptionHandlerNullPointerExpection() {
+        final NullPointerException e = new NullPointerException();
+
         final ResponseEntity<?> response = controller.exceptionHandler(e);
 
         // Then

@@ -17,7 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CompanyServiceTest {
+class CompanyServiceTest {
     @Mock
     AccountsFilingRepository accountsFilingRepository;
     @Mock
@@ -43,7 +43,6 @@ public class CompanyServiceTest {
     @Test
     @DisplayName("When company number and transactionId are failed to save to the repository")
     void testFailedToSaveCompanyNumberAndTransactionId() {
-        AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123");
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenThrow(new RuntimeException("mockException"));
         RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123"));
         assertEquals("mockException", exception.getMessage());

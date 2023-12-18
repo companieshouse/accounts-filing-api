@@ -18,7 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.InternalApiClient;
@@ -145,7 +147,6 @@ class AccountsValidationServiceTest {
 
         AccountsValidatorStatusApi mockValidationStatus = mock(AccountsValidatorStatusApi.class);
         when(api.getValidationCheck(fileId)).thenReturn(mockResponse);
-        when(mockResponse.getStatusCode()).thenReturn(200);
         when(mockResponse.getData()).thenReturn(mockValidationStatus);
 
         Optional<AccountsValidatorStatusApi> optionalResponse = service.validationStatusResult(fileId);
@@ -160,7 +161,6 @@ class AccountsValidationServiceTest {
         String fileId = "fileId";
 
         when(api.getValidationCheck(fileId)).thenReturn(mockResponse);
-        when(mockResponse.getStatusCode()).thenReturn(404);
 
         Optional<AccountsValidatorStatusApi> optionalResponse = service.validationStatusResult(fileId);
 
@@ -168,14 +168,27 @@ class AccountsValidationServiceTest {
     }
 
     @Test
-    @DisplayName("Call validation check but external issue occurs")
-    void testValidationStatusResultUnexpectedResponse() {
+    @DisplayName("Call validation check but 4xx request")
+    void testValidationStatusResultUserIssue() throws ApiErrorResponseException, URIValidationException {
         String fileId = "fileId";
+        ApiErrorResponseException responseExcetion = mock(ApiErrorResponseException.class);
         
-        when(api.getValidationCheck(fileId)).thenReturn(mockResponse);
-        when(mockResponse.getStatusCode()).thenReturn(500);
+        when(responseExcetion.getStatusCode()).thenReturn(401);
+        when(api.getValidationCheck(fileId)).thenThrow(responseExcetion);
 
-        assertThrows(RuntimeException.class, () -> service.validationStatusResult(fileId));
+        assertThrows(ResponseException.class, () -> service.validationStatusResult(fileId));
+    }
+
+    @Test
+    @DisplayName("Call validation check but external issue occurs")
+    void testValidationStatusResultUnexpectedResponse() throws ApiErrorResponseException, URIValidationException {
+        String fileId = "fileId";
+        ApiErrorResponseException responseExcetion = mock(ApiErrorResponseException.class);
+        
+        when(responseExcetion.getStatusCode()).thenReturn(500);
+        when(api.getValidationCheck(fileId)).thenThrow(responseExcetion);
+
+        assertThrows(ExternalServiceException.class, () -> service.validationStatusResult(fileId));
     }
 
     private AccountsValidatorDataApi createAccountsValidatorDataApi(String date, String accountType, String requesteredNumber){
