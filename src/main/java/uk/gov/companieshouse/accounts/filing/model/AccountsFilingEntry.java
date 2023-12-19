@@ -41,9 +41,7 @@ public class AccountsFilingEntry {
         this.accountsFilingId = accountsFilingId;
     }
 
-    AccountsFilingEntry() {
-        
-    }
+    AccountsFilingEntry() { }
 
     public String getAccountsFilingId() {
         return accountsFilingId;
