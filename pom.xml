@@ -31,7 +31,7 @@
 		<mockito.version>5.7.0</mockito.version>
 
 		<!-- internal -->
-		<structured-logging.version>2.0.3</structured-logging.version>
+		<structured-logging.version>3.0.1</structured-logging.version>
 		<api-sdk-manager-java-library.version>3.0.2</api-sdk-manager-java-library.version>
 		<private-api-sdk-java.version>4.0.5</private-api-sdk-java.version>
 		<api-security-java-version>2.0.1</api-security-java-version>
@@ -207,14 +207,6 @@
 			<artifactId>junit-jupiter-params</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- Temp addition for spring-boot-starter -->
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.4.14</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- End -->
 		<!-- Junit testing libs end-->
 	</dependencies>
 
