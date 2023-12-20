@@ -3,6 +3,7 @@ package uk.gov.companieshouse.accounts.filing.controller.handler.controller.exce
 import org.springframework.http.ResponseEntity;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.logging.Logger;
@@ -13,18 +14,12 @@ public class ControllerExceptionHandler {
     }
 
     public static ResponseEntity<String> handleExpection(Exception ex, Logger logger) {
-        switch (ex) {
-            case ResponseException e:
-                return responseException(e, logger);
-            case UriValidationException e:
-                return validationException();
-            case EntryNotFoundException e:
-                return entryNotFoundException();
-
-            default:
-                return exceptionHandler(ex, logger);
-        }
-
+        return switch (ex) {
+            case ResponseException e -> responseException(e, logger);
+            case UriValidationException e -> validationException(e, logger);
+            case EntryNotFoundException e -> entryNotFoundException();
+            default -> exceptionHandler(ex, logger);
+        };
     }
 
     /**
@@ -42,7 +37,8 @@ public class ControllerExceptionHandler {
      *
      * @return 400 bad request response
      */
-    private static ResponseEntity<String> validationException() {
+    private static ResponseEntity<String> validationException(Exception ex, Logger logger) {
+        logger.error("UriValidationException thrown", ex);
         return ResponseEntity.badRequest().body("Validation failed");
     }
 
@@ -63,7 +59,6 @@ public class ControllerExceptionHandler {
      */
     private static ResponseEntity<String> exceptionHandler(final Exception ex, final Logger logger) {
         logger.error("Unhandled exception", ex);
-
         return ResponseEntity.internalServerError().build();
     }
 

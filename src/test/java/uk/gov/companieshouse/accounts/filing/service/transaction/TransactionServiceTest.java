@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.accounts.filing.service.transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -59,8 +59,7 @@ class TransactionServiceTest {
         final Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
 
         assertTrue(returnTransaction.isPresent());
-        assertEquals(returnTransaction.get(), transaction);        
-
+        assertEquals(returnTransaction.get(), transaction);
     }
 
     @Test

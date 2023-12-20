@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.transformer;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
@@ -31,6 +32,9 @@ public class TransactionTransformerImpl implements TransactionTransformer {
         resource.setKind(resourceKind);
         resource.setUpdatedAt(LocalDateTime.now());
         resource.setLinks(links);
+        if (transaction.getResources() == null) {
+            transaction.setResources(new HashMap<>());
+        }
         transaction.getResources().put(uri, resource);
     }
 }
