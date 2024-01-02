@@ -99,6 +99,16 @@ variable "log_level" {
   type        = string
   description = "The log level for services to use: trace, debug, info or error"
 }
+variable "ssm_version_prefix" {
+  type        = string
+  description = "String to use as a prefix to the names of the variables containing variables and secrets version."
+  default     = "SSM_VERSION_"
+}
+variable "use_set_environment_files" {
+  type        = bool
+  default     = false
+  description = "Toggle default global and shared  environment files"
+}
 variable "api_url" {
   type = string
 }
