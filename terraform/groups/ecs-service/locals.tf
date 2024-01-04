@@ -1,16 +1,17 @@
 # Define all hardcoded local variable and local variables looked up from data resources
 locals {
-  stack_name                = "filing-maintain" # this must match the stack name the service deploys into
-  name_prefix               = "${local.stack_name}-${var.environment}"
-  service_name              = "accounts-filing-api"
-  container_port            = "3000" # default port required here until prod docker container is built allowing port change via env var
-  docker_repo               = "accounts-filing-api"
-  lb_listener_rule_priority = 15
-  lb_listener_paths         = ["/accounts-filing/*", "/transactions/*/accounts-filing/*"]
-  healthcheck_path          = "/accounts-filing/healthcheck" #healthcheck path for accounts-filing-api
-  healthcheck_matcher       = "200"
-  application_subnet_ids    = data.aws_subnets.application.ids
-  stack_secrets             = jsondecode(data.vault_generic_secret.stack_secrets.data_json)
+  stack_name                 = "filing-maintain" # this must match the stack name the service deploys into
+  name_prefix                = "${local.stack_name}-${var.environment}"
+  global_prefix              = "global-${var.environment}"
+  service_name               = "accounts-filing-api"
+  container_port             = "3000" # default port required here until prod docker container is built allowing port change via env var
+  docker_repo                = "accounts-filing-api"
+  lb_listener_rule_priority  = 15
+  lb_listener_paths          = ["/accounts-filing/*", "/transactions/*/accounts-filing/*"]
+  healthcheck_path           = "/accounts-filing/healthcheck" #healthcheck path for accounts-filing-api
+  healthcheck_matcher        = "200"
+  application_subnet_ids     = data.aws_subnets.application.ids
+  stack_secrets              = jsondecode(data.vault_generic_secret.stack_secrets.data_json)
   application_subnet_pattern = local.stack_secrets["application_subnet_pattern"]
   vpc_name                   = data.aws_ssm_parameter.secret[format("/%s/%s", local.name_prefix, "vpc-name")].value
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
