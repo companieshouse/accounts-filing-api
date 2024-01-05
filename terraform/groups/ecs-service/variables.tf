@@ -107,10 +107,7 @@ variable "ssm_version_prefix" {
 variable "use_set_environment_files" {
   type        = bool
   default     = false
-  description = "Toggle default global and shared  environment files"
-}
-variable "api_url" {
-  type = string
+  description = "Toggle default global and shared environment files"
 }
 variable "human_log" {
   type    = string
