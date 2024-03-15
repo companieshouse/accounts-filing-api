@@ -18,6 +18,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundExcep
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
+import uk.gov.companieshouse.accounts.filing.model.FilingValidationResponse;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
@@ -81,6 +82,33 @@ public class TransactionController {
         transactionService.updateTransaction(optionalTransaction.get());
         
         return ResponseEntity.noContent().build();
+    }
+
+
+    /**
+     * This method is used the validate the accounts filing data
+     * @param transactionId - Transaction id
+     * @param accountsFilingId - Filing id of the accounts
+     * @return whether the given accounts filing id has valid data
+     */
+    @GetMapping("/validation-status")
+    public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
+                                                              @PathVariable("accountsFilingId") final String accountsFilingId){
+        try{
+            final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getFilingEntry(accountsFilingId);
+            if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+                boolean isValid = accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry);
+                return ResponseEntity.ok(new FilingValidationResponse(isValid));
+            }
+            else{
+                logger.error("Transaction id not found : " + transactionId);
+                return ResponseEntity.notFound().build();
+            }
+        }
+        catch(EntryNotFoundException entryNotFoundException){
+            logger.error("Accounts filing id not found : " + accountsFilingId);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**

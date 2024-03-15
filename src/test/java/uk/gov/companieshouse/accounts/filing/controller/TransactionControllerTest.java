@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.controller;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +31,7 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
+import uk.gov.companieshouse.accounts.filing.model.FilingValidationResponse;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
@@ -45,6 +47,12 @@ import uk.gov.companieshouse.logging.Logger;
 class TransactionControllerTest {
     
     TransactionController controller;
+
+    AccountsFilingEntry accountsFilingEntry;
+
+    final String transactionId = "transactionId";
+
+    final String accountsFilingId = "accountsFilingId";
     
     @Mock
     Logger logger;
@@ -64,7 +72,6 @@ class TransactionControllerTest {
     @Mock
     TransactionTransformer accountsFilingTransformer;
 
-
     @BeforeEach
     void setUp() {
         controller = new TransactionController(
@@ -73,6 +80,9 @@ class TransactionControllerTest {
             transactionService,
             accountsFilingTransformer,
             logger);
+
+        accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
+                                                        transactionId, null, null);
     }
 
     @Test
@@ -237,5 +247,53 @@ class TransactionControllerTest {
         // Then
         verify(logger).error("Unhandled exception", e);
         assertThat(response.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
+    }
+
+    @Test
+    @DisplayName("Test validation status returns 200 with true")
+    void testValidateAccountsFilingDataReturns200True() {
+        // Given
+        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(true);
+
+        // When
+        final ResponseEntity<?> validResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
+        Assertions.assertNotNull(validResult.getBody());
+        Assertions.assertTrue(((FilingValidationResponse)validResult.getBody()).isValid());
+        verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
+    }
+
+    @Test
+    @DisplayName("Test validation status returns 200 with false")
+    void testValidateAccountsFilingDataReturns200False() {
+        // Given
+        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(false);
+
+        // When
+        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.OK, inValidResult.getStatusCode());
+        Assertions.assertNotNull(inValidResult.getBody());
+        Assertions.assertFalse(((FilingValidationResponse)inValidResult.getBody()).isValid());
+        verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
+    }
+
+    @Test
+    @DisplayName("Test validation status returns 404 for invalid transaction id")
+    void testValidateAccountsFilingDataReturns404ForTransactionId() {
+        // Given
+        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+
+        // When
+        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData("invalidTransId", accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
+        Assertions.assertNull(inValidResult.getBody());
     }
 }
