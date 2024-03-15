@@ -296,4 +296,18 @@ class TransactionControllerTest {
         Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
         Assertions.assertNull(inValidResult.getBody());
     }
+
+    @Test
+    @DisplayName("Test validation status returns 404 for invalid filing id")
+    void testValidateAccountsFilingDataReturns404ForFilingId() {
+        // Given
+        doThrow(new EntryNotFoundException()).when(accountsFilingService).getFilingEntry(accountsFilingId);
+
+        // When
+        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
+        Assertions.assertNull(inValidResult.getBody());
+    }
 }
