@@ -82,7 +82,7 @@ public class AccountsFilingValidator {
      * @return whether it's a valid account type
      */
     private boolean isValidAccountsType(int accountsType){
-        return accountsType > 0 && accountsType <= 18;
+        return accountsType >= 1 && accountsType <= 18;
     }
 
     /**
