@@ -24,15 +24,11 @@ public class AccountsFilingValidator {
      */
     public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry){
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
-        List<ValidationStatusError> validationStatusErrors = new ArrayList<ValidationStatusError>();
-        PackageType packageType = accountsFilingEntry.getPackageType();
-        String accountsType = accountsFilingEntry.getAccountsType();
-        String madeUpDate = accountsFilingEntry.getMadeUpDate();
-        String fileId = accountsFilingEntry.getFileId();
-        validatePackageType(packageType, validationStatusErrors);
-        validateAccountsType(accountsType, validationStatusErrors);
-        validateMadeUpDate(madeUpDate, validationStatusErrors);
-        validateFileId(fileId, validationStatusErrors);
+        List<ValidationStatusError> validationStatusErrors = new ArrayList<>();
+        validatePackageType(accountsFilingEntry.getPackageType(), validationStatusErrors);
+        validateAccountsType(accountsFilingEntry.getAccountsType(), validationStatusErrors);
+        validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
+        validateFileId(accountsFilingEntry.getFileId(), validationStatusErrors);
         if(validationStatusErrors.size() > 0){
             validationStatusResponse.setValid(false);
             validationStatusResponse.setValidationStatusError(validationStatusErrors.toArray(new ValidationStatusError[0]));
@@ -66,9 +62,8 @@ public class AccountsFilingValidator {
     private void validateAccountsType(String accountsType, List<ValidationStatusError> validationStatusErrors){
         if(accountsType != null){
             try{
-                int accountsTypeValue = Integer.parseInt(accountsType);
-                if(accountsTypeValue < 1 || accountsTypeValue > 18){
-                    setValidationError(validationStatusErrors, "AccountsType : " + accountsTypeValue,
+                if(!isValidAccountsType(Integer.parseInt(accountsType))){
+                    setValidationError(validationStatusErrors, "AccountsType : " + accountsType,
                             "Accounts type is not between the range of 1 to 18");
                 }
             }
@@ -80,7 +75,14 @@ public class AccountsFilingValidator {
         else{
             setValidationError(validationStatusErrors, "AccountsType", "Accounts type is null");
         }
+    }
 
+    /**
+     * @param accountsType - accounts Type of the given accounts filing entry
+     * @return whether it's a valid account type
+     */
+    private boolean isValidAccountsType(int accountsType){
+        return accountsType > 0 && accountsType <= 18;
     }
 
     /**
@@ -120,9 +122,8 @@ public class AccountsFilingValidator {
             try {
                 UUID uuid = UUID.fromString(fileId);
             } catch (IllegalArgumentException e) {
-                ValidationStatusError validationStatusError = new ValidationStatusError();
-                validationStatusError.setError("File ID is not a valid UUID -- " + fileId);
-                validationStatusErrors.add(validationStatusError);
+                setValidationError(validationStatusErrors, "FileId : " + fileId,
+                        "File ID is not a valid UUID");
             }
         }
     }
@@ -132,7 +133,7 @@ public class AccountsFilingValidator {
      * @param fieldName - field name which is validated
      * @param errorDescription - description of the validation error
      */
-    public static void setValidationError(List<ValidationStatusError> validationStatusErrors, String fieldName, String errorDescription){
+    private void setValidationError(List<ValidationStatusError> validationStatusErrors, String fieldName, String errorDescription){
         ValidationStatusError validationStatusError = new ValidationStatusError();
         validationStatusError.setError(errorDescription);
         validationStatusError.setLocation(fieldName);

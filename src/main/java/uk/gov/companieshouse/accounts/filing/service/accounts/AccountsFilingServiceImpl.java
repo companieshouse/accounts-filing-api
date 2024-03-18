@@ -61,7 +61,7 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     }
 
     /**
-     * This method used the validate the data in accounts filing entry
+     * This method used to validate the data in accounts filing entry
      * @param accountsFilingEntry - accounts filing entry which needs to be validated
      * @return ValidationStatusResponse - Contains the validation status of the accounts filing entry
      */
