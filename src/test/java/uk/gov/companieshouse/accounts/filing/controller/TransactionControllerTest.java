@@ -3,8 +3,8 @@ package uk.gov.companieshouse.accounts.filing.controller;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
@@ -31,7 +31,6 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
-import uk.gov.companieshouse.accounts.filing.model.FilingValidationResponse;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
@@ -41,6 +40,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusA
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,6 +72,9 @@ class TransactionControllerTest {
     @Mock
     TransactionTransformer accountsFilingTransformer;
 
+
+    ValidationStatusResponse validationStatusResponse;
+
     @BeforeEach
     void setUp() {
         controller = new TransactionController(
@@ -83,6 +86,7 @@ class TransactionControllerTest {
 
         accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
                                                         transactionId, null, null);
+        validationStatusResponse = new ValidationStatusResponse();
     }
 
     @Test
@@ -253,8 +257,9 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 200 with true")
     void testValidateAccountsFilingDataReturns200True() {
         // Given
+        validationStatusResponse.setValid(true);
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(true);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
 
         // When
         final ResponseEntity<?> validResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
@@ -262,7 +267,7 @@ class TransactionControllerTest {
         // Then
         Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
         Assertions.assertNotNull(validResult.getBody());
-        Assertions.assertTrue(((FilingValidationResponse)validResult.getBody()).isValid());
+        Assertions.assertTrue(((ValidationStatusResponse)validResult.getBody()).isValid());
         verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
     }
 
@@ -270,8 +275,9 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 200 with false")
     void testValidateAccountsFilingDataReturns200False() {
         // Given
+        validationStatusResponse.setValid(false);
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(false);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
 
         // When
         final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
@@ -279,7 +285,7 @@ class TransactionControllerTest {
         // Then
         Assertions.assertEquals(HttpStatus.OK, inValidResult.getStatusCode());
         Assertions.assertNotNull(inValidResult.getBody());
-        Assertions.assertFalse(((FilingValidationResponse)inValidResult.getBody()).isValid());
+        Assertions.assertFalse(((ValidationStatusResponse)inValidResult.getBody()).isValid());
         verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
     }
 

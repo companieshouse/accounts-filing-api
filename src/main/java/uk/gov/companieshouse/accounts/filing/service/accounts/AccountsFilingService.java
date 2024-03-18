@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.service.accounts;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 
 public interface AccountsFilingService {
 
@@ -8,6 +9,6 @@ public interface AccountsFilingService {
 
     public AccountsFilingEntry getFilingEntry(String accountsFilingId);
 
-    public boolean validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry);
+    public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry);
     
 }
