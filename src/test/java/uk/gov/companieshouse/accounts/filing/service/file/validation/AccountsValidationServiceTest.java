@@ -107,7 +107,7 @@ class AccountsValidationServiceTest {
         String date = "01-01-2000";
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null, null);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
@@ -130,7 +130,7 @@ class AccountsValidationServiceTest {
         String accountType = "accountType";
         String fileName = "fileName";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null, null);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = null;
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 

@@ -27,14 +27,20 @@ public class AccountsFilingEntry {
 
     @Field()
     private String companyNumber;
+
+    @Field()
+    private String madeUpDate;
+
+
     public AccountsFilingEntry(String accountsFilingId, String fileId, String accountsType, PackageType packageType,
-                               String transactionId, String companyNumber) {
+                               String transactionId, String companyNumber, String madeUpDate) {
         this.accountsFilingId = accountsFilingId;
         this.fileId = fileId;
         this.accountsType = accountsType;
         this.packageType = packageType;
         this.transactionId = transactionId;
         this.companyNumber = companyNumber;
+        this.madeUpDate = madeUpDate;
     }
 
     public AccountsFilingEntry(String accountsFilingId) {
@@ -79,6 +85,14 @@ public class AccountsFilingEntry {
         return companyNumber;
     }
 
+    public String getMadeUpDate() {
+        return madeUpDate;
+    }
+
+    public void setMadeUpDate(String madeUpDate) {
+        this.madeUpDate = madeUpDate;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -89,6 +103,7 @@ public class AccountsFilingEntry {
         result = prime * result + ((packageType == null) ? 0 : packageType.hashCode());
         result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
         result = prime * result + ((companyNumber == null) ? 0 : companyNumber.hashCode());
+        result = prime * result + ((madeUpDate == null) ? 0 : madeUpDate.hashCode());
         return result;
     }
 
@@ -128,14 +143,15 @@ public class AccountsFilingEntry {
                 return false;
         } else if (!companyNumber.equals(other.companyNumber))
             return false;
-        return true;
+        if (madeUpDate == null) {
+            return other.madeUpDate == null;
+        } else return madeUpDate.equals(other.madeUpDate);
     }
 
     @Override
     public String toString() {
         return "AccountsFilingEntry [accountsFilingId=" + accountsFilingId + ", fileId=" + fileId + ", accountsType="
                 + accountsType + ", packageType=" + packageType + ", transactionId=" + transactionId + ", companyNumber="
-                + companyNumber + "]";
+                + companyNumber + ", madeUpDate=" + madeUpDate + "]";
     }
-
 }

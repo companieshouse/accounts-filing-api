@@ -12,20 +12,27 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.enums.PackageType;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class AccountsFilingServiceImpl implements AccountsFilingService {
 
 
-    private AccountsFilingRepository accountsFilingRepository;
-    private Logger logger;
+    private final AccountsFilingRepository accountsFilingRepository;
+
+    private final AccountsFilingValidator accountsFilingValidator;
+
+    private final Logger logger;
 
     @Autowired
-    public AccountsFilingServiceImpl(AccountsFilingRepository accountsFilingRepository, Logger logger){
+    public AccountsFilingServiceImpl(AccountsFilingRepository accountsFilingRepository,
+                                     AccountsFilingValidator accountsFilingValidator, Logger logger) {
         this.accountsFilingRepository = accountsFilingRepository;
+        this.accountsFilingValidator = accountsFilingValidator;
         this.logger = logger;
     }
+
 
     @Override
     public void savePackageType(AccountsFilingEntry accountsFilingEntry, String packageType) throws UriValidationException {
@@ -52,5 +59,14 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         }
         return optionalEntry.get();
     }
-    
+
+    /**
+     * This method used to validate the data in accounts filing entry
+     * @param accountsFilingEntry - accounts filing entry which needs to be validated
+     * @return ValidationStatusResponse - Contains the validation status of the accounts filing entry
+     */
+    @Override
+    public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry){
+        return accountsFilingValidator.validateAccountsFilingEntry(accountsFilingEntry);
+    }
 }

@@ -83,6 +83,33 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
+
+    /**
+     * This method is used to validate the accounts filing data
+     * @param transactionId - Transaction id
+     * @param accountsFilingId - Filing id of the accounts
+     * @return contains the validation status of the account filing
+     */
+    @GetMapping("/validation-status")
+    public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
+                                                              @PathVariable("accountsFilingId") final String accountsFilingId){
+        AccountsFilingEntry accountsFilingEntry;
+        try{
+            accountsFilingEntry = accountsFilingService.getFilingEntry(accountsFilingId);
+        }
+        catch(EntryNotFoundException entryNotFoundException){
+            logger.error("Accounts filing id not found : " + accountsFilingId);
+            return ResponseEntity.notFound().build();
+        }
+        if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+            return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
+        }
+        else{
+            logger.error("Transaction id not found : " + transactionId);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     /**
      * Handles all un-caught exceptions
      *
