@@ -60,7 +60,7 @@ public class AccountsFilingValidator {
      * @param validationStatusErrors - List which holds the validation errors
      */
     private void validateAccountsType(String accountsType, List<ValidationStatusError> validationStatusErrors){
-        if(accountsType != null){
+        if(accountsType != null && !accountsType.isBlank()){
             try{
                 if(!isValidAccountsType(Integer.parseInt(accountsType))){
                     setValidationError(validationStatusErrors, "AccountsType : " + accountsType,
@@ -73,7 +73,7 @@ public class AccountsFilingValidator {
             }
         }
         else{
-            setValidationError(validationStatusErrors, "AccountsType", "Accounts type is null");
+            setValidationError(validationStatusErrors, "AccountsType", "Accounts type is null or blank");
         }
     }
 
@@ -91,20 +91,25 @@ public class AccountsFilingValidator {
      * @param validationStatusErrors - List which holds the validation errors
      */
     private void validateMadeUpDate(String madeUpDate, List<ValidationStatusError> validationStatusErrors){
-        if(madeUpDate != null){
-            SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            dateFormat.setLenient(false);
-            try{
-                dateFormat.parse(madeUpDate);
-            }
-            catch(ParseException parseException){
-                setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
-                        "Made up date is not in yyyy-MM-dd format");
-            }
+        if(madeUpDate == null || madeUpDate.isBlank()){
+            setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
+                    "Made up date is null or blank");
+            return;
         }
-        else{
-            setValidationError(validationStatusErrors, "MadeUpDate", "Made up date is null");
+        if("UNKNOWN".equals(madeUpDate)){
+            setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
+                    "Made up date is unknown");
+            return;
+        }
+        SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        dateFormat.setLenient(false);
+        try{
+            dateFormat.parse(madeUpDate);
+        }
+        catch(ParseException parseException){
+            setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
+                    "Made up date is not in yyyy-MM-dd format");
         }
     }
 
@@ -115,8 +120,8 @@ public class AccountsFilingValidator {
      * @param validationStatusErrors - List which holds the validation errors
      */
     private void validateFileId(String fileId, List<ValidationStatusError> validationStatusErrors){
-        if(fileId == null){
-            setValidationError(validationStatusErrors, "FileId", "File ID is null");
+        if(fileId == null || fileId.isBlank()){
+            setValidationError(validationStatusErrors, "FileId", "File ID is null or blank");
         }
         else{
             try {
