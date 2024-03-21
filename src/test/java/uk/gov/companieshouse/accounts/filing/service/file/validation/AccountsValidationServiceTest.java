@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -99,25 +100,27 @@ class AccountsValidationServiceTest {
     @Test
     @DisplayName("Save an accounts validation results to the repository")
     void testSaveFileValidationResult() {
+
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
         String accountStatus = "OK";
         String accountFilingId = "accountFilingId";
         String accountType = "accountType";
         String fileName = "fileName";
-        String date = "01-01-2000";
+        String balanceSheetDate = "2021-01-30";
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null, null);
+        AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
 
-        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(date, accountType, registationNumber);
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
-        when(accountsFilingRepository.save(requestFilingStatus)).thenReturn(requestFilingStatus);
+        service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
+        Assertions.assertEquals(accountType, accountsFilingEntryRequest.getAccountsType());
+        Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
+        Assertions.assertEquals(balanceSheetDate, accountsFilingEntryRequest.getMadeUpDate());
 
-        service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus);
-
-        verify(accountsFilingRepository, times(1)).save(requestFilingStatus);
+        verify(accountsFilingRepository, times(1)).save(accountsFilingEntryRequest);
     }
 
     @Test
@@ -127,14 +130,11 @@ class AccountsValidationServiceTest {
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
         String accountStatus = "OK";
         String accountFilingId = "accountFilingId";
-        String accountType = "accountType";
         String fileName = "fileName";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
-        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId, fileId, accountType,null, null, null, null);
-
-        AccountsValidatorDataApi accountsValidatorStatusApi = null;
-        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
-                                                                                              validationStatus, accountsValidatorStatusApi);
+        AccountsFilingEntry requestFilingStatus = new AccountsFilingEntry(accountFilingId);
+        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
+                                                                                              validationStatus, null);
 
         assertThrows(InvalidStateException.class, () -> service.saveFileValidationResult(requestFilingStatus, accountsValidatorStatus));
     }
