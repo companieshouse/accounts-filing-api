@@ -75,6 +75,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
 
         accountsFilingEntry.setAccountsType(data.accountType());
         accountsFilingEntry.setFileId(fileId);
+        accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
         requestFilingRepository.save(accountsFilingEntry);
         logger.debugContext(accountsFilingEntry.getAccountsFilingId(), message, new HashMap<>());
     }
