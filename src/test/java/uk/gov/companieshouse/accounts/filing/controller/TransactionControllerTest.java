@@ -39,6 +39,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultA
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
+import uk.gov.companieshouse.api.model.payment.CostsApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
@@ -258,6 +259,7 @@ class TransactionControllerTest {
     void testValidateAccountsFilingDataReturns200True() {
         // Given
         validationStatusResponse.setValid(true);
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(true);
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
         when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
 
@@ -276,6 +278,7 @@ class TransactionControllerTest {
     void testValidateAccountsFilingDataReturns200False() {
         // Given
         validationStatusResponse.setValid(false);
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(true);
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
         when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
 
@@ -293,10 +296,9 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 404 for invalid transaction id")
     void testValidateAccountsFilingDataReturns404ForTransactionId() {
         // Given
-        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(false);
         // When
-        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData("invalidTransId", accountsFilingId);
+        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
@@ -307,10 +309,39 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 404 for invalid filing id")
     void testValidateAccountsFilingDataReturns404ForFilingId() {
         // Given
-        doThrow(new EntryNotFoundException()).when(accountsFilingService).getFilingEntry(accountsFilingId);
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(false);
+
 
         // When
         final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
+        Assertions.assertNull(inValidResult.getBody());
+    }
+
+    @Test
+    @DisplayName("Test calculateCosts returns 200 with an empty cost array")
+    void testCalculateCostsReturns200EmptyArray() {
+        // Given
+        validationStatusResponse.setValid(true);
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(true);
+       // When
+        final ResponseEntity<?> validResult = controller.calculateCosts(transactionId, accountsFilingId);
+
+        // Then
+        Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
+        Assertions.assertNotNull(validResult.getBody());
+        Assertions.assertTrue(((CostsApi)validResult.getBody()).getItems().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Test calculateCosts returns 404 for invalid id")
+    void testCalculateCostsReturns404ForInvalidId() {
+        // Given
+        when(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)).thenReturn(false);
+        // When
+        final ResponseEntity<?> inValidResult = controller.calculateCosts(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());

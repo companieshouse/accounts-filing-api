@@ -69,4 +69,28 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry){
         return accountsFilingValidator.validateAccountsFilingEntry(accountsFilingEntry);
     }
+
+    /**
+     * This method used to verify whether the given transaction id and accounts filing id available in the mongo db.
+     * @param transactionId - ID of the transaction
+     * @param accountsFilingId - Filing id of the accounts
+     * @return boolean - returns whether the given transaction id and accounts filing id is present in database
+     */
+    @Override
+    public boolean isTransactionAndAccountsFilingIdExists(String transactionId, String accountsFilingId) {
+        try{
+            AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
+            if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+                return true;
+            }
+            else{
+                logger.error("Transaction id not found : " + transactionId);
+                return false;
+            }
+        }
+        catch(EntryNotFoundException entryNotFoundException){
+            logger.error("Accounts filing id not found : " + accountsFilingId);
+            return false;
+        }
+    }
 }

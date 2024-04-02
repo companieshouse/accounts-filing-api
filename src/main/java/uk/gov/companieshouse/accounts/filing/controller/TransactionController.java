@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.controller;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsVal
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.payment.CostsApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -83,7 +85,6 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
-
     /**
      * This method is used to validate the accounts filing data
      * @param transactionId - Transaction id
@@ -92,20 +93,31 @@ public class TransactionController {
      */
     @GetMapping("/validation-status")
     public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
-                                                              @PathVariable("accountsFilingId") final String accountsFilingId){
-        AccountsFilingEntry accountsFilingEntry;
-        try{
-            accountsFilingEntry = accountsFilingService.getFilingEntry(accountsFilingId);
-        }
-        catch(EntryNotFoundException entryNotFoundException){
-            logger.error("Accounts filing id not found : " + accountsFilingId);
-            return ResponseEntity.notFound().build();
-        }
-        if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+                                                        @PathVariable("accountsFilingId") final String accountsFilingId){
+        if(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)){
+            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getFilingEntry(accountsFilingId);
             return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
         }
         else{
-            logger.error("Transaction id not found : " + transactionId);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * This method is used to calculate the costs for the filing
+     * @param transactionId - Transaction id
+     * @param accountsFilingId - Filing id of the accounts
+     * @return contains the cost of the account filing
+     */
+    @GetMapping("/costs")
+    public ResponseEntity<?> calculateCosts(@PathVariable("transactionId") final String transactionId,
+                                            @PathVariable("accountsFilingId") final String accountsFilingId){
+        if(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)){
+            CostsApi costs = new CostsApi();
+            costs.setItems(new ArrayList<>());
+            return ResponseEntity.ok(costs);
+        }
+        else{
             return ResponseEntity.notFound().build();
         }
     }

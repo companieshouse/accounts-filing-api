@@ -97,11 +97,27 @@ class AccountsFilingServiceTest {
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
 
         validationStatusResponse.setValid(false);
-        when(service.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
-        assertFalse(((ValidationStatusResponse) service.validateAccountsFilingEntry(entry)).isValid());
+        when(accountsFilingValidator.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
+        assertFalse((service.validateAccountsFilingEntry(entry)).isValid());
 
         validationStatusResponse.setValid(true);
-        when(service.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
-        assertTrue(((ValidationStatusResponse) service.validateAccountsFilingEntry(entry)).isValid());
+        when(accountsFilingValidator.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
+        assertTrue((service.validateAccountsFilingEntry(entry)).isValid());
+    }
+
+    @Test
+    @DisplayName("Testing whether IsTransactionAndAccountsFilingIdExists for true and false scenarios")
+    void testIsTransactionAndAccountsFilingIdExists() {
+        final var accountsFilingId = "accountsFilingId";
+        final var transactionId = "transactionId";
+
+        assertFalse(service.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId));
+
+        AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null, null, null, transactionId, null, null);
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
+        assertFalse(service.isTransactionAndAccountsFilingIdExists("InvalidTransId", accountsFilingId));
+
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
+        assertTrue(service.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId));
     }
 }
