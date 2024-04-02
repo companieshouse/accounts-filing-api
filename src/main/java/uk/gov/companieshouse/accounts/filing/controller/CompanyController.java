@@ -51,7 +51,7 @@ public class CompanyController {
         if (companyNumber == null || companyNumber.isBlank()) {
             return false;
         } else {
-            Pattern pattern = Pattern.compile("^[a-zA-Z0-9]+$");
+            Pattern pattern = Pattern.compile("^(?:SC|NI|[0-9]{2})[0-9]{6}$");
             return pattern.matcher(companyNumber).matches();
         }
     }
