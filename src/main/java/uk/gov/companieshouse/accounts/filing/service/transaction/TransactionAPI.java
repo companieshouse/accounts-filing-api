@@ -20,8 +20,6 @@ class TransactionAPI {
 
     private static final String PRIVATE_TRANSACTION_URL = "/private/transactions/";
 
-    private static final String TRANSACTION_URL = "/transactions/";
-
     @Autowired
     public TransactionAPI(ApiClientService apiClientService) {
         this.apiClientService = apiClientService;
