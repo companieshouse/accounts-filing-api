@@ -28,9 +28,8 @@ class TransactionAPI {
     }
 
     public ApiResponse<Transaction> get(final String transactionId) throws ApiErrorResponseException, URIValidationException {
-        String path = TRANSACTION_URL + transactionId;
-        TransactionsGet get = apiClientService.getApiKeyAuthenticatedClient().transactions()
-                .get(path);
+        String path = PRIVATE_TRANSACTION_URL + transactionId;
+        PrivateTransactionGet get = apiClientService.getInternalApiClient().privateTransaction().get(path);
         return get.execute();
     }
 
