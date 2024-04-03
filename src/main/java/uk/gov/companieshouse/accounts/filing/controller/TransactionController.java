@@ -94,11 +94,11 @@ public class TransactionController {
     @GetMapping("/validation-status")
     public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
                                                         @PathVariable("accountsFilingId") final String accountsFilingId){
-        if(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)){
-            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getFilingEntry(accountsFilingId);
+        try{
+            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
             return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
         }
-        else{
+        catch(EntryNotFoundException entryNotFoundException){
             return ResponseEntity.notFound().build();
         }
     }
@@ -112,12 +112,13 @@ public class TransactionController {
     @GetMapping("/costs")
     public ResponseEntity<?> calculateCosts(@PathVariable("transactionId") final String transactionId,
                                             @PathVariable("accountsFilingId") final String accountsFilingId){
-        if(accountsFilingService.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId)){
+        try{
+            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
             CostsApi costs = new CostsApi();
             costs.setItems(new ArrayList<>());
             return ResponseEntity.ok(costs);
         }
-        else{
+        catch(EntryNotFoundException entryNotFoundException){
             return ResponseEntity.notFound().build();
         }
     }

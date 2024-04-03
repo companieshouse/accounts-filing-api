@@ -107,17 +107,21 @@ class AccountsFilingServiceTest {
 
     @Test
     @DisplayName("Testing whether IsTransactionAndAccountsFilingIdExists for true and false scenarios")
-    void testIsTransactionAndAccountsFilingIdExists() {
+    void testGetAccountsFilingEntryForIDAndTransaction() {
         final var accountsFilingId = "accountsFilingId";
         final var transactionId = "transactionId";
+        AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null,
+                null, null, transactionId, null, null);
+        //Test when accounts filing entry not found for given accounts filing id
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.empty());
+        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
 
-        assertFalse(service.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId));
-
-        AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null, null, null, transactionId, null, null);
+        //Test when accounts filing entry found for given accounts filing id, but the transaction id doesn't match
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
-        assertFalse(service.isTransactionAndAccountsFilingIdExists("InvalidTransId", accountsFilingId));
+        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction("InvalidTransId", accountsFilingId));
 
+        //Test when
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
-        assertTrue(service.isTransactionAndAccountsFilingIdExists(transactionId, accountsFilingId));
+        assertEquals(entry,service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
     }
 }

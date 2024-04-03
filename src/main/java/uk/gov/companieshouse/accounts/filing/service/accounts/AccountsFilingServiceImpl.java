@@ -71,26 +71,22 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     }
 
     /**
-     * This method used to verify whether the given transaction id and accounts filing id available in the mongo db.
+     * This method used to get the accounts filing entry for the given transaction id and accounts filing id
      * @param transactionId - ID of the transaction
      * @param accountsFilingId - Filing id of the accounts
-     * @return boolean - returns whether the given transaction id and accounts filing id is present in database
+     * @return AccountsFilingEntry - returns accounts filing entry  for the given transaction id and accounts filing id.
      */
     @Override
-    public boolean isTransactionAndAccountsFilingIdExists(String transactionId, String accountsFilingId) {
-        try{
-            AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
-            if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
-                return true;
-            }
-            else{
-                logger.error("Transaction id not found : " + transactionId);
-                return false;
-            }
+    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(String transactionId, String accountsFilingId) {
+        AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
+        if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+            return accountsFilingEntry;
         }
-        catch(EntryNotFoundException entryNotFoundException){
-            logger.error("Accounts filing id not found : " + accountsFilingId);
-            return false;
+        else{
+            var message = String.format("Entry with accountFilingId: %s and transaction id: %s was not found",
+                                                        accountsFilingId, transactionId);
+            logger.error(message);
+            throw new EntryNotFoundException(message);
         }
     }
 }

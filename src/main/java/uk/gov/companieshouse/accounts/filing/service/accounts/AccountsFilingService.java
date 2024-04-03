@@ -11,5 +11,5 @@ public interface AccountsFilingService {
 
     public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry);
 
-    public boolean isTransactionAndAccountsFilingIdExists(String transactionId, String accountsFilingId);
+    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(String transactionId, String accountsFilingId);
 }
