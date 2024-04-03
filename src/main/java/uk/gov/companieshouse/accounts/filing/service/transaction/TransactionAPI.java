@@ -20,17 +20,14 @@ class TransactionAPI {
 
     private static final String PRIVATE_TRANSACTION_URL = "/private/transactions/";
 
-    private static final String TRANSACTION_URL = "/transactions/";
-
     @Autowired
     public TransactionAPI(ApiClientService apiClientService) {
         this.apiClientService = apiClientService;
     }
 
     public ApiResponse<Transaction> get(final String transactionId) throws ApiErrorResponseException, URIValidationException {
-        String path = TRANSACTION_URL + transactionId;
-        TransactionsGet get = apiClientService.getApiKeyAuthenticatedClient().transactions()
-                .get(path);
+        String path = PRIVATE_TRANSACTION_URL + transactionId;
+        PrivateTransactionGet get = apiClientService.getInternalApiClient().privateTransaction().get(path);
         return get.execute();
     }
 
