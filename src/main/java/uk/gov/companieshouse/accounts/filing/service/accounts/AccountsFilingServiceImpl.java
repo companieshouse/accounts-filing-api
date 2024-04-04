@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.enums.PackageType;
+import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;

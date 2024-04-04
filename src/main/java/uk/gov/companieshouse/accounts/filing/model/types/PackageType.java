@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.accounts.filing.model.enums;
+package uk.gov.companieshouse.accounts.filing.model.types;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 

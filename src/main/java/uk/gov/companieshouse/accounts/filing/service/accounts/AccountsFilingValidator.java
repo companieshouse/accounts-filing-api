@@ -3,7 +3,7 @@ package uk.gov.companieshouse.accounts.filing.service.accounts;
 
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.enums.PackageType;
+import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 
