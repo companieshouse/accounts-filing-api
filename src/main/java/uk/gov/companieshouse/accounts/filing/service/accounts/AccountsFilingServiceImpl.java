@@ -69,4 +69,24 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry){
         return accountsFilingValidator.validateAccountsFilingEntry(accountsFilingEntry);
     }
+
+    /**
+     * This method used to get the accounts filing entry for the given transaction id and accounts filing id
+     * @param transactionId - ID of the transaction
+     * @param accountsFilingId - Filing id of the accounts
+     * @return AccountsFilingEntry - returns accounts filing entry  for the given transaction id and accounts filing id.
+     */
+    @Override
+    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(String transactionId, String accountsFilingId) {
+        AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
+        if(transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())){
+            return accountsFilingEntry;
+        }
+        else{
+            var message = String.format("Entry with accountFilingId: %s and transaction id: %s was not found",
+                                                        accountsFilingId, transactionId);
+            logger.error(message);
+            throw new EntryNotFoundException(message);
+        }
+    }
 }
