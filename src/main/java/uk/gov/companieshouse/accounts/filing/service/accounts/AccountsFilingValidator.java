@@ -1,8 +1,8 @@
 package uk.gov.companieshouse.accounts.filing.service.accounts;
 
-
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -20,20 +20,21 @@ public class AccountsFilingValidator {
 
     /**
      * @param accountsFilingEntry - data which needs to be validated
-     * @return ValidationStatusResponse - Contains the validation status of the accounts filing entry
+     * @return ValidationStatusResponse - Contains the validation status of the
+     *         accounts filing entry
      */
-    public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry){
+    public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry) {
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
         List<ValidationStatusError> validationStatusErrors = new ArrayList<>();
         validatePackageType(accountsFilingEntry.getPackageType(), validationStatusErrors);
         validateAccountsType(accountsFilingEntry.getAccountsType(), validationStatusErrors);
         validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
         validateFileId(accountsFilingEntry.getFileId(), validationStatusErrors);
-        if(validationStatusErrors.size() > 0){
+        if (!validationStatusErrors.isEmpty()) {
             validationStatusResponse.setValid(false);
-            validationStatusResponse.setValidationStatusError(validationStatusErrors.toArray(new ValidationStatusError[0]));
-        }
-        else{
+            validationStatusResponse
+                    .setValidationStatusError(validationStatusErrors.toArray(new ValidationStatusError[0]));
+        } else {
             validationStatusResponse.setValid(true);
         }
         return validationStatusResponse;
@@ -41,39 +42,35 @@ public class AccountsFilingValidator {
 
     /**
      * This method checks the package type is UKSEF or not
-     * @param packageType - package type of the given accounts filing entry
+     * 
+     * @param packageType            - package type of the given accounts filing
+     *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validatePackageType(PackageType packageType, List<ValidationStatusError> validationStatusErrors){
-        if(packageType == null){
+    private void validatePackageType(PackageType packageType, List<ValidationStatusError> validationStatusErrors) {
+        if (packageType == null) {
             setValidationError(validationStatusErrors, "PackageType", "Package type is null");
-        }
-        else if(!PackageType.UKSEF.equals(packageType)){
+        } else if (!PackageType.UKSEF.equals(packageType)) {
             setValidationError(validationStatusErrors, "PackageType : " + packageType,
                     "Package type is not UKSEF");
         }
     }
 
     /**
-     * This method validates whether the accounts type is in the range of 1 to 18
-     * @param accountsType - accounts Type of the given accounts filing entry
+     * This method validates whether the accounts type is a valid
+     * 
+     * @param accountsType           - accounts Type of the given accounts filing
+     *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validateAccountsType(String accountsType, List<ValidationStatusError> validationStatusErrors){
-        if(accountsType != null && !accountsType.isBlank()){
-            try{
-                if(!isValidAccountsType(Integer.parseInt(accountsType))){
-                    setValidationError(validationStatusErrors, "AccountsType : " + accountsType,
-                            "Accounts type is not between the range of 1 to 18");
-                }
-            }
-            catch(NumberFormatException nfe){
-                setValidationError(validationStatusErrors, "AccountsType : " + accountsType,
-                        "Accounts type is not in integer format");
-            }
-        }
-        else{
+    private void validateAccountsType(String accountsType, List<ValidationStatusError> validationStatusErrors) {
+        if (accountsType == null || accountsType.isBlank()) {
             setValidationError(validationStatusErrors, "AccountsType", "Accounts type is null or blank");
+            return;
+        }
+        if (!isValidAccountsType(accountsType)) {
+            setValidationError(validationStatusErrors, "AccountsType : " + accountsType,
+                    "Accounts type is not a valid AccountsType");
         }
     }
 
@@ -81,49 +78,49 @@ public class AccountsFilingValidator {
      * @param accountsType - accounts Type of the given accounts filing entry
      * @return whether it's a valid account type
      */
-    private boolean isValidAccountsType(int accountsType){
-        return accountsType >= 1 && accountsType <= 18;
+    private boolean isValidAccountsType(String accountsType) {
+        return !AccountsType.fromStemCode(accountsType).equals(AccountsType.UNKNOWN);
     }
 
     /**
      * This method validates the made up date is valid or not
-     * @param madeUpDate - made up date of the given accounts filing entry
+     * 
+     * @param madeUpDate             - made up date of the given accounts filing
+     *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validateMadeUpDate(String madeUpDate, List<ValidationStatusError> validationStatusErrors){
-        if(madeUpDate == null || madeUpDate.isBlank()){
+    private void validateMadeUpDate(String madeUpDate, List<ValidationStatusError> validationStatusErrors) {
+        if (madeUpDate == null || madeUpDate.isBlank()) {
             setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
                     "Made up date is null or blank");
             return;
         }
-        if("UNKNOWN".equals(madeUpDate)){
+        if ("UNKNOWN".equals(madeUpDate)) {
             setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
                     "Made up date is unknown");
             return;
         }
-        SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         dateFormat.setLenient(false);
-        try{
+        try {
             dateFormat.parse(madeUpDate);
-        }
-        catch(ParseException parseException){
+        } catch (ParseException parseException) {
             setValidationError(validationStatusErrors, "MadeUpDate : " + madeUpDate,
                     "Made up date is not in yyyy-MM-dd format");
         }
     }
 
-
     /**
      * This method validates the file id is a UUID
-     * @param fileId - file id on the given accounts filing entry
+     * 
+     * @param fileId                 - file id on the given accounts filing entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validateFileId(String fileId, List<ValidationStatusError> validationStatusErrors){
-        if(fileId == null || fileId.isBlank()){
+    private void validateFileId(String fileId, List<ValidationStatusError> validationStatusErrors) {
+        if (fileId == null || fileId.isBlank()) {
             setValidationError(validationStatusErrors, "FileId", "File ID is null or blank");
-        }
-        else{
+        } else {
             try {
                 UUID uuid = UUID.fromString(fileId);
             } catch (IllegalArgumentException e) {
@@ -135,10 +132,11 @@ public class AccountsFilingValidator {
 
     /**
      * @param validationStatusErrors - List which holds the validation errors
-     * @param fieldName - field name which is validated
-     * @param errorDescription - description of the validation error
+     * @param fieldName              - field name which is validated
+     * @param errorDescription       - description of the validation error
      */
-    private void setValidationError(List<ValidationStatusError> validationStatusErrors, String fieldName, String errorDescription){
+    private void setValidationError(List<ValidationStatusError> validationStatusErrors, String fieldName,
+            String errorDescription) {
         ValidationStatusError validationStatusError = new ValidationStatusError();
         validationStatusError.setError(errorDescription);
         validationStatusError.setLocation(fieldName);

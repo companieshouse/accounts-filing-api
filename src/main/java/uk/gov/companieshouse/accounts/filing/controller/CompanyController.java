@@ -42,7 +42,7 @@ public class CompanyController {
 
     /**
      * The method will check the passed company number is in correct
-     * format or not. If it is in correct format, the method will return true
+     * charactor set or not. If it is using the correct charactor set, the method will return true
      * else return false.
      *
      * @return boolean
@@ -51,7 +51,7 @@ public class CompanyController {
         if (companyNumber == null || companyNumber.isBlank()) {
             return false;
         } else {
-            Pattern pattern = Pattern.compile("^(?:SC|NI|[0-9]{2})[0-9]{6}$");
+            Pattern pattern = Pattern.compile("^[A-Z0-9]{8}$");
             return pattern.matcher(companyNumber).matches();
         }
     }

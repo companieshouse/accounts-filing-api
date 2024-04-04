@@ -39,15 +39,7 @@ public class FilingGeneratorMapper {
     private String getAccountTypeName(AccountsFilingEntry accountsFilingEntry) {
         return AccountsType.fromStemCode(accountsFilingEntry.getAccountsType()).getType();
     }
-
-    private Map<String, String> formatLocation(AccountsFilingEntry accountsFilingEntry) {
-        Map<String, String> location = new HashMap<>();
-        location.put("rel", "accounts");
-        // The file id location
-        location.put("href", String.format("%s%s/%s", scheme, bucket, accountsFilingEntry.getFileId()));
-        return location;
-    }
-
+    
     private Map<String, Object> formatData(AccountsFilingEntry accountsFilingEntry, String madeUpDate) {
         Map<String, Object> data = new HashMap<>();
         data.put("packageType", accountsFilingEntry.getPackageType().toString());
@@ -56,5 +48,13 @@ public class FilingGeneratorMapper {
         data.put("madeUpDate", madeUpDate);
         return data;
     }
+    
+        private Map<String, String> formatLocation(AccountsFilingEntry accountsFilingEntry) {
+            Map<String, String> location = new HashMap<>();
+            location.put("rel", "accounts");
+            // The file id location
+            location.put("href", String.format("%s%s/%s", scheme, bucket, accountsFilingEntry.getFileId()));
+            return location;
+        }
 
 }
