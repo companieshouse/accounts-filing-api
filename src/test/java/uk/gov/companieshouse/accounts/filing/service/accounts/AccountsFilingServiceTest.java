@@ -97,11 +97,31 @@ class AccountsFilingServiceTest {
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
 
         validationStatusResponse.setValid(false);
-        when(service.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
-        assertFalse(((ValidationStatusResponse) service.validateAccountsFilingEntry(entry)).isValid());
+        when(accountsFilingValidator.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
+        assertFalse((service.validateAccountsFilingEntry(entry)).isValid());
 
         validationStatusResponse.setValid(true);
-        when(service.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
-        assertTrue(((ValidationStatusResponse) service.validateAccountsFilingEntry(entry)).isValid());
+        when(accountsFilingValidator.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
+        assertTrue((service.validateAccountsFilingEntry(entry)).isValid());
+    }
+
+    @Test
+    @DisplayName("Testing whether IsTransactionAndAccountsFilingIdExists for true and false scenarios")
+    void testGetAccountsFilingEntryForIDAndTransaction() {
+        final var accountsFilingId = "accountsFilingId";
+        final var transactionId = "transactionId";
+        AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null,
+                null, null, transactionId, null, null);
+        //Test when accounts filing entry not found for given accounts filing id
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.empty());
+        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
+
+        //Test when accounts filing entry found for given accounts filing id, but the transaction id doesn't match
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
+        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction("InvalidTransId", accountsFilingId));
+
+        //Test when
+        when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
+        assertEquals(entry,service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
     }
 }
