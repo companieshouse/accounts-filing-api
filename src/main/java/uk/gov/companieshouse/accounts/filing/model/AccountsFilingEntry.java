@@ -3,7 +3,7 @@ package uk.gov.companieshouse.accounts.filing.model;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import uk.gov.companieshouse.accounts.filing.model.enums.PackageType;
+import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 
 import org.springframework.data.annotation.Id;
 

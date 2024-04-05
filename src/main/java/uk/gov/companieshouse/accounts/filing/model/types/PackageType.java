@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.accounts.filing.model.enums;
+package uk.gov.companieshouse.accounts.filing.model.types;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 
@@ -16,7 +16,7 @@ public enum PackageType {
 
     private final String type;
 
-    private PackageType (String type) {
+    private PackageType(String type) {
         this.type = type;
     }
 
@@ -29,12 +29,11 @@ public enum PackageType {
     public static PackageType findPackageType(String packageString) throws UriValidationException {
 
         for (PackageType packageType : PackageType.values()) {
-            if (packageType.toString().equals(packageString))
-            {
+            if (packageType.toString().equals(packageString)) {
                 return packageType;
             }
         }
-        
+
         throw new UriValidationException(String.format("%s does not match a valid packageType", packageString));
     }
 }
