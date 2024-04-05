@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.accounts.filing.model.types;
 
-
 public enum AccountsType {
     UNKNOWN("00", "UNKNOWN"),
 
