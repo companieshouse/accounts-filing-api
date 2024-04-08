@@ -49,7 +49,6 @@ class AccountsFilingServiceTest {
         var accountFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountFilingId);
 
-
         when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.of(entry));
 
         AccountsFilingEntry returnEntry = service.getFilingEntry(accountFilingId);
@@ -112,16 +111,19 @@ class AccountsFilingServiceTest {
         var transactionId = "transactionId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null,
                 null, null, transactionId, null, null);
-        //Test when accounts filing entry not found for given accounts filing id
+        // Test when accounts filing entry not found for given accounts filing id
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.empty());
-        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
+        assertThrows(EntryNotFoundException.class,
+                () -> service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
 
-        //Test when accounts filing entry found for given accounts filing id, but the transaction id doesn't match
+        // Test when accounts filing entry found for given accounts filing id, but the
+        // transaction id doesn't match
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
-        assertThrows(EntryNotFoundException.class, () -> service.getAccountsFilingEntryForIDAndTransaction("InvalidTransId", accountsFilingId));
+        assertThrows(EntryNotFoundException.class,
+                () -> service.getAccountsFilingEntryForIDAndTransaction("InvalidTransId", accountsFilingId));
 
-        //Test when
+        // Test when
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.of(entry));
-        assertEquals(entry,service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
+        assertEquals(entry, service.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId));
     }
 }

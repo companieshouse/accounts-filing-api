@@ -31,14 +31,13 @@ public class AccountsFilingValidator {
         validateAccountsType(accountsFilingEntry.getAccountsType(), validationStatusErrors);
         validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
         validateFileId(accountsFilingEntry.getFileId(), validationStatusErrors);
-        
+
         final boolean passedValidation = validationStatusErrors.isEmpty();
         validationStatusResponse.setValid(passedValidation);
         if (!passedValidation) {
             validationStatusResponse
                     .setValidationStatusError(validationStatusErrors.toArray(new ValidationStatusError[0]));
         }
-        
 
         return validationStatusResponse;
     }
@@ -50,7 +49,8 @@ public class AccountsFilingValidator {
      *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validatePackageType(final PackageType packageType, final List<ValidationStatusError> validationStatusErrors) {
+    private void validatePackageType(final PackageType packageType,
+            final List<ValidationStatusError> validationStatusErrors) {
         if (packageType == null) {
             setValidationError(validationStatusErrors, "PackageType", "Package type is null");
         } else if (!PackageType.UKSEF.equals(packageType)) {
@@ -66,7 +66,8 @@ public class AccountsFilingValidator {
      *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validateAccountsType(final String accountsType, final List<ValidationStatusError> validationStatusErrors) {
+    private void validateAccountsType(final String accountsType,
+            final List<ValidationStatusError> validationStatusErrors) {
         if (accountsType == null || accountsType.isBlank()) {
             setValidationError(validationStatusErrors, "AccountsType", "Accounts type is null or blank");
             return;

@@ -72,7 +72,7 @@ class TransactionServiceTest {
 
         Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
 
-        assertTrue(returnTransaction.isEmpty());      
+        assertTrue(returnTransaction.isEmpty());
     }
 
     @Test
@@ -88,12 +88,12 @@ class TransactionServiceTest {
 
     @Test
     @DisplayName("Update a transaction")
-    void testUpdateTransaction() throws ApiErrorResponseException,  URIValidationException {
+    void testUpdateTransaction() throws ApiErrorResponseException, URIValidationException {
         var transaction = new Transaction();
         ApiResponse<Void> apiResponse = new ApiResponse<>(204, Collections.emptyMap());
-        
+
         when(transactionAPI.patch(transaction)).thenReturn(apiResponse);
-        
+
         transactionService.updateTransaction(transaction);
 
         verify(transactionAPI, times(1)).patch(transaction);
@@ -107,7 +107,7 @@ class TransactionServiceTest {
         ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
         when(exception.getStatusCode()).thenReturn(401);
         when(transactionAPI.patch(transaction)).thenThrow(exception);
-        
+
         assertThrows(ResponseException.class, () -> transactionService.updateTransaction(transaction));
         verify(transactionAPI, times(1)).patch(transaction);
     }

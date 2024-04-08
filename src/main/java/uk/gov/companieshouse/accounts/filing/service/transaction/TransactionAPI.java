@@ -23,17 +23,19 @@ class TransactionAPI {
         this.apiClientService = apiClientService;
     }
 
-    public ApiResponse<Transaction> get(final String transactionId) throws ApiErrorResponseException, URIValidationException {
+    public ApiResponse<Transaction> get(final String transactionId)
+            throws ApiErrorResponseException, URIValidationException {
         String path = PRIVATE_TRANSACTION_URL + transactionId;
         PrivateTransactionGet get = apiClientService.getInternalApiClient().privateTransaction().get(path);
         return get.execute();
     }
 
-    public ApiResponse<Void> patch(final Transaction transaction) throws ApiErrorResponseException, URIValidationException {
+    public ApiResponse<Void> patch(final Transaction transaction)
+            throws ApiErrorResponseException, URIValidationException {
         String path = PRIVATE_TRANSACTION_URL + transaction.getId();
         PrivateTransactionPatch patch = apiClientService.getInternalApiClient()
                 .privateTransaction()
                 .patch(path, transaction);
-            return patch.execute();
+        return patch.execute();
     }
 }

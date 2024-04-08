@@ -16,7 +16,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 
-
 @ExtendWith(MockitoExtension.class)
 class TransformerServiceTest {
 
@@ -25,7 +24,7 @@ class TransformerServiceTest {
     private TransactionTransformer service;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         service = new TransactionTransformerImpl();
         ReflectionTestUtils.setField(service, "resourceKind", "abc");
     }
@@ -36,16 +35,15 @@ class TransformerServiceTest {
         var transactionId = "transactionId";
         var accountFilingId = "accountFilingId";
         var uri = "/transactions/" + transactionId + "/account-filing/" + accountFilingId;
-        
+
         Map<String, String> links = Map.of(
-            "resource", uri,
-            "validation_status", uri+"/validation-status"
-            );
-            
+                "resource", uri,
+                "validation_status", uri + "/validation-status");
+
         transaction.setId(transactionId);
         transaction.setResources(new HashMap<>());
 
-        //then
+        // then
         service.setupTransactionResources(transaction, accountFilingId);
         Resource resourceResult = transaction.getResources().get(uri);
 
