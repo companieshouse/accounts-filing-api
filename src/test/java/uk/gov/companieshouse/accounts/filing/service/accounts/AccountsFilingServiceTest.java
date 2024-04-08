@@ -46,8 +46,8 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Get Filing Entry")
     void testGetFilingEntry() {
-        final var accountFilingId = "accountsFilingId";
-        final AccountsFilingEntry entry = new AccountsFilingEntry(accountFilingId);
+        var accountFilingId = "accountsFilingId";
+        AccountsFilingEntry entry = new AccountsFilingEntry(accountFilingId);
 
 
         when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.of(entry));
@@ -62,7 +62,7 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Failed to get filing entry because it does not exist.")
     void testGetFilingEntryEmptyReturnFromDB() {
-        final var accountFilingId = "accountsFilingId";
+        var accountFilingId = "accountsFilingId";
 
         when(accountsFilingRepository.findById(accountFilingId)).thenReturn(Optional.empty());
 
@@ -72,7 +72,7 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Save package type to existing entry")
     void testSavePackageType() {
-        final var accountsFilingId = "accountsFilingId";
+        var accountsFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId);
 
         service.savePackageType(entry, "UKSEF");
@@ -83,7 +83,7 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Failed to save invalid package type to existing entry")
     void testSavePackageTypeBadPackageType() {
-        final var accountsFilingId = "accountsFilingId";
+        var accountsFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId);
 
         assertThrows(UriValidationException.class, () -> service.savePackageType(entry, "BAD TYPE"));
@@ -92,7 +92,7 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Testing validation of accounts filing data")
     void testValidateAccountsFilingEntry() {
-        final var accountFilingId = "accountsFilingId";
+        var accountFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountFilingId);
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
 
@@ -108,8 +108,8 @@ class AccountsFilingServiceTest {
     @Test
     @DisplayName("Testing whether IsTransactionAndAccountsFilingIdExists for true and false scenarios")
     void testGetAccountsFilingEntryForIDAndTransaction() {
-        final var accountsFilingId = "accountsFilingId";
-        final var transactionId = "transactionId";
+        var accountsFilingId = "accountsFilingId";
+        var transactionId = "transactionId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null,
                 null, null, transactionId, null, null);
         //Test when accounts filing entry not found for given accounts filing id

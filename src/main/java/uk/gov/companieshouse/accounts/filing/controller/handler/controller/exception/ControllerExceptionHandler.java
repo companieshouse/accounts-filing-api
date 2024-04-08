@@ -3,7 +3,6 @@ package uk.gov.companieshouse.accounts.filing.controller.handler.controller.exce
 import org.springframework.http.ResponseEntity;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.logging.Logger;

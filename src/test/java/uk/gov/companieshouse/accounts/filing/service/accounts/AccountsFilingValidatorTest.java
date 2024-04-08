@@ -43,7 +43,7 @@ class AccountsFilingValidatorTest {
         void setUp() {
                 filingValidator = new AccountsFilingValidator();
                 validationStatusResponse = new ValidationStatusResponse();
-                final var accountFilingId = "accountsFilingId";
+                var accountFilingId = "accountsFilingId";
                 entry = new AccountsFilingEntry(accountFilingId);
         }
 

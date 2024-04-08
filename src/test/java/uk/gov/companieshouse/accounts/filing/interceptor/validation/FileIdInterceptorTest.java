@@ -11,6 +11,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -30,9 +33,9 @@ class FileIdInterceptorTest {
 
     @Mock
     private Logger logger;
-    
+
     private FileIdInterceptor fileIdInterceptor;
-    
+
     @BeforeEach
     void setUp() {
         this.fileIdInterceptor = new FileIdInterceptor(logger);
@@ -46,70 +49,29 @@ class FileIdInterceptorTest {
         var pathParameters = new HashMap<String, String>();
         pathParameters.put(Constants.FILE_ID_KEY, FILE_ID);
 
-        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
+        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(pathParameters);
         when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
-        
+
         assertTrue(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
-        
+
     }
 
-    @Test
-    @DisplayName("Validate null file id in path return 400")
-    void testPreHandleFailedEnterNull() {
+    @ParameterizedTest
+    @ValueSource(strings = { "                                    ",
+            "A-A-A-A-A-A-A-A-A-A-A-A-A-A-A-A-A-A-",
+            "1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1-" })
+    @NullSource
+    void testPreHandleFailed(String pathParamValue) {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
         Object mockHandler = new Object();
         var pathParameters = new HashMap<String, String>();
-        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, null);
+        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, pathParamValue);
 
-        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
+        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE))
+                .thenReturn(pathParameters);
         when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
-        
-        assertFalse(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
-        assertEquals(400, mockHttpServletResponse.getStatus());
-    }
 
-
-    @Test
-    @DisplayName("Validate blank file id in path return 400")
-    void testPreHandleFailedEnterBlank() {
-        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
-        var pathParameters = new HashMap<String, String>();
-        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, " ".repeat(36));
-
-        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
-        when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
-        
-        assertFalse(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
-        assertEquals(400, mockHttpServletResponse.getStatus());
-    }
-
-    @Test
-    @DisplayName("Validate file id with invalid chars in path return 400")
-    void testPreHandleFailedEnterCapLetters() {
-        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
-        var pathParameters = new HashMap<String, String>();
-        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, "A-".repeat(18));
-
-        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
-        when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
-        
-        assertFalse(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
-        assertEquals(400, mockHttpServletResponse.getStatus());
-    }
-
-    @Test
-    @DisplayName("Validate file id with invalid format in path return 400")
-    void testPreHandleFailedInvalidFormat() {
-        MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
-        var pathParameters = new HashMap<String, String>();
-        pathParameters.put(Constants.ACCOUNT_FILING_ID_KEY, "1-".repeat(18));
-
-        when(mockHttpServletRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)).thenReturn(pathParameters);
-        when(mockHttpServletRequest.getHeader(Constants.ERIC_REQUEST_ID_KEY)).thenReturn("abc");
-        
         assertFalse(fileIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
         assertEquals(400, mockHttpServletResponse.getStatus());
     }
