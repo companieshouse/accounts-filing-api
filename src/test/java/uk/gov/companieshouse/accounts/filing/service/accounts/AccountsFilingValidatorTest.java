@@ -119,7 +119,7 @@ class AccountsFilingValidatorTest {
 
                 entry.setPackageType(null);
                 validateAccountsFilingEntry(entry);
-                assertValidationFailedWithOneError("Package type is null");
+                assertValidationFailedWithOneError(packageNullMessage);
         }
 
         @Test
@@ -131,7 +131,7 @@ class AccountsFilingValidatorTest {
 
                 entry.setPackageType(PackageType.GROUP_PACKAGE_400);
                 validateAccountsFilingEntry(entry);
-                assertValidationFailedWithOneError("Package type is not UKSEF");
+                assertValidationFailedWithOneError(packageNotUKSEFMessage);
         }
 
         @ParameterizedTest
