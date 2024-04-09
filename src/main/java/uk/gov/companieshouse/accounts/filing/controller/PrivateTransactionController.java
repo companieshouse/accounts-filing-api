@@ -41,12 +41,12 @@ public class PrivateTransactionController {
         try {
 
             AccountsFilingEntry accountsFilingEntry = accountsFilingService
-                    .getAccountsFilingEntryForIDAndTransaction(accountsFilingId, transactionId);
+                    .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
 
             return ResponseEntity.ok(filingGeneratorMapper.mapToFilingApi(accountsFilingEntry));
 
         } catch (EntryNotFoundException ex) {
-            logger.error(String.format("%s: could did not match a known accountFilingId", accountsFilingId));
+            logger.error(String.format("%s: did not match a known accountFilingId", accountsFilingId));
             return ResponseEntity.notFound().build();
         }
 

@@ -51,7 +51,7 @@ class PrivateTransactionControllerTest {
     void testGetFilingApiEntryWithMismatchIds() {
 
         when(accountsFilingService
-        .getAccountsFilingEntryForIDAndTransaction(accountsFilingId, transactionId)).thenThrow(EntryNotFoundException.class);
+        .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenThrow(EntryNotFoundException.class);
         ResponseEntity<FilingApi> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
         assertEquals(HttpStatusCode.valueOf(404), result.getStatusCode());
     }
@@ -60,7 +60,7 @@ class PrivateTransactionControllerTest {
     @DisplayName("Test with valid inputs")
     void testGetFilingApi() {
         when(accountsFilingService
-        .getAccountsFilingEntryForIDAndTransaction(accountsFilingId, transactionId)).thenReturn(accountsFilingEntry);
+        .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenReturn(accountsFilingEntry);
         ResponseEntity<FilingApi> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
         assertEquals(HttpStatusCode.valueOf(200), result.getStatusCode());
     }
