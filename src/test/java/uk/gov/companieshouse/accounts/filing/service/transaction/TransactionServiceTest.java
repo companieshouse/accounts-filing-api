@@ -50,13 +50,13 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Request a transaction")
     void testGetTransaction() throws ApiErrorResponseException, URIValidationException {
-        final var transactionId = "transactionId";
-        final var transaction = new Transaction();
-        final ApiResponse<Transaction> apiResponse = new ApiResponse<>(200, Collections.emptyMap(), transaction);
+        var transactionId = "transactionId";
+        var transaction = new Transaction();
+        ApiResponse<Transaction> apiResponse = new ApiResponse<>(200, Collections.emptyMap(), transaction);
 
         when(transactionAPI.get(transactionId)).thenReturn(apiResponse);
 
-        final Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
+        Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
 
         assertTrue(returnTransaction.isPresent());
         assertEquals(returnTransaction.get(), transaction);
@@ -65,20 +65,20 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Request a transaction with non-matching id")
     void testGetTransactionFailedWithNonMatchingId() throws ApiErrorResponseException, URIValidationException {
-        final var transactionId = "transactionId";
+        var transactionId = "transactionId";
         ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
         when(exception.getStatusCode()).thenReturn(404);
         when(transactionAPI.get(transactionId)).thenThrow(exception);
 
-        final Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
+        Optional<Transaction> returnTransaction = transactionService.getTransaction(transactionId);
 
-        assertTrue(returnTransaction.isEmpty());      
+        assertTrue(returnTransaction.isEmpty());
     }
 
     @Test
     @DisplayName("Request a transaction get 500 back")
     void testGetTransactionFailedCausedByExternalService() throws ApiErrorResponseException, URIValidationException {
-        final var transactionId = "transactionId";
+        var transactionId = "transactionId";
         ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
         when(exception.getStatusCode()).thenReturn(500);
         when(transactionAPI.get(transactionId)).thenThrow(exception);
@@ -88,12 +88,12 @@ class TransactionServiceTest {
 
     @Test
     @DisplayName("Update a transaction")
-    void testUpdateTransaction() throws ApiErrorResponseException,  URIValidationException {
-        final var transaction = new Transaction();
-        final ApiResponse<Void> apiResponse = new ApiResponse<>(204, Collections.emptyMap());
-        
+    void testUpdateTransaction() throws ApiErrorResponseException, URIValidationException {
+        var transaction = new Transaction();
+        ApiResponse<Void> apiResponse = new ApiResponse<>(204, Collections.emptyMap());
+
         when(transactionAPI.patch(transaction)).thenReturn(apiResponse);
-        
+
         transactionService.updateTransaction(transaction);
 
         verify(transactionAPI, times(1)).patch(transaction);
@@ -103,11 +103,11 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Update a transaction returns wrong http status and throws exception")
     void testUpdateTransactionAPIReturnWrongType() throws ApiErrorResponseException, URIValidationException {
-        final var transaction = new Transaction();
+        var transaction = new Transaction();
         ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
         when(exception.getStatusCode()).thenReturn(401);
         when(transactionAPI.patch(transaction)).thenThrow(exception);
-        
+
         assertThrows(ResponseException.class, () -> transactionService.updateTransaction(transaction));
         verify(transactionAPI, times(1)).patch(transaction);
     }

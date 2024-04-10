@@ -13,43 +13,39 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
-import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformerImpl;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
-
 
 @ExtendWith(MockitoExtension.class)
 class TransformerServiceTest {
 
-    private final String RESOURCE_KIND = "abc";
+    private static final String RESOURCE_KIND = "abc";
 
     private TransactionTransformer service;
 
     @BeforeEach
-    void setUp(){
+    void setUp() {
         service = new TransactionTransformerImpl();
         ReflectionTestUtils.setField(service, "resourceKind", "abc");
     }
 
     @Test
     void testSetupTransaction() {
-        final var transaction = new Transaction();
-        final var transactionId = "transactionId";
-        final var accountFilingId = "accountFilingId";
-        final var uri = "/transactions/" + transactionId + "/account-filing/" + accountFilingId;
-        
-        final Map<String, String> links = Map.of(
-            "resource", uri,
-            "validation_status", uri+"/validation-status"
-            );
-            
+        var transaction = new Transaction();
+        var transactionId = "transactionId";
+        var accountFilingId = "accountFilingId";
+        var uri = "/transactions/" + transactionId + "/account-filing/" + accountFilingId;
+
+        Map<String, String> links = Map.of(
+                "resource", uri,
+                "validation_status", uri + "/validation-status");
+
         transaction.setId(transactionId);
         transaction.setResources(new HashMap<>());
 
-        //then
+        // then
         service.setupTransactionResources(transaction, accountFilingId);
-        final Resource resourceResult = transaction.getResources().get(uri);
+        Resource resourceResult = transaction.getResources().get(uri);
 
         assertEquals(1, transaction.getResources().size());
         assertTrue(transaction.getResources().containsKey(uri));
