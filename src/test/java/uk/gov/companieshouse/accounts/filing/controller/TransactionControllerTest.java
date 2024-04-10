@@ -46,15 +46,15 @@ import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionControllerTest {
-    
+
     TransactionController controller;
 
     AccountsFilingEntry accountsFilingEntry;
 
-    final String transactionId = "transactionId";
+    private static final String transactionId = "transactionId";
 
-    final String accountsFilingId = "accountsFilingId";
-    
+    private static final String accountsFilingId = "accountsFilingId";
+
     @Mock
     Logger logger;
 
@@ -73,43 +73,45 @@ class TransactionControllerTest {
     @Mock
     TransactionTransformer accountsFilingTransformer;
 
-
     ValidationStatusResponse validationStatusResponse;
 
     @BeforeEach
     void setUp() {
         controller = new TransactionController(
-            accountsValidationService,
-            accountsFilingService,
-            transactionService,
-            accountsFilingTransformer,
-            logger);
+                accountsValidationService,
+                accountsFilingService,
+                transactionService,
+                accountsFilingTransformer,
+                logger);
 
         accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
-                                                        transactionId, null, null);
+                transactionId, null, null);
         validationStatusResponse = new ValidationStatusResponse();
     }
 
     @Test
     @DisplayName("Request the validation status of a file")
     void testRequestingFileAccountsValidatorStatus() {
-        final String fileId = "fileId";
-        final String accountsFilingId = "accountsFilingId";
-        final String fileName = "fileName";
-        final var accountStatusResult = new AccountsValidatorResultApi(AccountsValidatorDataApi, null, AccountsValidatorValidationStatusApi.OK);
-        final AccountsValidatorStatusApi accountStatus = new AccountsValidatorStatusApi(fileId, fileName, "complete", accountStatusResult);
-        final var filingEntry = new AccountsFilingEntry(accountsFilingId);
+        String fileId = "fileId";
+        String accountsFilingId = "accountsFilingId";
+        String fileName = "fileName";
+        var accountStatusResult = new AccountsValidatorResultApi(AccountsValidatorDataApi, null,
+                AccountsValidatorValidationStatusApi.OK);
+        AccountsValidatorStatusApi accountStatus = new AccountsValidatorStatusApi(fileId, fileName, "complete",
+                accountStatusResult);
+        var filingEntry = new AccountsFilingEntry(accountsFilingId);
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
 
         // When
-        final ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId, accountsFilingId);
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
+                accountsFilingId);
 
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertInstanceOf(AccountsValidatorStatusApi.class, result.getBody());
-        final AccountsValidatorStatusApi body = (AccountsValidatorStatusApi) result.getBody();
+        AccountsValidatorStatusApi body = (AccountsValidatorStatusApi) result.getBody();
         assertNotNull(body);
         assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
         verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
@@ -118,14 +120,15 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Return 404 when the request the validation status is missing")
     void testRequestingFileAccountsValidatorStatusNotFound() {
-        final String fileId = "fileId";
-        final String accountsFilingId = "accountsFilingId";
+        String fileId = "fileId";
+        String accountsFilingId = "accountsFilingId";
 
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.empty());
 
         // When
-        final ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId, accountsFilingId);
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
+                accountsFilingId);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
@@ -134,8 +137,8 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Return 404 when the request the validation status is missing")
     void testRequestingFileAccountsValidatorStatusEmptyStringAccountsId() {
-        final String accountsFilingId = "accountsFilingId";
-        final String fileId = "fileId";
+        String accountsFilingId = "accountsFilingId";
+        String fileId = "fileId";
 
         ResponseEntity<?> response = controller.fileAccountsValidatorStatus(fileId, accountsFilingId);
         // trigger a 404
@@ -145,10 +148,10 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Submit a package type and return a 204")
     void testSetPackageType() {
-        final String transactionId = "transactionId";
-        final String accountsFilingId = "accountsFilingId";
-        final AccountsPackageType packageType = new AccountsPackageType("Welsh");
-        final Transaction transaction = new Transaction();
+        String transactionId = "transactionId";
+        String accountsFilingId = "accountsFilingId";
+        AccountsPackageType packageType = new AccountsPackageType("Welsh");
+        Transaction transaction = new Transaction();
 
         when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
 
@@ -160,9 +163,9 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Submit a package type and no matching transaction. Return a 404")
     void testSetPackageTypeMissingTransaction() {
-        final String transactionId = "transactionId";
-        final String accountsFilingId = "accountsFilingId";
-        final AccountsPackageType packageType = new AccountsPackageType("Welsh");
+        String transactionId = "transactionId";
+        String accountsFilingId = "accountsFilingId";
+        AccountsPackageType packageType = new AccountsPackageType("Welsh");
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
@@ -172,27 +175,30 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Submit a invalid package type. Throws an UriValidationException")
     void testSetPackageTypeWithInvalidPackageType() {
-        final String transactionId = "transactionId";
-        final String accountsFilingId = "accountsFilingId";
-        final AccountsPackageType invalidPackageType = new AccountsPackageType("Invalid");
-        final AccountsFilingEntry filingEntry = new AccountsFilingEntry(accountsFilingId);
+        String transactionId = "transactionId";
+        String accountsFilingId = "accountsFilingId";
+        AccountsPackageType invalidPackageType = new AccountsPackageType("Invalid");
+        AccountsFilingEntry filingEntry = new AccountsFilingEntry(accountsFilingId);
 
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
-        doThrow(new UriValidationException()).when(accountsFilingService).savePackageType(filingEntry, invalidPackageType.type());
+        doThrow(new UriValidationException()).when(accountsFilingService).savePackageType(filingEntry,
+                invalidPackageType.type());
 
-        assertThrows(UriValidationException.class, () -> controller.setPackageType(transactionId, accountsFilingId, invalidPackageType));
+        assertThrows(UriValidationException.class,
+                () -> controller.setPackageType(transactionId, accountsFilingId, invalidPackageType));
     }
 
     @Test
     @DisplayName("Submit a missing accountsFilingId. Throws an EntryNotFoundException")
     void testSetPackageTypeWithMissingAccountsFilingId() {
-        final String transactionId = "transactionId";
-        final String accountsFilingId = "noMatchingId";
-        final AccountsPackageType packageType = new AccountsPackageType("Welsh");
+        String transactionId = "transactionId";
+        String accountsFilingId = "noMatchingId";
+        AccountsPackageType packageType = new AccountsPackageType("Welsh");
 
         doThrow(new EntryNotFoundException()).when(accountsFilingService).getFilingEntry(accountsFilingId);
 
-        assertThrows(EntryNotFoundException.class, () -> controller.setPackageType(transactionId, accountsFilingId, packageType));
+        assertThrows(EntryNotFoundException.class,
+                () -> controller.setPackageType(transactionId, accountsFilingId, packageType));
     }
 
     @Test
@@ -200,7 +206,7 @@ class TransactionControllerTest {
     void responseException() {
 
         // When
-        final ResponseEntity<?> response = controller.exceptionHandler(new ResponseException());
+        ResponseEntity<?> response = controller.exceptionHandler(new ResponseException());
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -213,7 +219,7 @@ class TransactionControllerTest {
         // Given
 
         // When
-        final ResponseEntity<?> response = controller.exceptionHandler(new UriValidationException());
+        ResponseEntity<?> response = controller.exceptionHandler(new UriValidationException());
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -223,7 +229,7 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Exception handler when entry not found and return 404")
     void entryNotFoundException() {
-        final ResponseEntity<?> response = controller.exceptionHandler(new EntryNotFoundException());
+        ResponseEntity<?> response = controller.exceptionHandler(new EntryNotFoundException());
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -232,10 +238,10 @@ class TransactionControllerTest {
     @DisplayName("Exception handler logs error and returns 500")
     void exceptionHandler() {
         // Given
-        final Exception e = new Exception();
+        Exception e = new Exception();
 
         // When
-        final ResponseEntity<?> response = controller.exceptionHandler(e);
+        ResponseEntity<?> response = controller.exceptionHandler(e);
 
         // Then
         verify(logger).error("Unhandled exception", e);
@@ -245,9 +251,9 @@ class TransactionControllerTest {
     @Test
     @DisplayName("Exception handler deals with NullPointerExpection and returns 500")
     void exceptionHandlerNullPointerExpection() {
-        final NullPointerException e = new NullPointerException();
+        NullPointerException e = new NullPointerException();
 
-        final ResponseEntity<?> response = controller.exceptionHandler(e);
+        ResponseEntity<?> response = controller.exceptionHandler(e);
 
         // Then
         verify(logger).error("Unhandled exception", e);
@@ -259,16 +265,18 @@ class TransactionControllerTest {
     void testValidateAccountsFilingDataReturns200True() {
         // Given
         validationStatusResponse.setValid(true);
-        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
+        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
+                .thenReturn(accountsFilingEntry);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry))
+                .thenReturn(validationStatusResponse);
 
         // When
-        final ResponseEntity<?> validResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+        ResponseEntity<?> validResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
         Assertions.assertNotNull(validResult.getBody());
-        Assertions.assertTrue(((ValidationStatusResponse)validResult.getBody()).isValid());
+        Assertions.assertTrue(((ValidationStatusResponse) validResult.getBody()).isValid());
         verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
     }
 
@@ -277,16 +285,18 @@ class TransactionControllerTest {
     void testValidateAccountsFilingDataReturns200False() {
         // Given
         validationStatusResponse.setValid(false);
-        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry)).thenReturn(validationStatusResponse);
+        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
+                .thenReturn(accountsFilingEntry);
+        when(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry))
+                .thenReturn(validationStatusResponse);
 
         // When
-        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+        ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.OK, inValidResult.getStatusCode());
         Assertions.assertNotNull(inValidResult.getBody());
-        Assertions.assertFalse(((ValidationStatusResponse)inValidResult.getBody()).isValid());
+        Assertions.assertFalse(((ValidationStatusResponse) inValidResult.getBody()).isValid());
         verify(accountsFilingService, times(1)).validateAccountsFilingEntry(accountsFilingEntry);
     }
 
@@ -294,10 +304,11 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 404 for invalid transaction and filing id")
     void testValidateAccountsFilingDataReturns404() {
         // Given
-        doThrow(new EntryNotFoundException("Accounts filing entry not found")).when(accountsFilingService).getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
+        doThrow(new EntryNotFoundException("Accounts filing entry not found")).when(accountsFilingService)
+                .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
 
         // When
-        final ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
+        ResponseEntity<?> inValidResult = controller.validateAccountsFilingData(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
@@ -308,23 +319,25 @@ class TransactionControllerTest {
     @DisplayName("Test calculateCosts returns 200 with an empty cost array")
     void testCalculateCostsReturns200EmptyArray() {
         // Given
-        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenReturn(accountsFilingEntry);
-       // When
-        final ResponseEntity<?> validResult = controller.calculateCosts(transactionId, accountsFilingId);
+        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
+                .thenReturn(accountsFilingEntry);
+        // When
+        ResponseEntity<?> validResult = controller.calculateCosts(transactionId, accountsFilingId);
 
         // Then
         Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
         Assertions.assertNotNull(validResult.getBody());
-        Assertions.assertTrue(((CostsApi)validResult.getBody()).getItems().isEmpty());
+        Assertions.assertTrue(((CostsApi) validResult.getBody()).getItems().isEmpty());
     }
 
     @Test
     @DisplayName("Test calculateCosts returns 404 for transaction and filing id")
     void testCalculateCostsReturns404ForInvalidId() {
         // Given
-        doThrow(new EntryNotFoundException("Accounts filing entry not found")).when(accountsFilingService).getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
+        doThrow(new EntryNotFoundException("Accounts filing entry not found")).when(accountsFilingService)
+                .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
         // When
-        final ResponseEntity<?> inValidResult = controller.calculateCosts(transactionId, accountsFilingId);
+        ResponseEntity<?> inValidResult = controller.calculateCosts(transactionId, accountsFilingId);
         // Then
         Assertions.assertEquals(HttpStatus.NOT_FOUND, inValidResult.getStatusCode());
         Assertions.assertNull(inValidResult.getBody());
