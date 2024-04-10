@@ -34,7 +34,7 @@ class TransformerServiceTest {
         var transaction = new Transaction();
         var transactionId = "transactionId";
         var accountFilingId = "accountFilingId";
-        var uri = "/transactions/" + transactionId + "/account-filing/" + accountFilingId;
+        var uri = "/transactions/" + transactionId + "/accounts-filing/" + accountFilingId;
 
         Map<String, String> links = Map.of(
                 "resource", uri,

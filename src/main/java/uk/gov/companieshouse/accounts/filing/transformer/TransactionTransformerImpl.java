@@ -19,7 +19,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
     @Override
     public void setupTransactionResources(final Transaction transaction, final String accountsFilingId) {
         
-        final var uri = String.format("/transactions/%s/account-filing/%s", transaction.getId(), accountsFilingId);
+        final var uri = String.format("/transactions/%s/accounts-filing/%s", transaction.getId(), accountsFilingId);
         
         Map<String, String> links = ImmutableConverter.toMutableMap(
             Map.of(
