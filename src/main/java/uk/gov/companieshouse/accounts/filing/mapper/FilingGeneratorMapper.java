@@ -15,10 +15,10 @@ import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 public class FilingGeneratorMapper {
 
     @Value("${file.bucket}")
-    private static String bucket;
+    private String bucket;
 
     @Value("${file.scheme}")
-    private static String scheme;
+    private String scheme;
 
     public FilingApi mapToFilingApi(AccountsFilingEntry accountsFilingEntry) {
 
