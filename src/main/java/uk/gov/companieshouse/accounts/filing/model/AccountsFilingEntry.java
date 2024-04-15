@@ -29,17 +29,21 @@ public class AccountsFilingEntry {
     private String companyNumber;
 
     @Field()
+    private String companyName;
+
+    @Field()
     private String madeUpDate;
 
 
     public AccountsFilingEntry(String accountsFilingId, String fileId, String accountsType, PackageType packageType,
-                               String transactionId, String companyNumber, String madeUpDate) {
+                               String transactionId, String companyNumber, String companyName, String madeUpDate) {
         this.accountsFilingId = accountsFilingId;
         this.fileId = fileId;
         this.accountsType = accountsType;
         this.packageType = packageType;
         this.transactionId = transactionId;
         this.companyNumber = companyNumber;
+        this.companyName = companyName;
         this.madeUpDate = madeUpDate;
     }
 
@@ -85,6 +89,10 @@ public class AccountsFilingEntry {
         return companyNumber;
     }
 
+    public String getCompanyName() {
+        return companyName;
+    }
+
     public String getMadeUpDate() {
         return madeUpDate;
     }
@@ -103,6 +111,7 @@ public class AccountsFilingEntry {
         result = prime * result + ((packageType == null) ? 0 : packageType.hashCode());
         result = prime * result + ((transactionId == null) ? 0 : transactionId.hashCode());
         result = prime * result + ((companyNumber == null) ? 0 : companyNumber.hashCode());
+        result = prime * result + ((companyName == null) ? 0 : companyName.hashCode());
         result = prime * result + ((madeUpDate == null) ? 0 : madeUpDate.hashCode());
         return result;
     }
@@ -143,6 +152,11 @@ public class AccountsFilingEntry {
                 return false;
         } else if (!companyNumber.equals(other.companyNumber))
             return false;
+        if (companyName == null) {
+            if (other.companyName != null)
+                return false;
+        } else if (!companyName.equals(other.companyName))
+            return false;
         if (madeUpDate == null) {
             return other.madeUpDate == null;
         } else return madeUpDate.equals(other.madeUpDate);
@@ -152,6 +166,6 @@ public class AccountsFilingEntry {
     public String toString() {
         return "AccountsFilingEntry [accountsFilingId=" + accountsFilingId + ", fileId=" + fileId + ", accountsType="
                 + accountsType + ", packageType=" + packageType + ", transactionId=" + transactionId + ", companyNumber="
-                + companyNumber + ", madeUpDate=" + madeUpDate + "]";
+                + companyNumber + ", companyName='" + companyName + ", madeUpDate=" + madeUpDate + "]";
     }
 }

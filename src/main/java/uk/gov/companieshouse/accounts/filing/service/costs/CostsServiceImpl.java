@@ -66,7 +66,7 @@ public class CostsServiceImpl implements CostsService{
         Cost cost = new Cost();
         cost.setAvailablePaymentMethods(new ArrayList<>(List.of(DEFAULT_PAYMENT_METHOD)));
         cost.setClassOfPayment(new ArrayList<>(List.of(DEFAULT_PAYMENT_CLASS)));
-        cost.setDescription(String.format(DEFAULT_DESCRIPTION, accountsFilingEntry.getPackageType(), accountsFilingEntry.getCompanyNumber()));
+        cost.setDescription(String.format(DEFAULT_DESCRIPTION, accountsFilingEntry.getPackageType(), accountsFilingEntry.getCompanyName()));
         cost.setDescriptionIdentifier(DEFAULT_DESCRIPTION_ID);
         Map<String, String> descriptionValues = new HashMap<>();
         descriptionValues.put(DEFAULT_KEY, DEFAULT_VALUE);

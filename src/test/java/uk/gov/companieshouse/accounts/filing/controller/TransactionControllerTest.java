@@ -89,7 +89,7 @@ class TransactionControllerTest {
                 transactionService, accountsFilingTransformer, costsService);
 
         accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
-                transactionId, null, null);
+                transactionId, null, null, null);
         validationStatusResponse = new ValidationStatusResponse();
 
         costs = new CostsApi();

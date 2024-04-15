@@ -110,7 +110,7 @@ class AccountsFilingServiceTest {
         var accountsFilingId = "accountsFilingId";
         var transactionId = "transactionId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId, null,
-                null, null, transactionId, null, null);
+                null, null, transactionId, null, null, null);
         // Test when accounts filing entry not found for given accounts filing id
         when(accountsFilingRepository.findById(accountsFilingId)).thenReturn(Optional.empty());
         assertThrows(EntryNotFoundException.class,
