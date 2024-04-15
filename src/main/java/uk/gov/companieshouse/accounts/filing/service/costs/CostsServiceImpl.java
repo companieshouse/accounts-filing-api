@@ -7,15 +7,19 @@ import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.payment.CostsApi;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @Component
 public class CostsServiceImpl implements CostsService{
-    @Value("${fee.amount.cic.account}")
-    private double cicAccountFeeAmount;
+    @Value("${fee.cic.accounts}")
+    private String cicAccountsFee;
 
-    @Value("${fee.amount.overseas.account}")
-    private double overseasAccountFeeAmount;
+    @Value("${fee.overseas.accounts}")
+    private String overseasAccountsFee;
 
     private static final String DEFAULT_PAYMENT_METHOD = "credit-card";
 
@@ -41,17 +45,16 @@ public class CostsServiceImpl implements CostsService{
      */
     @Override
     public CostsApi calculateCosts(AccountsFilingEntry accountsFilingEntry) {
-        Cost cost;
         CostsApi costs = new CostsApi();
         costs.setItems(new ArrayList<>());
         if(PackageType.CIC.equals(accountsFilingEntry.getPackageType())){
-            cost = createCostWithDefaultValues(accountsFilingEntry);
-            cost.setAmount(Double.toString(cicAccountFeeAmount));
+            Cost cost = createCostWithDefaultValues(accountsFilingEntry);
+            cost.setAmount(cicAccountsFee);
             costs.getItems().add(cost);
         }
         else if(PackageType.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
-            cost = createCostWithDefaultValues(accountsFilingEntry);
-            cost.setAmount(Double.toString(overseasAccountFeeAmount));
+            Cost cost = createCostWithDefaultValues(accountsFilingEntry);
+            cost.setAmount(overseasAccountsFee);
             costs.getItems().add(cost);
         }
         return costs;

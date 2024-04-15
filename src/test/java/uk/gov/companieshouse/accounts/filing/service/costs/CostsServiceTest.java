@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.api.model.payment.Cost;
@@ -20,11 +20,9 @@ public class CostsServiceTest {
 
     AccountsFilingEntry accountsFilingEntry;
 
-    @Value("${fee.amount.cic.account}")
-    double cicAccountFeeAmount;
+    String cicAccountsFee = "15";
 
-    @Value("${fee.amount.overseas.account}")
-    double overseasAccountFeeAmount;
+    String overseasAccountsFee = "33";
 
     String DEFAULT_PAYMENT_METHOD = "credit-card";
 
@@ -50,16 +48,18 @@ public class CostsServiceTest {
     @DisplayName("Test calculateCosts returns £15 fee for CIC account")
     void testCalculateCostsForCicAccount(){
         accountsFilingEntry.setPackageType(PackageType.CIC);
+        ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
         CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndDefaultValues(costs, Double.toString(cicAccountFeeAmount));
+        assertFeeAndDefaultValues(costs, cicAccountsFee);
     }
 
     @Test
     @DisplayName("Test calculateCosts returns £33 fee for Overseas account")
     void testCalculateCostsForOverseasAccount(){
         accountsFilingEntry.setPackageType(PackageType.OVERSEAS);
+        ReflectionTestUtils.setField(costsService, "overseasAccountsFee", overseasAccountsFee);
         CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndDefaultValues(costs, Double.toString(overseasAccountFeeAmount));
+        assertFeeAndDefaultValues(costs, overseasAccountsFee);
     }
 
     @Test
