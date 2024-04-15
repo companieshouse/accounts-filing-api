@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.accounts.filing.controller;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +19,11 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationExcep
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
+import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
-import uk.gov.companieshouse.api.model.payment.CostsApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -37,20 +36,20 @@ public class TransactionController {
     private final AccountsFilingService accountsFilingService;
     private final TransactionService transactionService;
     private final TransactionTransformer accountsFilingTransformer;
+    private final CostsService costsService;
 
     @Autowired
-    public TransactionController(final AccountsValidationService accountsValidationService,
-                                 final AccountsFilingService accountsFilingService,
-                                 final TransactionService transactionService,
-                                 final TransactionTransformer accountsFilingTransformer,
-                                 final Logger logger) {
+    public TransactionController(final Logger logger, final AccountsValidationService accountsValidationService,
+                                 final AccountsFilingService accountsFilingService, final TransactionService transactionService,
+                                 final TransactionTransformer accountsFilingTransformer, final CostsService costsService) {
+        this.logger = logger;
         this.accountsValidationService = accountsValidationService;
         this.accountsFilingService = accountsFilingService;
-        this.accountsFilingTransformer = accountsFilingTransformer;
         this.transactionService = transactionService;
-        this.logger = logger;
+        this.accountsFilingTransformer = accountsFilingTransformer;
+        this.costsService = costsService;
     }
-    
+
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         
@@ -113,10 +112,8 @@ public class TransactionController {
     public ResponseEntity<?> calculateCosts(@PathVariable("transactionId") final String transactionId,
                                             @PathVariable("accountsFilingId") final String accountsFilingId){
         try{
-            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
-            CostsApi costs = new CostsApi();
-            costs.setItems(new ArrayList<>());
-            return ResponseEntity.ok(costs);
+            final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
+            return ResponseEntity.ok(costsService.calculateCosts(accountsFilingEntry));
         }
         catch(EntryNotFoundException entryNotFoundException){
             return ResponseEntity.notFound().build();

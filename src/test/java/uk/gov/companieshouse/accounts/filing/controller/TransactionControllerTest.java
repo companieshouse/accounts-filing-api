@@ -16,6 +16,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundExcep
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
+import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
@@ -68,25 +70,30 @@ class TransactionControllerTest {
     TransactionService transactionService;
 
     @Mock
+    CostsService costsService;
+
+    @Mock
     AccountsValidatorDataApi AccountsValidatorDataApi;
 
     @Mock
     TransactionTransformer accountsFilingTransformer;
 
+    CostsApi costs;
+
+
     ValidationStatusResponse validationStatusResponse;
 
     @BeforeEach
     void setUp() {
-        controller = new TransactionController(
-                accountsValidationService,
-                accountsFilingService,
-                transactionService,
-                accountsFilingTransformer,
-                logger);
+        controller = new TransactionController(logger, accountsValidationService, accountsFilingService,
+                transactionService, accountsFilingTransformer, costsService);
 
         accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
-                transactionId, null, null);
+                transactionId, null, null, null);
         validationStatusResponse = new ValidationStatusResponse();
+
+        costs = new CostsApi();
+        costs.setItems(new ArrayList<>());
     }
 
     @Test
@@ -321,6 +328,7 @@ class TransactionControllerTest {
         // Given
         when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
                 .thenReturn(accountsFilingEntry);
+        when(costsService.calculateCosts(accountsFilingEntry)).thenReturn(costs);
         // When
         ResponseEntity<?> validResult = controller.calculateCosts(transactionId, accountsFilingId);
 

@@ -34,7 +34,7 @@ class CompanyServiceTest {
     @Test
     @DisplayName("When company number and transactionId are save to the repository")
     void testSaveCompanyNumberAndTransactionId() {
-        AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123", null);
+        AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123", null, null);
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenReturn(mockEntry);
         CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123");
         assertEquals(mockEntry.getAccountsFilingId(), mockAccountsFilingId.accountsFilingId());
