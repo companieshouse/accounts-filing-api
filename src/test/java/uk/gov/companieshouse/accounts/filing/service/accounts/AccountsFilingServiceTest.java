@@ -21,6 +21,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundExcep
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
+import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -94,6 +95,7 @@ class AccountsFilingServiceTest {
         var accountFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountFilingId);
         ValidationStatusResponse validationStatusResponse = new ValidationStatusResponse();
+        validationStatusResponse.setValidationStatusError(new ValidationStatusError[0]);
 
         validationStatusResponse.setValid(false);
         when(accountsFilingValidator.validateAccountsFilingEntry(entry)).thenReturn(validationStatusResponse);
