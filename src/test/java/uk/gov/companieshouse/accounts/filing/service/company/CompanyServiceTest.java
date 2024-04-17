@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
+import uk.gov.companieshouse.accounts.filing.model.CompanyRequest;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -34,9 +35,9 @@ class CompanyServiceTest {
     @Test
     @DisplayName("When company number and transactionId are save to the repository")
     void testSaveCompanyNumberAndTransactionId() {
-        AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123", null, null);
+        AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123", "Test Company", null);
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenReturn(mockEntry);
-        CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123");
+        CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123", new CompanyRequest("Test Company"));
         assertEquals(mockEntry.getAccountsFilingId(), mockAccountsFilingId.accountsFilingId());
     }
 
@@ -44,7 +45,7 @@ class CompanyServiceTest {
     @DisplayName("When company number and transactionId are failed to save to the repository")
     void testFailedToSaveCompanyNumberAndTransactionId() {
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenThrow(new RuntimeException("mockException"));
-        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123"));
+        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123", new CompanyRequest("Test Company")));
         assertEquals("mockException", exception.getMessage());
     }
 }

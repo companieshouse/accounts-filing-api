@@ -1,14 +1,17 @@
 package uk.gov.companieshouse.accounts.filing.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import uk.gov.companieshouse.accounts.filing.controller.handler.controller.exception.ControllerExceptionHandler;
+import uk.gov.companieshouse.accounts.filing.model.CompanyRequest;
 import uk.gov.companieshouse.accounts.filing.service.company.CompanyService;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -17,8 +20,8 @@ import java.util.regex.Pattern;
 @Controller
 @RequestMapping("/transactions/{transactionId}/accounts-filing")
 public class CompanyController {
-    private Logger logger;
-    private CompanyService companyService;
+    private final Logger logger;
+    private final CompanyService companyService;
 
     @Autowired
     public CompanyController(Logger logger, CompanyService companyService) {
@@ -27,14 +30,16 @@ public class CompanyController {
     }
 
     @PutMapping("/company/{companyNumber}/confirm")
-    public ResponseEntity<?> confirmCompany(@PathVariable("companyNumber") final String companyNumber, @PathVariable("transactionId") final String transactionId){
-        logger.info(String.format("Saving company_number- %s  and transaction_id- %s ",
-                companyNumber, transactionId));
+    public ResponseEntity<?> confirmCompany(@PathVariable("companyNumber") final String companyNumber,
+                                            @PathVariable("transactionId") final String transactionId,
+                                            @Valid @RequestBody final CompanyRequest companyRequest){
+        logger.info(String.format("Saving company_number- %s, transaction_id- %s and company name - %s",
+                companyNumber, transactionId, companyRequest.companyName()));
         if (!checkCompanyNumber(companyNumber) || !checkTransactionId(transactionId)) {
             return ResponseEntity.badRequest().build();
         }
         try {
-            return ResponseEntity.ok(companyService.saveCompanyNumberAndTransactionId(companyNumber, transactionId));
+            return ResponseEntity.ok(companyService.saveCompanyNumberAndTransactionId(companyNumber, transactionId, companyRequest));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
