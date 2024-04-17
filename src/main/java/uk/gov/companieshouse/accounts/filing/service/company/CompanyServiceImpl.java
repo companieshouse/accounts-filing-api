@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
-import uk.gov.companieshouse.accounts.filing.model.CompanyRequest;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.logging.Logger;
@@ -25,10 +24,10 @@ public class CompanyServiceImpl implements CompanyService{
     }
 
     @Override
-    public CompanyResponse saveCompanyNumberAndTransactionId(String companyNumber, String transactionId, CompanyRequest companyRequest) throws RuntimeException {
+    public CompanyResponse saveCompanyNumberAndTransactionId(String companyNumber, String transactionId, String companyName) throws RuntimeException {
         var response = new CompanyResponse(accountsFilingRepository.save(
                 new AccountsFilingEntry(null, null, null,null,
-                        transactionId, companyNumber, companyRequest.companyName(), null)).getAccountsFilingId());
+                        transactionId, companyNumber, companyName, null)).getAccountsFilingId());
         if(response.accountsFilingId().isBlank()){
             var message = "Unexpected error from mongodb when trying to save company number and transaction id";
             logger.errorContext(companyNumber, message, null, ImmutableConverter.toMutableMap(Map.of(

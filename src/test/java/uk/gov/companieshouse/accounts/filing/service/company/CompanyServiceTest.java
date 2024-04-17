@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.CompanyResponse;
-import uk.gov.companieshouse.accounts.filing.model.CompanyRequest;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -37,7 +36,7 @@ class CompanyServiceTest {
     void testSaveCompanyNumberAndTransactionId() {
         AccountsFilingEntry mockEntry = new AccountsFilingEntry("abc123", null, null,null, "12345", "test123", "Test Company", null);
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenReturn(mockEntry);
-        CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123", new CompanyRequest("Test Company"));
+        CompanyResponse mockAccountsFilingId = service.saveCompanyNumberAndTransactionId("12345", "test123", "Test Company");
         assertEquals(mockEntry.getAccountsFilingId(), mockAccountsFilingId.accountsFilingId());
     }
 
@@ -45,7 +44,7 @@ class CompanyServiceTest {
     @DisplayName("When company number and transactionId are failed to save to the repository")
     void testFailedToSaveCompanyNumberAndTransactionId() {
         when(accountsFilingRepository.save(any(AccountsFilingEntry.class))).thenThrow(new RuntimeException("mockException"));
-        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123", new CompanyRequest("Test Company")));
+        RuntimeException exception = assertThrows(RuntimeException.class,() -> service.saveCompanyNumberAndTransactionId("12345", "test123", "Test Company"));
         assertEquals("mockException", exception.getMessage());
     }
 }

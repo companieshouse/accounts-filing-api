@@ -43,7 +43,7 @@ class CompanyControllerTest {
     @DisplayName("Return 200 on successfully confirming company")
     void test_confirmCompany_for_SuccessResponse (){
         CompanyResponse mockResponse = new CompanyResponse("mockAccountsFilingId");
-        when(mockCompanyService.saveCompanyNumberAndTransactionId("NI123456", "000000-123456-000000", new CompanyRequest("Test Company"))).thenReturn(mockResponse);
+        when(mockCompanyService.saveCompanyNumberAndTransactionId("NI123456", "000000-123456-000000", "Test Company")).thenReturn(mockResponse);
         var response = companyController.confirmCompany("NI123456", "000000-123456-000000", new CompanyRequest("Test Company"));
         CompanyResponse actualRes = (CompanyResponse) response.getBody();
         assertNotNull(actualRes);
@@ -74,7 +74,7 @@ class CompanyControllerTest {
     @Test
     @DisplayName("Return 500 during unhandled runtime exception. For example mongodb services are down.")
     void test_confirmCompany_for_internal_server_error (){
-        when(mockCompanyService.saveCompanyNumberAndTransactionId("SC123456", "000000-123456-000000", new CompanyRequest("Test Company"))).thenThrow(new RuntimeException());
+        when(mockCompanyService.saveCompanyNumberAndTransactionId("SC123456", "000000-123456-000000", "Test Company")).thenThrow(new RuntimeException());
         ResponseEntity<?> response = companyController.confirmCompany("SC123456", "000000-123456-000000", new CompanyRequest("Test Company"));
         assertThat(response.getStatusCode(), is(HttpStatus.INTERNAL_SERVER_ERROR));
     }

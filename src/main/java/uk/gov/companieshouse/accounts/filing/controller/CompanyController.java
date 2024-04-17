@@ -39,7 +39,7 @@ public class CompanyController {
             return ResponseEntity.badRequest().build();
         }
         try {
-            return ResponseEntity.ok(companyService.saveCompanyNumberAndTransactionId(companyNumber, transactionId, companyRequest));
+            return ResponseEntity.ok(companyService.saveCompanyNumberAndTransactionId(companyNumber, transactionId, companyRequest.companyName()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
