@@ -39,7 +39,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor);
+        registry.addInterceptor(loggingInterceptor)
+                .excludePathPatterns("/accounts-filing/healthcheck");
         registry.addInterceptor(internalUserInterceptor)
                 .excludePathPatterns("/accounts-filing/healthcheck");
         addAccountsFilingIdInterceptor(registry);
