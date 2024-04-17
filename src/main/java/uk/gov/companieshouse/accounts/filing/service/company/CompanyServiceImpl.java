@@ -24,10 +24,10 @@ public class CompanyServiceImpl implements CompanyService{
     }
 
     @Override
-    public CompanyResponse saveCompanyNumberAndTransactionId(String companyNumber, String transactionId) throws RuntimeException {
+    public CompanyResponse saveCompanyNumberAndTransactionId(String companyNumber, String transactionId, String companyName) throws RuntimeException {
         var response = new CompanyResponse(accountsFilingRepository.save(
                 new AccountsFilingEntry(null, null, null,null,
-                        transactionId, companyNumber, null, null)).getAccountsFilingId());
+                        transactionId, companyNumber, companyName, null)).getAccountsFilingId());
         if(response.accountsFilingId().isBlank()){
             var message = "Unexpected error from mongodb when trying to save company number and transaction id";
             logger.errorContext(companyNumber, message, null, ImmutableConverter.toMutableMap(Map.of(
