@@ -40,11 +40,9 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     @Override
     public void savePackageType(final AccountsFilingEntry accountsFilingEntry, final String packageType) {
 
-        try {
+
             accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
-        } catch (URIValidationException e) {
-            throw new UriValidationException(e);
-        }
+  
         
 
         accountsFilingRepository.save(accountsFilingEntry);
