@@ -21,7 +21,6 @@ import uk.gov.companieshouse.logging.Logger;
 @Service
 public class AccountsFilingServiceImpl implements AccountsFilingService {
 
-
     private final AccountsFilingRepository accountsFilingRepository;
 
     private final AccountsFilingValidator accountsFilingValidator;
@@ -30,26 +29,23 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
 
     @Autowired
     public AccountsFilingServiceImpl(final AccountsFilingRepository accountsFilingRepository,
-                                     final AccountsFilingValidator accountsFilingValidator, final Logger logger) {
+            final AccountsFilingValidator accountsFilingValidator, final Logger logger) {
         this.accountsFilingRepository = accountsFilingRepository;
         this.accountsFilingValidator = accountsFilingValidator;
         this.logger = logger;
     }
 
-
     @Override
     public void savePackageType(final AccountsFilingEntry accountsFilingEntry, final String packageType) {
 
-            try {
-                accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
-            } catch (URIValidationException e) {
-                //Finding package type throw a URIValidationException. 
-                //Re-throwing as a runtime exception UriValidationException
-                logger.error(String.format("Failed to find package type for %s", packageType), e);
-                throw new UriValidationException(e);
-            }
-  
-        
+        try {
+            accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
+        } catch (URIValidationException e) {
+            // Finding package type throw a URIValidationException.
+            // Re-throwing as a runtime exception UriValidationException
+            logger.error(String.format("Failed to find package type for %s", packageType), e);
+            throw new UriValidationException(e);
+        }
 
         accountsFilingRepository.save(accountsFilingEntry);
         final var message = String.format("Account filing id: %s has been updated to include package type: %s",
@@ -65,8 +61,7 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
             final var message = String.format("Entry with accountFilingId: %s was not found", accountsFilingId);
             logger.errorContext(accountsFilingId, message, null, ImmutableConverter.toMutableMap(Map.of(
                     "expected", "accountsFilingEntry Object",
-                    "status", "empty optional"
-            )));
+                    "status", "empty optional")));
             throw new EntryNotFoundException(message);
         }
         return optionalEntry.get();
@@ -75,8 +70,10 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     /**
      * This method used to validate the data in accounts filing entry
      *
-     * @param accountsFilingEntry - accounts filing entry which needs to be validated
-     * @return ValidationStatusResponse - Contains the validation status of the accounts filing entry
+     * @param accountsFilingEntry - accounts filing entry which needs to be
+     *                            validated
+     * @return ValidationStatusResponse - Contains the validation status of the
+     *         accounts filing entry
      */
     @Override
     public ValidationStatusResponse validateAccountsFilingEntry(final AccountsFilingEntry accountsFilingEntry) {
@@ -89,7 +86,8 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         return validationStatus;
     }
 
-    private void logValidationFailed(final String accountsFilingId, final ValidationStatusResponse validationStatusResponse) {
+    private void logValidationFailed(final String accountsFilingId,
+            final ValidationStatusResponse validationStatusResponse) {
         final var logData = new HashMap<String, Object>();
         final var errors = validationStatusResponse.getValidationStatusError();
 
@@ -106,16 +104,18 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         return String.format("Field: %s, Error: %s", error.getLocation(), error.getError());
     }
 
-
     /**
-     * This method used to get the accounts filing entry for the given transaction id and accounts filing id
+     * This method used to get the accounts filing entry for the given transaction
+     * id and accounts filing id
      *
      * @param transactionId    - ID of the transaction
      * @param accountsFilingId - Filing id of the accounts
-     * @return AccountsFilingEntry - returns accounts filing entry  for the given transaction id and accounts filing id.
+     * @return AccountsFilingEntry - returns accounts filing entry for the given
+     *         transaction id and accounts filing id.
      */
     @Override
-    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(final String transactionId, final String accountsFilingId) {
+    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(final String transactionId,
+            final String accountsFilingId) {
         final AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
         if (transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())) {
             return accountsFilingEntry;
