@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
@@ -28,8 +29,8 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     private final Logger logger;
 
     @Autowired
-    public AccountsFilingServiceImpl(AccountsFilingRepository accountsFilingRepository,
-                                     AccountsFilingValidator accountsFilingValidator, Logger logger) {
+    public AccountsFilingServiceImpl(final AccountsFilingRepository accountsFilingRepository,
+                                     final AccountsFilingValidator accountsFilingValidator, final Logger logger) {
         this.accountsFilingRepository = accountsFilingRepository;
         this.accountsFilingValidator = accountsFilingValidator;
         this.logger = logger;
@@ -37,22 +38,27 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
 
 
     @Override
-    public void savePackageType(AccountsFilingEntry accountsFilingEntry, String packageType) throws UriValidationException {
+    public void savePackageType(final AccountsFilingEntry accountsFilingEntry, final String packageType) {
 
-        accountsFilingEntry.setPackageType(PackageType.findPackageType(packageType));
+        try {
+            accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
+        } catch (URIValidationException e) {
+            throw new UriValidationException(e);
+        }
+        
 
         accountsFilingRepository.save(accountsFilingEntry);
-        var message = String.format("Account filing id: %s has been updated to include package type: %s",
+        final var message = String.format("Account filing id: %s has been updated to include package type: %s",
                 accountsFilingEntry.getAccountsFilingId(), packageType);
         logger.debug(message);
     }
 
     @Override
-    public AccountsFilingEntry getFilingEntry(String accountsFilingId) throws EntryNotFoundException {
-        Optional<AccountsFilingEntry> optionalEntry = accountsFilingRepository.findById(accountsFilingId);
+    public AccountsFilingEntry getFilingEntry(final String accountsFilingId) throws EntryNotFoundException {
+        final Optional<AccountsFilingEntry> optionalEntry = accountsFilingRepository.findById(accountsFilingId);
 
         if (optionalEntry.isEmpty()) {
-            var message = String.format("Entry with accountFilingId: %s was not found", accountsFilingId);
+            final var message = String.format("Entry with accountFilingId: %s was not found", accountsFilingId);
             logger.errorContext(accountsFilingId, message, null, ImmutableConverter.toMutableMap(Map.of(
                     "expected", "accountsFilingEntry Object",
                     "status", "empty optional"
@@ -69,8 +75,8 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
      * @return ValidationStatusResponse - Contains the validation status of the accounts filing entry
      */
     @Override
-    public ValidationStatusResponse validateAccountsFilingEntry(AccountsFilingEntry accountsFilingEntry) {
-        var validationStatus = accountsFilingValidator.validateAccountsFilingEntry(accountsFilingEntry);
+    public ValidationStatusResponse validateAccountsFilingEntry(final AccountsFilingEntry accountsFilingEntry) {
+        final var validationStatus = accountsFilingValidator.validateAccountsFilingEntry(accountsFilingEntry);
 
         if (!validationStatus.isValid()) {
             logValidationFailed(accountsFilingEntry.getAccountsFilingId(), validationStatus);
@@ -79,9 +85,9 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         return validationStatus;
     }
 
-    private void logValidationFailed(String accountsFilingId, ValidationStatusResponse validationStatusResponse) {
-        var logData = new HashMap<String, Object>();
-        var errors = validationStatusResponse.getValidationStatusError();
+    private void logValidationFailed(final String accountsFilingId, final ValidationStatusResponse validationStatusResponse) {
+        final var logData = new HashMap<String, Object>();
+        final var errors = validationStatusResponse.getValidationStatusError();
 
         logData.put("numValidationErrors", errors.length);
 
@@ -92,7 +98,7 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
         logger.errorContext(accountsFilingId, "Accounts failed validation", null, logData);
     }
 
-    private String formatValidationError(ValidationStatusError error) {
+    private String formatValidationError(final ValidationStatusError error) {
         return String.format("Field: %s, Error: %s", error.getLocation(), error.getError());
     }
 
@@ -105,12 +111,12 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
      * @return AccountsFilingEntry - returns accounts filing entry  for the given transaction id and accounts filing id.
      */
     @Override
-    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(String transactionId, String accountsFilingId) {
-        AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
+    public AccountsFilingEntry getAccountsFilingEntryForIDAndTransaction(final String transactionId, final String accountsFilingId) {
+        final AccountsFilingEntry accountsFilingEntry = getFilingEntry(accountsFilingId);
         if (transactionId != null && transactionId.equals(accountsFilingEntry.getTransactionId())) {
             return accountsFilingEntry;
         } else {
-            var message = String.format("Entry with accountFilingId: %s and transaction id: %s was not found",
+            final var message = String.format("Entry with accountFilingId: %s and transaction id: %s was not found",
                     accountsFilingId, transactionId);
             logger.error(message);
             throw new EntryNotFoundException(message);

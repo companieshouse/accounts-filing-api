@@ -154,7 +154,7 @@ class TransactionControllerTest {
 
     @Test
     @DisplayName("Submit a package type and return a 204")
-    void testSetPackageType() {
+    void testSetPackageType() throws EntryNotFoundException {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
@@ -169,7 +169,7 @@ class TransactionControllerTest {
 
     @Test
     @DisplayName("Submit a package type and no matching transaction. Return a 404")
-    void testSetPackageTypeMissingTransaction() {
+    void testSetPackageTypeMissingTransaction() throws EntryNotFoundException {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
@@ -181,7 +181,7 @@ class TransactionControllerTest {
 
     @Test
     @DisplayName("Submit a invalid package type. Throws an UriValidationException")
-    void testSetPackageTypeWithInvalidPackageType() {
+    void testSetPackageTypeWithInvalidPackageType() throws UriValidationException {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType invalidPackageType = new AccountsPackageType("Invalid");
