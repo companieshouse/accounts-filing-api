@@ -40,8 +40,14 @@ public class AccountsFilingServiceImpl implements AccountsFilingService {
     @Override
     public void savePackageType(final AccountsFilingEntry accountsFilingEntry, final String packageType) {
 
-
-            accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
+            try {
+                accountsFilingEntry.setPackageType(PackageTypeApi.findPackageType(packageType));
+            } catch (URIValidationException e) {
+                //Finding package type throw a URIValidationException. 
+                //Re-throwing as a runtime exception UriValidationException
+                logger.error(String.format("Failed to find package type for %s", packageType), e);
+                throw new UriValidationException(e);
+            }
   
         
 
