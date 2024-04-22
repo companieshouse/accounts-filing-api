@@ -3,7 +3,7 @@ package uk.gov.companieshouse.accounts.filing.service.costs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.payment.CostsApi;
 
@@ -47,12 +47,12 @@ public class CostsServiceImpl implements CostsService{
     public CostsApi calculateCosts(AccountsFilingEntry accountsFilingEntry) {
         CostsApi costs = new CostsApi();
         costs.setItems(new ArrayList<>());
-        if(PackageType.CIC.equals(accountsFilingEntry.getPackageType())){
+        if(PackageTypeApi.CIC.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setAmount(cicAccountsFee);
             costs.getItems().add(cost);
         }
-        else if(PackageType.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
+        else if(PackageTypeApi.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setAmount(overseasAccountsFee);
             costs.getItems().add(cost);

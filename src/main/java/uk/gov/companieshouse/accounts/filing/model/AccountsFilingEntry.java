@@ -1,11 +1,10 @@
 package uk.gov.companieshouse.accounts.filing.model;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
-
-import org.springframework.data.annotation.Id;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 
 @Document("accounts_filing")
 public class AccountsFilingEntry {
@@ -20,7 +19,7 @@ public class AccountsFilingEntry {
     private String accountsType;
 
     @Field()
-    private PackageType packageType;
+    private PackageTypeApi packageType;
 
     @Field()
     private String transactionId;
@@ -35,8 +34,8 @@ public class AccountsFilingEntry {
     private String madeUpDate;
 
 
-    public AccountsFilingEntry(String accountsFilingId, String fileId, String accountsType, PackageType packageType,
-                               String transactionId, String companyNumber, String companyName, String madeUpDate) {
+    public AccountsFilingEntry(final String accountsFilingId, final String fileId, final String accountsType, final PackageTypeApi packageType,
+                               final String transactionId, final String companyNumber, final String companyName, final String madeUpDate) {
         this.accountsFilingId = accountsFilingId;
         this.fileId = fileId;
         this.accountsType = accountsType;
@@ -47,7 +46,7 @@ public class AccountsFilingEntry {
         this.madeUpDate = madeUpDate;
     }
 
-    public AccountsFilingEntry(String accountsFilingId) {
+    public AccountsFilingEntry(final String accountsFilingId) {
         this.accountsFilingId = accountsFilingId;
     }
 
@@ -61,7 +60,7 @@ public class AccountsFilingEntry {
         return fileId;
     }
 
-    public void setFileId(String fileId) {
+    public void setFileId(final String fileId) {
         this.fileId = fileId;
     }
 
@@ -69,15 +68,15 @@ public class AccountsFilingEntry {
         return accountsType;
     }
 
-    public void setAccountsType(String accountsType) {
+    public void setAccountsType(final String accountsType) {
         this.accountsType = accountsType;
     }
 
-    public PackageType getPackageType() {
+    public PackageTypeApi getPackageType() {
         return packageType;
     }
 
-    public void setPackageType(PackageType packageType) {
+    public void setPackageType(final PackageTypeApi packageType) {
         this.packageType = packageType;
     }
 
@@ -97,7 +96,7 @@ public class AccountsFilingEntry {
         return madeUpDate;
     }
 
-    public void setMadeUpDate(String madeUpDate) {
+    public void setMadeUpDate(final String madeUpDate) {
         this.madeUpDate = madeUpDate;
     }
 
@@ -117,11 +116,14 @@ public class AccountsFilingEntry {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
-        AccountsFilingEntry other = (AccountsFilingEntry) obj;
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final AccountsFilingEntry other = (AccountsFilingEntry) obj;
         if (accountsFilingId == null) {
             if (other.accountsFilingId != null)
                 return false;
@@ -137,10 +139,7 @@ public class AccountsFilingEntry {
                 return false;
         } else if (!accountsType.equals(other.accountsType))
             return false;
-        if (packageType == null) {
-            if (other.packageType != null)
-                return false;
-        } else if (!packageType.equals(other.packageType))
+        if (packageType != other.packageType)
             return false;
         if (transactionId == null) {
             if (other.transactionId != null)
@@ -158,14 +157,18 @@ public class AccountsFilingEntry {
         } else if (!companyName.equals(other.companyName))
             return false;
         if (madeUpDate == null) {
-            return other.madeUpDate == null;
-        } else return madeUpDate.equals(other.madeUpDate);
+            if (other.madeUpDate != null)
+                return false;
+        } else if (!madeUpDate.equals(other.madeUpDate))
+            return false;
+        return true;
     }
 
     @Override
     public String toString() {
         return "AccountsFilingEntry [accountsFilingId=" + accountsFilingId + ", fileId=" + fileId + ", accountsType="
-                + accountsType + ", packageType=" + packageType + ", transactionId=" + transactionId + ", companyNumber="
-                + companyNumber + ", companyName='" + companyName + ", madeUpDate=" + madeUpDate + "]";
+                + accountsType + ", packageType=" + packageType + ", transactionId=" + transactionId
+                + ", companyNumber=" + companyNumber + ", companyName=" + companyName + ", madeUpDate=" + madeUpDate
+                + "]";
     }
 }

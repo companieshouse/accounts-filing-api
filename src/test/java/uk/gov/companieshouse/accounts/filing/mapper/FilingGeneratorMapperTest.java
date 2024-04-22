@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 
 class FilingGeneratorMapperTest {
@@ -29,7 +29,7 @@ class FilingGeneratorMapperTest {
         filingEntry.setAccountsType(accountsType);
         filingEntry.setFileId("fileId");
         filingEntry.setMadeUpDate(madeUpDate);
-        filingEntry.setPackageType(PackageType.UKSEF);
+        filingEntry.setPackageType(PackageTypeApi.UKSEF);
         return filingEntry;
     }
 
@@ -57,7 +57,7 @@ class FilingGeneratorMapperTest {
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
         assertEquals("package-accounts", filingApi.getKind());
-        assertEquals(PackageType.UKSEF.toString(), filingApi.getData().get("packageType"));
+        assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("packageType"));
         assertEquals(accountsType, filingApi.getData().get("accountsType"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
         assertEquals(madeUpDate, filingApi.getData().get("madeUpDate"));

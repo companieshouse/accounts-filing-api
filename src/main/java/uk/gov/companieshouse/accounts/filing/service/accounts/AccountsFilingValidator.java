@@ -3,7 +3,7 @@ package uk.gov.companieshouse.accounts.filing.service.accounts;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 
@@ -49,11 +49,11 @@ public class AccountsFilingValidator {
      *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validatePackageType(final PackageType packageType,
+    private void validatePackageType(final PackageTypeApi packageType,
             final List<ValidationStatusError> validationStatusErrors) {
         if (packageType == null) {
             setValidationError(validationStatusErrors, "PackageType", "Package type is null");
-        } else if (!PackageType.UKSEF.equals(packageType)) {
+        } else if (!PackageTypeApi.UKSEF.equals(packageType)) {
             setValidationError(validationStatusErrors, "PackageType : " + packageType,
                     "Package type is not UKSEF");
         }

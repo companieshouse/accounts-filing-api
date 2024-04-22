@@ -94,10 +94,10 @@ public class TransactionController {
     public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
                                                         @PathVariable("accountsFilingId") final String accountsFilingId){
         try{
-            AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
+            final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
             return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
         }
-        catch(EntryNotFoundException entryNotFoundException){
+        catch(final EntryNotFoundException entryNotFoundException){
             return ResponseEntity.notFound().build();
         }
     }
@@ -115,7 +115,7 @@ public class TransactionController {
             final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
             return ResponseEntity.ok(costsService.calculateCosts(accountsFilingEntry));
         }
-        catch(EntryNotFoundException entryNotFoundException){
+        catch(final EntryNotFoundException entryNotFoundException){
             return ResponseEntity.notFound().build();
         }
     }
@@ -127,7 +127,7 @@ public class TransactionController {
      * @return response
      */
     @ExceptionHandler
-    ResponseEntity<String> exceptionHandler(Exception ex) {
+    ResponseEntity<String> exceptionHandler(final Exception ex) {
         return ControllerExceptionHandler.handleExpection(ex, logger);
     }
 }
