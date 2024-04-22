@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusError;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 
@@ -85,7 +85,7 @@ class AccountsFilingValidatorTest {
     @Test
     @DisplayName("Testing accounts filing data with invalid values")
     void testValidateAccountsFilingEntryForInvalidValues() {
-        entry.setPackageType(PackageType.GROUP_PACKAGE_400);
+        entry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
         entry.setAccountsType("19");
         entry.setMadeUpDate("2021-06-31");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824g");
@@ -102,7 +102,7 @@ class AccountsFilingValidatorTest {
     @Test
     @DisplayName("Testing accounts filing data with valid values")
     void testValidateAccountsFilingEntryWithValidValues() {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("01");
         entry.setMadeUpDate("2018-06-30");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
@@ -129,7 +129,7 @@ class AccountsFilingValidatorTest {
         entry.setMadeUpDate("2018-06-30");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
 
-        entry.setPackageType(PackageType.GROUP_PACKAGE_400);
+        entry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
         validateAccountsFilingEntry(entry);
         assertValidationFailedWithOneError(packageNotUKSEFMessage);
     }
@@ -144,7 +144,7 @@ class AccountsFilingValidatorTest {
     }, nullValues = "null")
     @DisplayName("Testing accounts filing data fails with different accounts types")
     void testFailsValidateAccountsFilingEntryWithDifferentAccountsType(String accountType, String errorMessage) {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setMadeUpDate("2018-06-30");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
 
@@ -158,7 +158,7 @@ class AccountsFilingValidatorTest {
     @ValueSource(strings = { "01", "18" })
     @DisplayName("Testing accounts filing data passes with different accounts types")
     void testPassesValidateAccountsFilingEntryWithDifferentAccountsType(String accountType) {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setMadeUpDate("2018-06-30");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
 
@@ -178,7 +178,7 @@ class AccountsFilingValidatorTest {
     }, nullValues = "null")
     @DisplayName("Testing failed accounts filing data with different made up dates")
     void testFailedValidateAccountsFilingEntryWithDifferentMadeUpDate(String madeUpDate, String errorMessage) {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
 
@@ -192,7 +192,7 @@ class AccountsFilingValidatorTest {
     @Test
     @DisplayName("Testing failed accounts filing data with different made up dates")
     void testPassedMadeUpDate() {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
         entry.setMadeUpDate("2018-06-30");
@@ -208,7 +208,7 @@ class AccountsFilingValidatorTest {
     }, nullValues = "null")
     @DisplayName("Testing failed accounts filing data with different file ids")
     void testValidateAccountsFilingEntryWithDifferentFileId(String uuid, String errorMessage) {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
         entry.setMadeUpDate("2018-06-30");
 
@@ -221,7 +221,7 @@ class AccountsFilingValidatorTest {
     @Test
     @DisplayName("Testing accounts filing data with different file ids")
     void testPassedFileId() {
-        entry.setPackageType(PackageType.UKSEF);
+        entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
         entry.setMadeUpDate("2018-06-30");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");

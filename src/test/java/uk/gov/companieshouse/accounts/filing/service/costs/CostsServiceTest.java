@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
-import uk.gov.companieshouse.accounts.filing.model.types.PackageType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.payment.CostsApi;
 import java.util.List;
@@ -47,7 +47,7 @@ public class CostsServiceTest {
     @Test
     @DisplayName("Test calculateCosts returns £15 fee for CIC account")
     void testCalculateCostsForCicAccount(){
-        accountsFilingEntry.setPackageType(PackageType.CIC);
+        accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
         CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
         assertFeeAndDefaultValues(costs, cicAccountsFee);
@@ -56,7 +56,7 @@ public class CostsServiceTest {
     @Test
     @DisplayName("Test calculateCosts returns £33 fee for Overseas account")
     void testCalculateCostsForOverseasAccount(){
-        accountsFilingEntry.setPackageType(PackageType.OVERSEAS);
+        accountsFilingEntry.setPackageType(PackageTypeApi.OVERSEAS);
         ReflectionTestUtils.setField(costsService, "overseasAccountsFee", overseasAccountsFee);
         CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
         assertFeeAndDefaultValues(costs, overseasAccountsFee);
@@ -65,7 +65,7 @@ public class CostsServiceTest {
     @Test
     @DisplayName("Test calculateCosts returns empty cost for other accounts")
     void testCalculateCostsForOtherAccounts(){
-        accountsFilingEntry.setPackageType(PackageType.UKSEF);
+        accountsFilingEntry.setPackageType(PackageTypeApi.UKSEF);
         CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
         Assertions.assertTrue(costs.getItems().isEmpty());
     }

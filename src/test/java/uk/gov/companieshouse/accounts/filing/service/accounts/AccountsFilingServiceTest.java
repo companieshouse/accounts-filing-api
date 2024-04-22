@@ -75,7 +75,7 @@ class AccountsFilingServiceTest {
         var accountsFilingId = "accountsFilingId";
         AccountsFilingEntry entry = new AccountsFilingEntry(accountsFilingId);
 
-        service.savePackageType(entry, "UKSEF");
+        service.savePackageType(entry, "uksef");
 
         verify(accountsFilingRepository, times(1)).save(entry);
     }

@@ -33,7 +33,7 @@
 		<!-- internal -->
 		<structured-logging.version>3.0.1</structured-logging.version>
 		<api-sdk-manager-java-library.version>3.0.2</api-sdk-manager-java-library.version>
-		<private-api-sdk-java.version>4.0.5</private-api-sdk-java.version>
+		<private-api-sdk-java.version>4.0.105</private-api-sdk-java.version>
 		<api-security-java-version>2.0.1</api-security-java-version>
 
 	</properties>
