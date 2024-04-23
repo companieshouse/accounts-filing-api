@@ -42,7 +42,7 @@ module "ecs-service" {
   lb_listener_rule_priority = local.lb_listener_rule_priority
   lb_listener_paths         = local.lb_listener_paths
   multilb_setup             = true
-  multilb_listeners               = {
+  multilb_listeners         = {
     "priva-api-lb": {
       listener_arn            = data.aws_lb_listener.secondary_lb_listener.arn
       load_balancer_arn       = data.aws_lb.secondary_lb.arn
