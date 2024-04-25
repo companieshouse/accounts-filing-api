@@ -38,8 +38,8 @@ class PrivateTransactionControllerTest {
 
     private final static String accountsFilingId = "accountFilingId";
 
-    @Mock
-    AccountsFilingEntry accountsFilingEntry;
+    private final static AccountsFilingEntry accountsFilingEntry = new AccountsFilingEntry("1");
+    private final static FilingApi filingApi = new FilingApi();
 
     @BeforeEach
     void beforeEach() {
@@ -52,17 +52,19 @@ class PrivateTransactionControllerTest {
 
         when(accountsFilingService
         .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenThrow(EntryNotFoundException.class);
-        ResponseEntity<FilingApi> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
+        ResponseEntity<FilingApi[]> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
         assertEquals(HttpStatusCode.valueOf(404), result.getStatusCode());
     }
 
     @Test
     @DisplayName("Test with valid inputs")
     void testGetFilingApi() {
-        when(accountsFilingService
-        .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId)).thenReturn(accountsFilingEntry);
-        ResponseEntity<FilingApi> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
+        when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
+                .thenReturn(accountsFilingEntry);
+        when(filingGeneratorMapper.mapToFilingApi(accountsFilingEntry)).thenReturn(filingApi);
+        ResponseEntity<FilingApi[]> result = controller.getFilingApiEntry(transactionId, accountsFilingId);
         assertEquals(HttpStatusCode.valueOf(200), result.getStatusCode());
+        assertEquals(filingApi, result.getBody()[0]);
     }
 
 }

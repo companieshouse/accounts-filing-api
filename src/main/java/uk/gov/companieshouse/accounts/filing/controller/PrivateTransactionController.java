@@ -34,7 +34,7 @@ public class PrivateTransactionController {
     }
 
     @GetMapping("/filings")
-    public ResponseEntity<FilingApi> getFilingApiEntry(
+    public ResponseEntity<FilingApi[]> getFilingApiEntry(
             @PathVariable("transactionId") final String transactionId,
             @PathVariable("accountsFilingId") final String accountsFilingId) {
 
@@ -42,8 +42,8 @@ public class PrivateTransactionController {
 
             AccountsFilingEntry accountsFilingEntry = accountsFilingService
                     .getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId);
-
-            return ResponseEntity.ok(filingGeneratorMapper.mapToFilingApi(accountsFilingEntry));
+            FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
+            return ResponseEntity.ok(new FilingApi[]{ filingApi });
 
         } catch (EntryNotFoundException ex) {
             logger.error(String.format("%s: did not match a known accountFilingId", accountsFilingId));
