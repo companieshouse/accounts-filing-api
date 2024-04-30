@@ -56,7 +56,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts made up to "+madeUpDate, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
-        assertEquals("package-accounts", filingApi.getKind());
+        assertEquals("accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("packageType"));
         assertEquals(accountsType, filingApi.getData().get("accountsType"));
         assertEquals(createLinks(), filingApi.getData().get("links"));

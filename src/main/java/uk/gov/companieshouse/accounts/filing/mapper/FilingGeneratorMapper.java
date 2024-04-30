@@ -30,7 +30,7 @@ public class FilingGeneratorMapper {
         filingApiEntity.setDescription("Package accounts made up to " + madeUpDate);
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
         filingApiEntity.setDescriptionValues(descriptionValue);
-        filingApiEntity.setKind("package-accounts");
+        filingApiEntity.setKind("accounts");
         filingApiEntity.setData(mapData(accountsFilingEntry, madeUpDate));
 
         return filingApiEntity;
