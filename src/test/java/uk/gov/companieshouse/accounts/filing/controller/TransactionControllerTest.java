@@ -17,6 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultA
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
-import uk.gov.companieshouse.api.model.payment.CostsApi;
+import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
@@ -78,7 +79,7 @@ class TransactionControllerTest {
     @Mock
     TransactionTransformer accountsFilingTransformer;
 
-    CostsApi costs;
+    List<Cost> costs;
 
 
     ValidationStatusResponse validationStatusResponse;
@@ -92,8 +93,7 @@ class TransactionControllerTest {
                 transactionId, null, null, null);
         validationStatusResponse = new ValidationStatusResponse();
 
-        costs = new CostsApi();
-        costs.setItems(new ArrayList<>());
+        costs = new ArrayList<>();
     }
 
     @Test
@@ -335,7 +335,7 @@ class TransactionControllerTest {
         // Then
         Assertions.assertEquals(HttpStatus.OK, validResult.getStatusCode());
         Assertions.assertNotNull(validResult.getBody());
-        Assertions.assertTrue(((CostsApi) validResult.getBody()).getItems().isEmpty());
+        Assertions.assertTrue(((List<Cost>)validResult.getBody()).isEmpty());
     }
 
     @Test

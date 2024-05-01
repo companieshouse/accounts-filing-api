@@ -5,13 +5,11 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
-import uk.gov.companieshouse.api.model.payment.CostsApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 
 @Component
 public class CostsServiceImpl implements CostsService{
@@ -44,18 +42,17 @@ public class CostsServiceImpl implements CostsService{
      * @return CostsApi - Cost to file the account
      */
     @Override
-    public CostsApi calculateCosts(AccountsFilingEntry accountsFilingEntry) {
-        CostsApi costs = new CostsApi();
-        costs.setItems(new ArrayList<>());
+    public List<Cost> calculateCosts(AccountsFilingEntry accountsFilingEntry) {
+        List<Cost> costs = new ArrayList<>();
         if(PackageTypeApi.CIC.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setAmount(cicAccountsFee);
-            costs.getItems().add(cost);
+            costs.add(cost);
         }
         else if(PackageTypeApi.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setAmount(overseasAccountsFee);
-            costs.getItems().add(cost);
+            costs.add(cost);
         }
         return costs;
     }

@@ -38,7 +38,8 @@ class TransformerServiceTest {
 
         Map<String, String> links = Map.of(
                 "resource", uri,
-                "validation_status", uri + "/validation-status");
+                "validation_status", uri + "/validation-status",
+                "costs",uri + "/costs");
 
         transaction.setId(transactionId);
         transaction.setResources(new HashMap<>());
@@ -50,7 +51,7 @@ class TransformerServiceTest {
         assertEquals(1, transaction.getResources().size());
         assertTrue(transaction.getResources().containsKey(uri));
         assertEquals(RESOURCE_KIND, resourceResult.getKind());
-        assertEquals(2, resourceResult.getLinks().size());
+        assertEquals(3, resourceResult.getLinks().size());
         assertEquals(links, resourceResult.getLinks());
         assertNotNull(resourceResult.getUpdatedAt());
     }
