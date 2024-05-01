@@ -1,9 +1,10 @@
 package uk.gov.companieshouse.accounts.filing.mapper;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,7 @@ class FilingGeneratorMapperTest {
 
     private final static String madeUpDate = "now";
     private final static String accountsType = "01";
-    private static Map<String, String> links;
+    private static List<Map<String, String>> links;
 
     private AccountsFilingEntry createAccountsFilingEntry() {
         var filingEntry = new AccountsFilingEntry("accountFilingId");
@@ -33,11 +34,11 @@ class FilingGeneratorMapperTest {
         return filingEntry;
     }
 
-    private Map<String, String> createLinks() {
-        links = new HashMap<>();
+    private List<Map<String, String>> createLinks() {
+        Map<String, String> links = new HashMap<>();
         links.put("rel", "accounts");
         links.put("href", "schemebucket/fileId");
-        return links;
+        return List.of(links);
     }
 
     @BeforeEach
@@ -46,21 +47,20 @@ class FilingGeneratorMapperTest {
         ReflectionTestUtils.setField(filingGeneratorMapper, "bucket", "bucket");
         ReflectionTestUtils.setField(filingGeneratorMapper, "scheme", "scheme");
         links = createLinks();
-        
     }
 
     @Test
     void testMapToFilingApi() {
         accountsFilingEntry = createAccountsFilingEntry();
         FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
-        assertEquals("Package accounts made up to "+madeUpDate, filingApi.getDescription());
+        assertEquals("Package accounts made up to " + madeUpDate, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
         assertEquals("accounts", filingApi.getKind());
-        assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("packageType"));
-        assertEquals(accountsType, filingApi.getData().get("accountsType"));
+        assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("package_type"));
+        assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
-        assertEquals(madeUpDate, filingApi.getData().get("madeUpDate"));
+        assertEquals(madeUpDate, filingApi.getData().get("period_end_on"));
         
     }
 
