@@ -25,7 +25,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
             Map.of(
                 "resource", uri,
                 "validation_status", uri+"/validation-status",
-                    "costs",uri + "/costs"
+                "costs",uri + "/costs"
             )
         );
         
