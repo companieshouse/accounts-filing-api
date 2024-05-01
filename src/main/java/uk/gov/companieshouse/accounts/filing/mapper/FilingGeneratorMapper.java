@@ -2,6 +2,7 @@ package uk.gov.companieshouse.accounts.filing.mapper;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -42,19 +43,19 @@ public class FilingGeneratorMapper {
 
     private Map<String, Object> mapData(AccountsFilingEntry accountsFilingEntry, String madeUpDate) {
         Map<String, Object> data = new HashMap<>();
-        data.put("packageType", accountsFilingEntry.getPackageType().toString());
-        data.put("accountsType", accountsFilingEntry.getAccountsType());
-        data.put("links", mapLocation(accountsFilingEntry));
-        data.put("madeUpDate", madeUpDate);
+        data.put("package_type", accountsFilingEntry.getPackageType().toString());
+        data.put("accounts_type", accountsFilingEntry.getAccountsType());
+        data.put("links", mapLinks(accountsFilingEntry));
+        data.put("period_end_on", madeUpDate);
         return data;
     }
 
-    private Map<String, String> mapLocation(AccountsFilingEntry accountsFilingEntry) {
+    private List<Map<String, String>> mapLinks(AccountsFilingEntry accountsFilingEntry) {
         Map<String, String> location = new HashMap<>();
         location.put("rel", "accounts");
         // The file id location
         location.put("href", String.format("%s%s/%s", scheme, bucket, accountsFilingEntry.getFileId()));
-        return location;
+        return List.of(location);
     }
 
 }
