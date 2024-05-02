@@ -49,7 +49,7 @@ public class CostsServiceTest {
     void testCalculateCostsForCicAccount(){
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
-        CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
+        List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
         assertFeeAndDefaultValues(costs, cicAccountsFee);
     }
 
@@ -58,23 +58,22 @@ public class CostsServiceTest {
     void testCalculateCostsForOverseasAccount(){
         accountsFilingEntry.setPackageType(PackageTypeApi.OVERSEAS);
         ReflectionTestUtils.setField(costsService, "overseasAccountsFee", overseasAccountsFee);
-        CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
+        List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
         assertFeeAndDefaultValues(costs, overseasAccountsFee);
     }
 
     @Test
     @DisplayName("Test calculateCosts returns empty cost for other accounts")
     void testCalculateCostsForOtherAccounts(){
-        accountsFilingEntry.setPackageType(PackageTypeApi.UKSEF);
-        CostsApi costs = costsService.calculateCosts(accountsFilingEntry);
-        Assertions.assertTrue(costs.getItems().isEmpty());
+        accountsFilingEntry.setPackageType(PackageTypeApi.WELSH);
+        List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
+        Assertions.assertTrue(costs.isEmpty());
     }
 
-    void assertFeeAndDefaultValues(CostsApi costs, String expectedFee){
-        List<Cost> costItems = costs.getItems();
-        Assertions.assertNotNull(costItems);
-        Assertions.assertFalse(costItems.isEmpty());
-        Cost cost = costItems.getFirst();
+    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee){
+        Assertions.assertNotNull(costs);
+        Assertions.assertFalse(costs.isEmpty());
+        Cost cost = costs.getFirst();
         Assertions.assertEquals(expectedFee, cost.getAmount());
         Assertions.assertEquals(DEFAULT_PAYMENT_METHOD, cost.getAvailablePaymentMethods().getFirst());
         Assertions.assertEquals(DEFAULT_PAYMENT_CLASS, cost.getClassOfPayment().getFirst());
