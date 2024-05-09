@@ -15,7 +15,6 @@ import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.InvalidStateException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
@@ -66,16 +65,18 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     public void saveFileValidationResult(AccountsFilingEntry accountsFilingEntry,
             AccountsValidatorStatusApi accountStatus) {
         String fileId = accountStatus.fileId();
-        AccountsValidatorDataApi data = Optional.ofNullable(accountStatus.resultApi().data())
-            .orElseThrow(InvalidStateException::new);
+        AccountsValidatorDataApi data = accountStatus.resultApi().data();
+        if (data != null) {
+            accountsFilingEntry.setAccountsType(data.accountType());
+            accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
+        }
 
         var message = String.format(
-                "Account filing id: %s has been updated to include file id: %s with account type: %s",
-                accountsFilingEntry.getAccountsFilingId(), fileId, data.accountType());
+                "Account filing id: %s has been updated to include file id: %s",
+                accountsFilingEntry.getAccountsFilingId(), fileId);
 
-        accountsFilingEntry.setAccountsType(data.accountType());
         accountsFilingEntry.setFileId(fileId);
-        accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
+
         requestFilingRepository.save(accountsFilingEntry);
         logger.debugContext(accountsFilingEntry.getAccountsFilingId(), message, new HashMap<>());
     }
