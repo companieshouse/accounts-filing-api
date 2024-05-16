@@ -53,9 +53,6 @@ public class AccountsFilingValidator {
             final List<ValidationStatusError> validationStatusErrors) {
         if (packageType == null) {
             setValidationError(validationStatusErrors, "PackageType", "Package type is null");
-        } else if (!PackageTypeApi.UKSEF.equals(packageType)) {
-            setValidationError(validationStatusErrors, "PackageType : " + packageType,
-                    "Package type is not UKSEF");
         }
     }
 

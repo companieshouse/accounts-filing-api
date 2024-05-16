@@ -34,7 +34,6 @@ class AccountsFilingValidatorTest {
     String accountNullMessage = "Accounts type is null or blank";
     String madeUpDateNullMessage = "Made up date is null or blank";
     String fileIdMessageNullMessage = "File ID is null or blank";
-    String packageNotUKSEFMessage = "Package type is not UKSEF";
     String accountNotValidType = "Accounts type is not a valid AccountsType";
     String dateWrongFormat = "Made up date is not in yyyy-MM-dd format";
     String fileIdNotUUID = "File ID is not a valid UUID";
@@ -90,8 +89,7 @@ class AccountsFilingValidatorTest {
         entry.setMadeUpDate("2021-06-31");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824g");
         validateAccountsFilingEntry(entry);
-        assertEquals(4, validationStatusResponse.getValidationStatusError().length);
-        assertValidationFailedWithError(packageNotUKSEFMessage);
+        assertEquals(3, validationStatusResponse.getValidationStatusError().length);
         assertValidationFailedWithError(accountNotValidType);
         assertValidationFailedWithError(dateWrongFormat);
         assertValidationFailedWithError(fileIdNotUUID);
@@ -120,18 +118,6 @@ class AccountsFilingValidatorTest {
         entry.setPackageType(null);
         validateAccountsFilingEntry(entry);
         assertValidationFailedWithOneError(packageNullMessage);
-    }
-
-    @Test
-    @DisplayName("Testing accounts filing data with invalid package types")
-    void testValidateAccountsFilingEntryWithInvalidPackageType() {
-        entry.setAccountsType("01");
-        entry.setMadeUpDate("2018-06-30");
-        entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
-
-        entry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
-        validateAccountsFilingEntry(entry);
-        assertValidationFailedWithOneError(packageNotUKSEFMessage);
     }
 
     @ParameterizedTest
