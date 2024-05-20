@@ -78,7 +78,7 @@ public class TransactionController {
             return ResponseEntity.notFound().build();
         }
 
-        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId);
+        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId, packageType.type());
         transactionService.updateTransaction(optionalTransaction.get());
         
         return ResponseEntity.noContent().build();

@@ -45,7 +45,7 @@ class TransformerServiceTest {
         transaction.setResources(new HashMap<>());
 
         // then
-        service.setupTransactionResources(transaction, accountFilingId);
+        service.setupTransactionResources(transaction, accountFilingId, "cic");
         Resource resourceResult = transaction.getResources().get(uri);
 
         assertEquals(1, transaction.getResources().size());
