@@ -54,7 +54,6 @@ class FilingGeneratorMapperTest {
     void testMapToFilingApi() {
         accountsFilingEntry = createAccountsFilingEntry();
         FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
-        System.out.println(filingApi.getDescription());
         assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
