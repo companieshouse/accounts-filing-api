@@ -10,6 +10,7 @@ import uk.gov.companieshouse.accounts.filing.interceptor.validation.FileIdInterc
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.TransactionIdInterceptor;
 import uk.gov.companieshouse.accounts.filing.security.LoggingInterceptor;
 import uk.gov.companieshouse.api.interceptor.CRUDAuthenticationInterceptor;
+import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 
 import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_ACCOUNTS;
 import static uk.gov.companieshouse.api.util.security.Permission.Key.USER_PROFILE;
@@ -20,6 +21,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private static final String TRANSACTION_URI = "**/transactions/**";
     private static final String ACCOUNTS_FILING_URI = "**/accounts-filing/**";
     private static final String FILE_URI = "**/file/**";
+    private static final String PRIVATE_URI = "/private/**";
+    private static final String HEALTHCHECK_URI = "/accounts-filing/healthcheck";
+    private static final String[] OAUTH2_EXCLUDE = { PRIVATE_URI, HEALTHCHECK_URI };
 
     private final LoggingInterceptor loggingInterceptor;
     private final AccountsFilingIdInterceptor accountsFilingIdInterceptor;
@@ -42,9 +46,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(loggingInterceptor)
                 .excludePathPatterns("/accounts-filing/healthcheck");
         registry.addInterceptor(getUserCrudAuthenticationInterceptor())
-                .excludePathPatterns("/accounts-filing/healthcheck");
+                .excludePathPatterns(OAUTH2_EXCLUDE);
         registry.addInterceptor(getCompanyCrudAuthenticationInterceptor())
-                .excludePathPatterns("/accounts-filing/healthcheck");
+                .excludePathPatterns(OAUTH2_EXCLUDE);
+        registry.addInterceptor(getInternalApiKeyInterceptor())
+                .addPathPatterns(PRIVATE_URI);
         addAccountsFilingIdInterceptor(registry);
         addTransactionIdInterceptor(registry);
         addFileIdInterceptor(registry);
@@ -68,7 +74,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     /**
      * Creates CRUDAuthenticationInterceptor which checks the User has user profile permissions
      *
-     * @return the internal user interceptor
+     * @return the CRUDAuthenticationInterceptor
      */
     private CRUDAuthenticationInterceptor getUserCrudAuthenticationInterceptor() {
         return new CRUDAuthenticationInterceptor(USER_PROFILE);
@@ -77,9 +83,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
     /**
      * Creates CRUDAuthenticationInterceptor which checks the User has company accounts permissions
      *
-     * @return the internal user interceptor
+     * @return the CRUDAuthenticationInterceptor
      */
     private CRUDAuthenticationInterceptor getCompanyCrudAuthenticationInterceptor() {
         return new CRUDAuthenticationInterceptor(COMPANY_ACCOUNTS);
+    }
+
+    /**
+     * Creates InternalUserInterceptor which checks the request has an internal app privileges key
+     *
+     * @return the internal user interceptor
+     */
+    private InternalUserInterceptor getInternalApiKeyInterceptor() {
+        return new InternalUserInterceptor();
     }
 }
