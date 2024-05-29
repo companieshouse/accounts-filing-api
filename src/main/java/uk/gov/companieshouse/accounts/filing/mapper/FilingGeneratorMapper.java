@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.mapper;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +30,7 @@ public class FilingGeneratorMapper {
         Map<String, String> descriptionValue = Collections.singletonMap("made up date", madeUpDate);
 
         var filingApiEntity = new FilingApi();
-        filingApiEntity.setDescription("Package accounts made up to " + madeUpDate);
+        filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
         filingApiEntity.setDescriptionValues(descriptionValue);
         filingApiEntity.setKind("accounts");
@@ -56,6 +58,12 @@ public class FilingGeneratorMapper {
         // The file id location
         location.put("href", String.format("%s%s/%s", scheme, bucket, accountsFilingEntry.getFileId()));
         return List.of(location);
+    }
+
+    private String formatMadeUpDate(String madeUpDate) {
+        DateTimeFormatter fromFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter toFormat = DateTimeFormatter.ofPattern("d MMMM yyyy");
+        return LocalDate.parse(madeUpDate, fromFormat).format(toFormat);
     }
 
 }

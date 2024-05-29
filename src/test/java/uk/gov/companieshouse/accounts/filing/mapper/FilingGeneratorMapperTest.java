@@ -21,7 +21,8 @@ class FilingGeneratorMapperTest {
 
     FilingGeneratorMapper filingGeneratorMapper;
 
-    private final static String madeUpDate = "now";
+    private final static String madeUpDate = "2000-01-01";
+    private final static String madeUpDateFormatted = "1 January 2000";
     private final static String accountsType = "01";
     private static List<Map<String, String>> links;
 
@@ -53,7 +54,7 @@ class FilingGeneratorMapperTest {
     void testMapToFilingApi() {
         accountsFilingEntry = createAccountsFilingEntry();
         FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
-        assertEquals("Package accounts made up to " + madeUpDate, filingApi.getDescription());
+        assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
         assertEquals("accounts", filingApi.getKind());
