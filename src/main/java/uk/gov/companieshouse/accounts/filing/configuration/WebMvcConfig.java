@@ -44,7 +44,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
         registry.addInterceptor(loggingInterceptor)
-                .excludePathPatterns("/accounts-filing/healthcheck");
+                .excludePathPatterns(HEALTHCHECK_URI);
         registry.addInterceptor(getUserCrudAuthenticationInterceptor())
                 .excludePathPatterns(OAUTH2_EXCLUDE);
         registry.addInterceptor(getCompanyCrudAuthenticationInterceptor())
