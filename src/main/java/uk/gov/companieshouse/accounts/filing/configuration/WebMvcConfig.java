@@ -22,8 +22,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private static final String ACCOUNTS_FILING_URI = "**/accounts-filing/**";
     private static final String FILE_URI = "**/file/**";
     private static final String PRIVATE_URI = "/private/**";
+    private static final String COSTS_URI = "/transactions/**/costs";
     private static final String HEALTHCHECK_URI = "/accounts-filing/healthcheck";
-    private static final String[] OAUTH2_EXCLUDE = { PRIVATE_URI, HEALTHCHECK_URI };
+    private static final String[] OAUTH2_EXCLUDE = { COSTS_URI, PRIVATE_URI, HEALTHCHECK_URI };
+    private static final String[] INTERNAL_AUTH_INCLUDE = { COSTS_URI, PRIVATE_URI };
 
     private final LoggingInterceptor loggingInterceptor;
     private final AccountsFilingIdInterceptor accountsFilingIdInterceptor;
@@ -50,7 +52,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(getCompanyCrudAuthenticationInterceptor())
                 .excludePathPatterns(OAUTH2_EXCLUDE);
         registry.addInterceptor(getInternalApiKeyInterceptor())
-                .addPathPatterns(PRIVATE_URI);
+                .addPathPatterns(INTERNAL_AUTH_INCLUDE);
         addAccountsFilingIdInterceptor(registry);
         addTransactionIdInterceptor(registry);
         addFileIdInterceptor(registry);
