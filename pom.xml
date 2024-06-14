@@ -169,8 +169,8 @@
 		</dependency>
 		<!-- CH apis support libs ends-->
 		<dependency>
-		    <groupId>org.sonarsource.scanner.maven</groupId>
-    		<artifactId>sonar-maven-plugin</artifactId>
+			<groupId>org.sonarsource.scanner.maven</groupId>
+			<artifactId>sonar-maven-plugin</artifactId>
 			<version>${sonar-maven-plugin.version}</version>
 			<scope>test</scope>
 		</dependency>
