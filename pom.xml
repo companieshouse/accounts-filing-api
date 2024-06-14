@@ -29,7 +29,6 @@
 		<skip.unit.tests>false</skip.unit.tests>
 		<maven-resources-plugin.version>2.5</maven-resources-plugin.version>
 		<mockito.version>5.7.0</mockito.version>
-		<sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
 
 		<!-- internal -->
 		<structured-logging.version>3.0.1</structured-logging.version>
@@ -170,8 +169,8 @@
 		</dependency>
 		<!-- CH apis support libs ends-->
 		<dependency>
-			<groupId>org.sonarsource.scanner.maven</groupId>
-			<artifactId>sonar-maven-plugin</artifactId>
+		    <groupId>org.sonarsource.scanner.maven</groupId>
+    		<artifactId>sonar-maven-plugin</artifactId>
 			<version>${sonar-maven-plugin.version}</version>
 			<scope>test</scope>
 		</dependency>
