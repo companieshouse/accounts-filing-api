@@ -169,6 +169,12 @@
 			<version>${api-security-java-version}</version>
 		</dependency>
 		<!-- CH apis support libs ends-->
+		<dependency>
+			<groupId>org.sonarsource.scanner.maven</groupId>
+			<artifactId>sonar-maven-plugin</artifactId>
+			<version>${sonar-maven-plugin.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- Junit testing libs starts-->
 		<dependency>
 			<groupId>org.junit.platform</groupId>
@@ -245,12 +251,6 @@
 					</excludes>
 					<skipTests>${skip.unit.tests}</skipTests>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>${sonar-maven-plugin.version}</version>
-				<scope>test</scope>
 			</plugin>
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
