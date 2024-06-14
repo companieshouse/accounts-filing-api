@@ -250,6 +250,7 @@
 				<groupId>org.sonarsource.scanner.maven</groupId>
 				<artifactId>sonar-maven-plugin</artifactId>
 				<version>${sonar-maven-plugin.version}</version>
+				<scope>test</scope>
 			</plugin>
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
