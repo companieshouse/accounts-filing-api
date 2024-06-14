@@ -29,6 +29,7 @@
 		<skip.unit.tests>false</skip.unit.tests>
 		<maven-resources-plugin.version>2.5</maven-resources-plugin.version>
 		<mockito.version>5.7.0</mockito.version>
+		<sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
 
 		<!-- internal -->
 		<structured-logging.version>3.0.1</structured-logging.version>
@@ -37,6 +38,14 @@
 		<api-security-java-version>2.0.1</api-security-java-version>
 
 	</properties>
+	<profiles>
+        <profile>
+            <id>sonar-pr-analysis</id>
+            <properties>
+                <sonar.pullrequest.base>main</sonar.pullrequest.base>
+            </properties>
+        </profile>
+	</profiles>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
