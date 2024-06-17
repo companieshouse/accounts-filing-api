@@ -13,13 +13,13 @@
 	<description>Handles operations required for accounts filing</description>
 	<properties>
 		<java.version>21</java.version>
+		<jdk.version>21</jdk.version>
 
 		<maven-build-helper-plugin.version>3.2.0</maven-build-helper-plugin.version>
 		<spring-boot-dependencies.version>3.2.5</spring-boot-dependencies.version>
 		<spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
 
 		<!-- tests -->
 		<maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
@@ -326,7 +326,6 @@
 			<plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco-maven-plugin.version}</version>
             </plugin>
 		</plugins>
 	</build>
