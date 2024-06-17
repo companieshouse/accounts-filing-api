@@ -19,17 +19,17 @@
 		<spring-boot-maven-plugin.version>3.2.5</spring-boot-maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
 
 		<!-- tests -->
-		<maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
 		<jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
 		<test-containers.version>1.19.2</test-containers.version>
-		<maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+		<maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
 		<skip.integration.tests>false</skip.integration.tests>
 		<skip.unit.tests>false</skip.unit.tests>
 		<maven-resources-plugin.version>2.5</maven-resources-plugin.version>
 		<mockito.version>5.7.0</mockito.version>
-		<sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
 
 		<!-- internal -->
 		<structured-logging.version>3.0.1</structured-logging.version>
@@ -323,6 +323,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+            </plugin>
 		</plugins>
 	</build>
 
