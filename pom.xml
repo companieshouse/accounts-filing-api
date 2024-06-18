@@ -39,6 +39,7 @@
         <api-security-java-version>2.0.1</api-security-java-version>
 
                 <!--sonar configuration-->
+        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
         <sonar.projectKey>uk.gov.companieshouse:accounts-filing-api</sonar.projectKey>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
