@@ -33,6 +33,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,13 +110,14 @@ class AccountsValidationServiceTest {
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
         AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
+        accountsFilingEntryRequest.setPackageType(PackageTypeApi.UKSEF);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
         service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
-        Assertions.assertEquals(accountType, accountsFilingEntryRequest.getAccountsType());
+        Assertions.assertEquals("4", accountsFilingEntryRequest.getAccountsType());
         Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
         Assertions.assertEquals(balanceSheetDate, accountsFilingEntryRequest.getMadeUpDate());
 

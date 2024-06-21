@@ -22,6 +22,7 @@ import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.logging.Logger;
 
 @Component
@@ -67,7 +68,13 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         String fileId = accountStatus.fileId();
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
-            accountsFilingEntry.setAccountsType(data.accountType());
+            PackageTypeApi packageType = accountsFilingEntry.getPackageType();
+            String accountsFilingType = accountsFilingEntry.getAccountsFilingType(packageType);
+            if (accountsFilingType != null) {
+                accountsFilingEntry.setAccountsType(accountsFilingType);
+            } else {
+                accountsFilingEntry.setAccountsType(data.accountType());
+            }
             accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
         }
 
