@@ -107,7 +107,7 @@ public class AccountsFilingEntry {
         EnumMap<PackageTypeApi, String> accountsFilingTypeMap = new EnumMap<>(PackageTypeApi.class);
         accountsFilingTypeMap.put(PackageTypeApi.UKSEF, "4");
         accountsFilingTypeMap.put(PackageTypeApi.GROUP_PACKAGE_401, "4");
-        accountsFilingTypeMap.put(PackageTypeApi.OVERSEAS, "1");
+        accountsFilingTypeMap.put(PackageTypeApi.OVERSEAS, "4");
         accountsFilingTypeMap.put(PackageTypeApi.AUDIT_EXEMPT_SUBSIDIARY, "14");
         accountsFilingTypeMap.put(PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, "15");
         // Add more packages and their types as needed
