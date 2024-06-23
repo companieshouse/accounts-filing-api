@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +70,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
-            String accountsFilingType = accountsFilingEntry.getAccountsFilingType(packageType);
+            String accountsFilingType = getAccountsFilingType(packageType);
             if (accountsFilingType != null) {
                 accountsFilingEntry.setAccountsType(accountsFilingType);
             } else {
@@ -115,5 +116,17 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         } else {
             throw new ResponseException(message);
         }
+    }
+
+    // Method to get the filing type of the given packageType
+    private static String getAccountsFilingType(PackageTypeApi key) {
+        EnumMap<PackageTypeApi, String> accountsFilingTypeMap = new EnumMap<>(PackageTypeApi.class);
+        accountsFilingTypeMap.put(PackageTypeApi.UKSEF, "4");
+        accountsFilingTypeMap.put(PackageTypeApi.GROUP_PACKAGE_401, "4");
+        accountsFilingTypeMap.put(PackageTypeApi.OVERSEAS, "4");
+        accountsFilingTypeMap.put(PackageTypeApi.AUDIT_EXEMPT_SUBSIDIARY, "14");
+        accountsFilingTypeMap.put(PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, "15");
+        // Add more packages and their types as needed
+        return accountsFilingTypeMap.get(key);
     }
 }
