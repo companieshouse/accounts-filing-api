@@ -33,6 +33,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,7 +99,7 @@ class AccountsValidationServiceTest {
 
     @Test
     @DisplayName("Save an accounts validation results to the repository")
-    void testSaveFileValidationResult() {
+    void testSaveFileValidationResultOfIndependent() {
 
         String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
         String accountStatus = "OK";
@@ -109,10 +110,38 @@ class AccountsValidationServiceTest {
         String registationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
         AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
+        accountsFilingEntryRequest.setPackageType(PackageTypeApi.UKSEF);
 
         AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
+
+        service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
+        Assertions.assertEquals("4", accountsFilingEntryRequest.getAccountsType());
+        Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
+        Assertions.assertEquals(balanceSheetDate, accountsFilingEntryRequest.getMadeUpDate());
+
+        verify(accountsFilingRepository, times(1)).save(accountsFilingEntryRequest);
+    }
+
+    @Test
+    @DisplayName("Save an accounts validation results to the repository")
+    void testSaveFileValidationResultOfFull() {
+
+        String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
+        String accountStatus = "OK";
+        String accountFilingId = "accountFilingId";
+        String accountType = "accountType";
+        String fileName = "fileName";
+        String balanceSheetDate = "2021-01-30";
+        String registationNumber = "0";
+        AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
+        AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
+        accountsFilingEntryRequest.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
+
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
+        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
+                validationStatus, accountsValidatorStatusApi);
 
         service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
         Assertions.assertEquals(accountType, accountsFilingEntryRequest.getAccountsType());

@@ -22,6 +22,7 @@ import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.logging.Logger;
 
 @Component
@@ -30,6 +31,13 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     private final Logger logger;
     private final AccountsFilingRepository requestFilingRepository;
     private final AccountsValidatorAPI accountsValidatorAPI;
+    private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
+            PackageTypeApi.UKSEF, "4",
+            PackageTypeApi.GROUP_PACKAGE_401, "4",
+            PackageTypeApi.OVERSEAS, "4",
+            PackageTypeApi.AUDIT_EXEMPT_SUBSIDIARY, "14",
+            PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, "15"
+    );
 
     @Autowired
     public AccountsValidationServiceImpl(
@@ -67,7 +75,15 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         String fileId = accountStatus.fileId();
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
-            accountsFilingEntry.setAccountsType(data.accountType());
+            PackageTypeApi packageType = accountsFilingEntry.getPackageType();
+            String accountsFilingType = accountsFilingTypeMap.get(packageType);
+            if (accountsFilingType != null) {
+                accountsFilingEntry.setAccountsType(accountsFilingType);
+                logger.debug(String.format("Accounts filing type: %s has been updated to zip package type: %s", accountsFilingType, packageType));
+            } else {
+                accountsFilingEntry.setAccountsType(data.accountType());
+                logger.debug(String.format("Accounts filing type: %s  is mapped by validator to zip package type: %s", data.accountType(), packageType));
+            }
             accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
         }
 
