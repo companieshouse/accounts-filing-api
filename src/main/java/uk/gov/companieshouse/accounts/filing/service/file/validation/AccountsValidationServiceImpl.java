@@ -79,8 +79,10 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             String accountsFilingType = accountsFilingTypeMap.get(packageType);
             if (accountsFilingType != null) {
                 accountsFilingEntry.setAccountsType(accountsFilingType);
+                logger.debug(String.format("Accounts filing type: %s has been updated to zip package type: %s", accountsFilingType, packageType));
             } else {
                 accountsFilingEntry.setAccountsType(data.accountType());
+                logger.debug(String.format("Accounts filing type: %s  is mapped by validator to zip package type: %s", data.accountType(), packageType));
             }
             accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
         }
