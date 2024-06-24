@@ -6,8 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 
-import java.util.EnumMap;
-
 @Document("accounts_filing")
 public class AccountsFilingEntry {
 
