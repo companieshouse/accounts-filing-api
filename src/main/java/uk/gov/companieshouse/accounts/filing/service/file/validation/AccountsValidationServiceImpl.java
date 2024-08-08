@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
@@ -32,11 +33,11 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     private final AccountsFilingRepository requestFilingRepository;
     private final AccountsValidatorAPI accountsValidatorAPI;
     private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
-            PackageTypeApi.UKSEF, "4",
-            PackageTypeApi.GROUP_PACKAGE_401, "4",
-            PackageTypeApi.OVERSEAS, "4",
-            PackageTypeApi.AUDIT_EXEMPT_SUBSIDIARY, "14",
-            PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, "15"
+            PackageTypeApi.UKSEF, AccountsType.GROUP.getStemCode(),
+            PackageTypeApi.GROUP_PACKAGE_401, AccountsType.GROUP.getStemCode(),
+            PackageTypeApi.OVERSEAS, AccountsType.GROUP.getStemCode(),
+            PackageTypeApi.AUDIT_EXEMPT_SUBSIDIARY, AccountsType.AUDIT_EXEMPT_SUBSIDIARY.getStemCode(),
+            PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, AccountsType.FILING_EXEMPT_SUBSIDIARY.getStemCode()
     );
 
     @Autowired

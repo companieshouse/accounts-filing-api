@@ -117,7 +117,7 @@ class AccountsValidationServiceTest {
                                                                                               validationStatus, accountsValidatorStatusApi);
 
         service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
-        Assertions.assertEquals("4", accountsFilingEntryRequest.getAccountsType());
+        Assertions.assertEquals("04", accountsFilingEntryRequest.getAccountsType());
         Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
         Assertions.assertEquals(balanceSheetDate, accountsFilingEntryRequest.getMadeUpDate());
 
