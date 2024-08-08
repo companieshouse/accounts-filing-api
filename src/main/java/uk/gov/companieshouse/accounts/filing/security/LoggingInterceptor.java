@@ -29,7 +29,7 @@ public class LoggingInterceptor implements AsyncHandlerInterceptor, RequestLogge
     public boolean preHandle(@NonNull final HttpServletRequest request,
                              @NonNull final HttpServletResponse response,
                              @NonNull final Object handler) {
-//        logStartRequestProcessing(request, logger);
+        logStartRequestProcessing(request, logger);
         return true;
     }
 
@@ -38,6 +38,6 @@ public class LoggingInterceptor implements AsyncHandlerInterceptor, RequestLogge
                            @NonNull final HttpServletResponse response,
                            @NonNull final Object handler,
                            final ModelAndView modelAndView) {
-//        logEndRequestProcessing(request, response, logger);
+        logEndRequestProcessing(request, response, logger);
     }
 }
