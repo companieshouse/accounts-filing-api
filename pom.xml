@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.5</version>
+        <version>2.1.6</version>
     </parent>
     <artifactId>accounts-filing-api</artifactId>
     <version>unversioned</version>
@@ -22,7 +22,7 @@
 
         <!-- tests -->
         <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
-        <jib-maven-plugin.version>3.4.0</jib-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
         <test-containers.version>1.19.2</test-containers.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
         <skip.integration.tests>false</skip.integration.tests>
@@ -33,9 +33,9 @@
 
         <!-- internal -->
         <structured-logging.version>3.0.1</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.2</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.105</private-api-sdk-java.version>
-        <api-security-java-version>2.0.1</api-security-java-version>
+        <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
+        <private-api-sdk-java.version>4.0.176</private-api-sdk-java.version>
+        <api-security-java-version>2.0.5</api-security-java-version>
 
         <!--sonar configuration-->
         <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
