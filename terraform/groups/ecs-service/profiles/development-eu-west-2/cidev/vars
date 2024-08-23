@@ -7,3 +7,8 @@ log_level = "debug"
 # Eric Variables
 account_api_url = "https://account.cidev.aws.chdev.org"
 developer_hub_url = "https://developer.cidev.aws.chdev.org"
+
+# Scheduled scaling of tasks
+service_autoscale_enabled  = true
+service_scaledown_schedule = "55 19 * * ? *"
+service_scaleup_schedule   = "5 6 * * ? *"
