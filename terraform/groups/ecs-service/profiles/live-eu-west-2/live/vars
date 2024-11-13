@@ -1,8 +1,10 @@
 environment = "live"
 aws_profile = "live-eu-west-2"
 
-use_set_environment_files = true
+# service configs
 log_level = "info"
+desired_task_count = 2
+min_task_count = 2
 
 # Eric variables
 account_api_url = "https://identity.company-information.service.gov.uk"
