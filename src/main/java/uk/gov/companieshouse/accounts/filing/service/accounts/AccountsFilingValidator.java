@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import static uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi.OVERSEAS;
+
 @Component
 public class AccountsFilingValidator {
 
@@ -29,7 +31,11 @@ public class AccountsFilingValidator {
 
         validatePackageType(accountsFilingEntry.getPackageType(), validationStatusErrors);
         validateAccountsType(accountsFilingEntry.getAccountsType(), validationStatusErrors);
-        validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
+        if(PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType()){
+            validateMadeUpDateForOverseas(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
+        }else{
+            validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
+        }
         validateFileId(accountsFilingEntry.getFileId(), validationStatusErrors);
 
         final boolean passedValidation = validationStatusErrors.isEmpty();
@@ -99,6 +105,36 @@ public class AccountsFilingValidator {
                     "Made up date is null or blank");
             return;
         }
+        if ("UNKNOWN".equals(madeUpDate)) {
+            setValidationError(validationStatusErrors, madeUpDateMessage,
+                    "Made up date is unknown");
+            return;
+        }
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(madeUpDate);
+        } catch (final ParseException parseException) {
+            setValidationError(validationStatusErrors, madeUpDateMessage,
+                    "Made up date is not in yyyy-MM-dd format");
+        }
+    }
+    /**
+     * This method validates the made up date is valid or not for overseas
+     *
+     * @param madeUpDate             - made up date of the given accounts filing
+     *                               entry
+     * @param validationStatusErrors - List which holds the validation errors
+     */
+    private void validateMadeUpDateForOverseas(final String madeUpDate, final List<ValidationStatusError> validationStatusErrors) {
+
+        final String madeUpDateMessage = "MadeUpDate : " + madeUpDate;
+
+        if (madeUpDate == null || madeUpDate.isBlank()) {
+            return;
+        }
+
         if ("UNKNOWN".equals(madeUpDate)) {
             setValidationError(validationStatusErrors, madeUpDateMessage,
                     "Made up date is unknown");
