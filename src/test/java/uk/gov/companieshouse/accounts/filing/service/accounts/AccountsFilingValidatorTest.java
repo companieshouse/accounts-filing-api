@@ -175,13 +175,47 @@ class AccountsFilingValidatorTest {
 
     }
 
-    @Test
+    @ParameterizedTest
+    @CsvSource(value = {
+            "UNKNOWN,Made up date is unknown",
+            "MadeUpDate,Made up date is not in yyyy-MM-dd format",
+            "2018-30-30,Made up date is not in yyyy-MM-dd format",
+            "06-06-2013,Made up date is not in yyyy-MM-dd format"
+    }, nullValues = "null")
     @DisplayName("Testing failed accounts filing data with different made up dates")
+    void testFailedValidateAccountsFilingEntryWithDifferentMadeUpDateForOverseas(String madeUpDate, String errorMessage) {
+        entry.setPackageType(PackageTypeApi.OVERSEAS);
+        entry.setAccountsType("09");
+        entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
+
+        entry.setMadeUpDate(madeUpDate);
+        validateAccountsFilingEntry(entry);
+        assertValidationCheckWithOneErrorForMUDForOverseas(
+                errorMessage);
+    }
+
+    @Test
+    @DisplayName("Testing passed accounts filing data with different made up dates")
     void testPassedMadeUpDate() {
         entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
         entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
         entry.setMadeUpDate("2018-06-30");
+        validateAccountsFilingEntry(entry);
+        assertValidationSuccessful();
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {
+            "null,Made up date is null or blank",
+            "'',Made up date is null or blank"
+    }, nullValues = "null")
+    @DisplayName("Testing passed accounts filing data for overseas with made up dates either to be null or blank")
+    void testPassedMadeUpDateForOverseas(String madeUpDate) {
+        entry.setPackageType(PackageTypeApi.OVERSEAS);
+        entry.setAccountsType("09");
+        entry.setFileId("9df3ddab-c199-467e-80d6-40405b1c824a");
+        entry.setMadeUpDate(madeUpDate);
         validateAccountsFilingEntry(entry);
         assertValidationSuccessful();
     }
@@ -248,6 +282,14 @@ class AccountsFilingValidatorTest {
     }
 
     void assertValidationFailedWithOneError(String expectedErrorMessage) {
+        assertFalse(validationStatusResponse.isValid());
+        assertNotNull(validationStatusResponse.getValidationStatusError());
+        assertEquals(1, validationStatusResponse.getValidationStatusError().length);
+        ValidationStatusError validationStatusError = validationStatusResponse.getValidationStatusError()[0];
+        assertEquals(expectedErrorMessage, validationStatusError.getError());
+        assertNotNull(validationStatusError.getType());
+    }
+    void assertValidationCheckWithOneErrorForMUDForOverseas(String expectedErrorMessage) {
         assertFalse(validationStatusResponse.isValid());
         assertNotNull(validationStatusResponse.getValidationStatusError());
         assertEquals(1, validationStatusResponse.getValidationStatusError().length);

@@ -107,12 +107,12 @@ class AccountsValidationServiceTest {
         String accountType = "accountType";
         String fileName = "fileName";
         String balanceSheetDate = "2021-01-30";
-        String registationNumber = "0";
+        String registrationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
         AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
         accountsFilingEntryRequest.setPackageType(PackageTypeApi.UKSEF);
 
-        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registrationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus, 
                                                                                               validationStatus, accountsValidatorStatusApi);
 
@@ -134,12 +134,12 @@ class AccountsValidationServiceTest {
         String accountType = "accountType";
         String fileName = "fileName";
         String balanceSheetDate = "2021-01-30";
-        String registationNumber = "0";
+        String registrationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
         AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
         accountsFilingEntryRequest.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
 
-        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registationNumber);
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(balanceSheetDate, accountType, registrationNumber);
         AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
                 validationStatus, accountsValidatorStatusApi);
 
@@ -183,10 +183,10 @@ class AccountsValidationServiceTest {
     @DisplayName("Call validation check but 4xx request")
     void testValidationStatusResultUserIssue() throws ApiErrorResponseException, URIValidationException {
         String fileId = "fileId";
-        ApiErrorResponseException responseExcetion = mock(ApiErrorResponseException.class);
+        ApiErrorResponseException responseException = mock(ApiErrorResponseException.class);
         
-        when(responseExcetion.getStatusCode()).thenReturn(401);
-        when(api.getValidationCheck(fileId)).thenThrow(responseExcetion);
+        when(responseException.getStatusCode()).thenReturn(401);
+        when(api.getValidationCheck(fileId)).thenThrow(responseException);
 
         assertThrows(ResponseException.class, () -> service.validationStatusResult(fileId));
     }
@@ -195,10 +195,10 @@ class AccountsValidationServiceTest {
     @DisplayName("Call validation check but external issue occurs")
     void testValidationStatusResultUnexpectedResponse() throws ApiErrorResponseException, URIValidationException {
         String fileId = "fileId";
-        ApiErrorResponseException responseExcetion = mock(ApiErrorResponseException.class);
+        ApiErrorResponseException responseException = mock(ApiErrorResponseException.class);
         
-        when(responseExcetion.getStatusCode()).thenReturn(500);
-        when(api.getValidationCheck(fileId)).thenThrow(responseExcetion);
+        when(responseException.getStatusCode()).thenReturn(500);
+        when(api.getValidationCheck(fileId)).thenThrow(responseException);
 
         assertThrows(ExternalServiceException.class, () -> service.validationStatusResult(fileId));
     }

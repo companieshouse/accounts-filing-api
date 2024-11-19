@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import static uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi.OVERSEAS;
+
 @Component
 public class AccountsFilingValidator {
 
@@ -29,7 +31,7 @@ public class AccountsFilingValidator {
 
         validatePackageType(accountsFilingEntry.getPackageType(), validationStatusErrors);
         validateAccountsType(accountsFilingEntry.getAccountsType(), validationStatusErrors);
-        validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors);
+        validateMadeUpDate(accountsFilingEntry.getMadeUpDate(), validationStatusErrors, PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType());
         validateFileId(accountsFilingEntry.getFileId(), validationStatusErrors);
 
         final boolean passedValidation = validationStatusErrors.isEmpty();
@@ -90,11 +92,14 @@ public class AccountsFilingValidator {
      *                               entry
      * @param validationStatusErrors - List which holds the validation errors
      */
-    private void validateMadeUpDate(final String madeUpDate, final List<ValidationStatusError> validationStatusErrors) {
+    private void validateMadeUpDate(final String madeUpDate, final List<ValidationStatusError> validationStatusErrors, boolean isOverseas) {
 
         final String madeUpDateMessage = "MadeUpDate : " + madeUpDate;
 
         if (madeUpDate == null || madeUpDate.isBlank()) {
+            if (isOverseas) {
+                return;
+            }
             setValidationError(validationStatusErrors, madeUpDateMessage,
                     "Made up date is null or blank");
             return;
