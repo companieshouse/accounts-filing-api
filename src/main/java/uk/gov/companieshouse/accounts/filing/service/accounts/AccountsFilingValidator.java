@@ -97,7 +97,7 @@ public class AccountsFilingValidator {
         final String madeUpDateMessage = "MadeUpDate : " + madeUpDate;
 
         if (madeUpDate == null || madeUpDate.isBlank()) {
-            if(isOverseas){
+            if (isOverseas) {
                 return;
             }
             setValidationError(validationStatusErrors, madeUpDateMessage,

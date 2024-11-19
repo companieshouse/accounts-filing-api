@@ -195,7 +195,7 @@ class AccountsFilingValidatorTest {
     }
 
     @Test
-    @DisplayName("Testing failed accounts filing data with different made up dates")
+    @DisplayName("Testing passed accounts filing data with different made up dates")
     void testPassedMadeUpDate() {
         entry.setPackageType(PackageTypeApi.UKSEF);
         entry.setAccountsType("09");
@@ -210,7 +210,7 @@ class AccountsFilingValidatorTest {
             "null,Made up date is null or blank",
             "'',Made up date is null or blank"
     }, nullValues = "null")
-    @DisplayName("Testing failed accounts filing data with different made up dates")
+    @DisplayName("Testing passed accounts filing data for overseas with made up dates either to be null or blank")
     void testPassedMadeUpDateForOverseas(String madeUpDate) {
         entry.setPackageType(PackageTypeApi.OVERSEAS);
         entry.setAccountsType("09");
