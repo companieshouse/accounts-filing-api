@@ -77,14 +77,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
-            String accountsFilingType = accountsFilingTypeMap.get(packageType);
-            if (accountsFilingType != null) {
-                accountsFilingEntry.setAccountsType(accountsFilingType);
-                logger.debug(String.format("Accounts filing type: %s has been updated to zip package type: %s", accountsFilingType, packageType));
-            } else {
-                accountsFilingEntry.setAccountsType(data.accountType());
-                logger.debug(String.format("Accounts filing type: %s  is mapped by validator to zip package type: %s", data.accountType(), packageType));
-            }
+            setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
             if(PackageTypeApi.OVERSEAS != packageType) {
                 accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
             }
@@ -98,6 +91,17 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
 
         requestFilingRepository.save(accountsFilingEntry);
         logger.debugContext(accountsFilingEntry.getAccountsFilingId(), message, new HashMap<>());
+    }
+
+    private AccountsFilingEntry setFilingEntryAccountsType(AccountsFilingEntry accountsFilingEntry, AccountsValidatorDataApi data, PackageTypeApi packageType){
+        String accountsFilingType = accountsFilingTypeMap.get(packageType);
+        if (accountsFilingType != null) {
+            logger.debug(String.format("Accounts filing type: %s has been updated to zip package type: %s", accountsFilingType, packageType));
+        } else {
+            accountsFilingEntry.setAccountsType(data.accountType());
+            logger.debug(String.format("Accounts filing type: %s  is mapped by validator to zip package type: %s", data.accountType(), packageType));
+        }
+        return accountsFilingEntry;
     }
 
     @Override
