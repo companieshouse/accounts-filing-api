@@ -152,6 +152,33 @@ class AccountsValidationServiceTest {
     }
 
     @Test
+    @DisplayName("Save an overseas accounts validation results to the repository")
+    void testSaveOverseasFileValidationResult() {
+
+        String fileId = "aaaaaaaa-caaa-aaae-aaaa-111f4a118111";
+        String accountStatus = "OK";
+        String accountFilingId = "accountFilingId";
+        String accountType = "04";
+        String fileName = "fileName";
+        String balanceSheetDate = null;
+        String registrationNumber = "0";
+        AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
+        AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
+        accountsFilingEntryRequest.setPackageType(PackageTypeApi.OVERSEAS);
+
+        AccountsValidatorDataApi accountsValidatorStatusApi = createAccountsValidatorDataApi(null, accountType, registrationNumber);
+        AccountsValidatorStatusApi accountsValidatorStatus = createAccountsValidatorStatusApi(fileId, fileName, accountStatus,
+                validationStatus, accountsValidatorStatusApi);
+
+        service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
+        Assertions.assertEquals(accountType, accountsFilingEntryRequest.getAccountsType());
+        Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
+        Assertions.assertEquals(null, accountsFilingEntryRequest.getMadeUpDate());
+
+        verify(accountsFilingRepository, times(1)).save(accountsFilingEntryRequest);
+    }
+
+    @Test
     @DisplayName("Call validation check and success return response")
     void testValidationStatusResult() throws ApiErrorResponseException, URIValidationException {
 
@@ -203,8 +230,8 @@ class AccountsValidationServiceTest {
         assertThrows(ExternalServiceException.class, () -> service.validationStatusResult(fileId));
     }
 
-    private AccountsValidatorDataApi createAccountsValidatorDataApi(String date, String accountType, String requesteredNumber){
-        return new AccountsValidatorDataApi(date, accountType, requesteredNumber);
+    private AccountsValidatorDataApi createAccountsValidatorDataApi(String date, String accountType, String requestedNumber){
+        return new AccountsValidatorDataApi(date, accountType, requestedNumber);
     }
 
     private AccountsValidatorStatusApi createAccountsValidatorStatusApi(String fileId, String fileName, String status,
