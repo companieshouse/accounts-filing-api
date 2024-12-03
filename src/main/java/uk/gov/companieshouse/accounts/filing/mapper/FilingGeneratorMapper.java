@@ -31,9 +31,9 @@ public class FilingGeneratorMapper {
         Map<String, String> descriptionValue = Collections.singletonMap("made up date", madeUpDate);
 
         var filingApiEntity = new FilingApi();
-        if(PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType()){
+        if (PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType()) {
             filingApiEntity.setDescription("Package accounts with package type overseas");
-        }else{
+        } else {
             filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
         }
 
