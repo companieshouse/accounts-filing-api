@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
 
 @Component
@@ -30,7 +31,12 @@ public class FilingGeneratorMapper {
         Map<String, String> descriptionValue = Collections.singletonMap("made up date", madeUpDate);
 
         var filingApiEntity = new FilingApi();
-        filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
+        if(PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType()){
+            filingApiEntity.setDescription("Package accounts with package type overseas");
+        }else{
+            filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
+        }
+
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
         filingApiEntity.setDescriptionValues(descriptionValue);
         filingApiEntity.setKind("accounts");

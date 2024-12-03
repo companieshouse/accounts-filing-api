@@ -1,7 +1,5 @@
 package uk.gov.companieshouse.accounts.filing.mapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class FilingGeneratorMapperTest {
 
@@ -65,4 +66,26 @@ class FilingGeneratorMapperTest {
         
     }
 
+    @Test
+    void testMapToFilingApiWhenPackageTypeIsOverseas() {
+        accountsFilingEntry = createAccountsFilingEntry();
+        accountsFilingEntry.setPackageType(PackageTypeApi.OVERSEAS);
+        accountsFilingEntry.setMadeUpDate(null);
+        FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
+        assertEquals("Package accounts with package type overseas", filingApi.getDescription());
+        assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
+        assertEquals(Collections.singletonMap("made up date", null), filingApi.getDescriptionValues());
+        assertEquals("accounts", filingApi.getKind());
+        assertEquals(PackageTypeApi.OVERSEAS.toString(), filingApi.getData().get("package_type"));
+        assertEquals(accountsType, filingApi.getData().get("accounts_type"));
+        assertEquals(createLinks(), filingApi.getData().get("links"));
+        assertNull(filingApi.getData().get("period_end_on"));
+    }
+
+    @Test
+    void testMapToFilingApiWhenMadeUpdateIsNull() {
+        accountsFilingEntry = createAccountsFilingEntry();
+        accountsFilingEntry.setMadeUpDate(null);
+        assertThrows(NullPointerException.class, () -> filingGeneratorMapper.mapToFilingApi(accountsFilingEntry));
+    }
 }
