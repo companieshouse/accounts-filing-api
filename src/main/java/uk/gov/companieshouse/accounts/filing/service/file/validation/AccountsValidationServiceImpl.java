@@ -82,6 +82,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
                 accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
             }
         }
+        logger.debug(String.format("Account MadeUp date is: %s", accountsFilingEntry.getMadeUpDate()));
 
         var message = String.format(
                 "Account filing id: %s has been updated to include file id: %s",
