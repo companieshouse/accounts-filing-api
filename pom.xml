@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.6</version>
+        <version>2.1.11</version>
     </parent>
     <artifactId>accounts-filing-api</artifactId>
     <version>unversioned</version>
@@ -14,14 +14,14 @@
     <properties>
         <java.version>21</java.version>
 
-        <maven-build-helper-plugin.version>3.2.0</maven-build-helper-plugin.version>
-        <spring-boot-dependencies.version>3.3.3</spring-boot-dependencies.version>
-        <spring-boot-maven-plugin.version>3.3.3</spring-boot-maven-plugin.version>
+        <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
+        <spring-boot-dependencies.version>3.4.1</spring-boot-dependencies.version>
+        <spring-boot-maven-plugin.version>3.4.1</spring-boot-maven-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- tests -->
-        <maven-surefire-plugin.version>3.2.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
         <test-containers.version>1.19.2</test-containers.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
@@ -33,9 +33,9 @@
 
         <!-- internal -->
         <structured-logging.version>3.0.1</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.186</private-api-sdk-java.version>
-        <api-security-java-version>2.0.5</api-security-java-version>
+        <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
+        <private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
+        <api-security-java-version>2.0.8</api-security-java-version>
 
         <!--sonar configuration-->
         <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
@@ -142,13 +142,6 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.0</version>
         </dependency>
-        <!-- Temp addition for jackson-dataformat-yaml -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.16.0</version>
-        </dependency>
-        <!-- End -->
 
         <!-- spring boot apis support libs ends-->
         <!-- CH apis support libs starts-->
