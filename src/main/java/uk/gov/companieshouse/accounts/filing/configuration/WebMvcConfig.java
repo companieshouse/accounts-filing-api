@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,9 +12,6 @@ import uk.gov.companieshouse.accounts.filing.interceptor.validation.TransactionI
 import uk.gov.companieshouse.accounts.filing.security.LoggingInterceptor;
 import uk.gov.companieshouse.api.interceptor.CRUDAuthenticationInterceptor;
 import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
-
-import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_ACCOUNTS;
-import static uk.gov.companieshouse.api.util.security.Permission.Key.USER_PROFILE;
 
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -31,72 +29,71 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final AccountsFilingIdInterceptor accountsFilingIdInterceptor;
     private final TransactionIdInterceptor transactionIdInterceptor;
     private final FileIdInterceptor fileIdInterceptor;
+    private final CRUDAuthenticationInterceptor userCrudAuthenticationInterceptor;
+    private final CRUDAuthenticationInterceptor companyCrudAuthenticationInterceptor;
+    private final InternalUserInterceptor internalUserInterceptor;
 
     @Autowired
     public WebMvcConfig(final LoggingInterceptor loggingInterceptor,
-                        final AccountsFilingIdInterceptor accountsFilingIdInterceptor,
-                        final TransactionIdInterceptor transactionIdInterceptor,
-                        final FileIdInterceptor fileIdInterceptor) {
+            final AccountsFilingIdInterceptor accountsFilingIdInterceptor,
+            final TransactionIdInterceptor transactionIdInterceptor,
+            final FileIdInterceptor fileIdInterceptor,
+            @Qualifier("userCrudAuthenticationInterceptor") final CRUDAuthenticationInterceptor userCrudAuthenticationInterceptor,
+            @Qualifier("companyCrudAuthenticationInterceptor") final CRUDAuthenticationInterceptor companyCrudAuthenticationInterceptor,
+            final InternalUserInterceptor internalUserInterceptor) {
         this.loggingInterceptor = loggingInterceptor;
         this.accountsFilingIdInterceptor = accountsFilingIdInterceptor;
         this.transactionIdInterceptor = transactionIdInterceptor;
         this.fileIdInterceptor = fileIdInterceptor;
+        this.userCrudAuthenticationInterceptor = userCrudAuthenticationInterceptor;
+        this.companyCrudAuthenticationInterceptor = companyCrudAuthenticationInterceptor;
+        this.internalUserInterceptor = internalUserInterceptor;
     }
 
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor)
-                .excludePathPatterns(HEALTHCHECK_URI);
-        registry.addInterceptor(getUserCrudAuthenticationInterceptor())
-                .excludePathPatterns(OAUTH2_EXCLUDE);
-        registry.addInterceptor(getCompanyCrudAuthenticationInterceptor())
-                .excludePathPatterns(OAUTH2_EXCLUDE);
-        registry.addInterceptor(getInternalApiKeyInterceptor())
-                .addPathPatterns(INTERNAL_AUTH_INCLUDE);
+        addLoggingInterceptor(registry);
+        addUserCrudAuthenticationInterceptor(registry);
+        addCompanyCrudAuthenticationInterceptor(registry);
+        addInternalApiKeyInterceptor(registry);
         addAccountsFilingIdInterceptor(registry);
         addTransactionIdInterceptor(registry);
         addFileIdInterceptor(registry);
     }
 
-    private void addAccountsFilingIdInterceptor(final InterceptorRegistry registry){
+    private void addLoggingInterceptor(final InterceptorRegistry registry) {
+        registry.addInterceptor(loggingInterceptor)
+                .excludePathPatterns(HEALTHCHECK_URI);
+    }
+
+    private void addUserCrudAuthenticationInterceptor(final InterceptorRegistry registry) {
+        registry.addInterceptor(userCrudAuthenticationInterceptor)
+                .excludePathPatterns(OAUTH2_EXCLUDE);
+    }
+
+    private void addCompanyCrudAuthenticationInterceptor(final InterceptorRegistry registry) {
+        registry.addInterceptor(companyCrudAuthenticationInterceptor)
+                .excludePathPatterns(OAUTH2_EXCLUDE);
+    }
+
+    private void addInternalApiKeyInterceptor(final InterceptorRegistry registry) {
+        registry.addInterceptor(internalUserInterceptor)
+                .addPathPatterns(INTERNAL_AUTH_INCLUDE);
+    }
+
+    private void addAccountsFilingIdInterceptor(final InterceptorRegistry registry) {
         registry.addInterceptor(accountsFilingIdInterceptor)
                 .addPathPatterns(ACCOUNTS_FILING_URI);
     }
 
-    private void addTransactionIdInterceptor(final InterceptorRegistry registry){
+    private void addTransactionIdInterceptor(final InterceptorRegistry registry) {
         registry.addInterceptor(transactionIdInterceptor)
                 .addPathPatterns(TRANSACTION_URI);
     }
 
-    private void addFileIdInterceptor(final InterceptorRegistry registry){
+    private void addFileIdInterceptor(final InterceptorRegistry registry) {
         registry.addInterceptor(fileIdInterceptor)
                 .addPathPatterns(FILE_URI);
     }
 
-    /**
-     * Creates CRUDAuthenticationInterceptor which checks the User has user profile permissions
-     *
-     * @return the CRUDAuthenticationInterceptor
-     */
-    private CRUDAuthenticationInterceptor getUserCrudAuthenticationInterceptor() {
-        return new CRUDAuthenticationInterceptor(USER_PROFILE);
-    }
-
-    /**
-     * Creates CRUDAuthenticationInterceptor which checks the User has company accounts permissions
-     *
-     * @return the CRUDAuthenticationInterceptor
-     */
-    private CRUDAuthenticationInterceptor getCompanyCrudAuthenticationInterceptor() {
-        return new CRUDAuthenticationInterceptor(COMPANY_ACCOUNTS);
-    }
-
-    /**
-     * Creates InternalUserInterceptor which checks the request has an internal app privileges key
-     *
-     * @return the internal user interceptor
-     */
-    private InternalUserInterceptor getInternalApiKeyInterceptor() {
-        return new InternalUserInterceptor();
-    }
 }
