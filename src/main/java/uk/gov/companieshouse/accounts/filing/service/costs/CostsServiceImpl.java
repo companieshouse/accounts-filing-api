@@ -35,9 +35,9 @@ public class CostsServiceImpl implements CostsService{
 
     private static final String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
-    private static final String CIC_RESOURCE_KIND = "cic-package-accounts";
+    protected static final String CIC_RESOURCE_KIND = "cic-package-accounts";
 
-    private static final String CIC_PRODUCT_TYPE = "cic-package-accounts";
+    protected static final String CIC_PRODUCT_TYPE = "cic-package-accounts";
 
     /**
      * This method returns the cost items with a fee based on the accounts package type

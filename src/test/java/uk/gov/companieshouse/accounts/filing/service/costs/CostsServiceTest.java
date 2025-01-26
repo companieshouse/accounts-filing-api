@@ -55,7 +55,7 @@ public class CostsServiceTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
         List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndCostValuesForCIC(costs, cicAccountsFee);
+        assertFeeAndDefaultValues(costs, cicAccountsFee, CostsServiceImpl.CIC_PRODUCT_TYPE, CostsServiceImpl.CIC_RESOURCE_KIND );
     }
 
     @Test
@@ -75,7 +75,7 @@ public class CostsServiceTest {
         Assertions.assertTrue(costs.isEmpty());
     }
 
-    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee){
+    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee, String expectedProductType, String expectedResourceKind ){
         Assertions.assertNotNull(costs);
         Assertions.assertFalse(costs.isEmpty());
         Cost cost = costs.getFirst();
@@ -86,22 +86,11 @@ public class CostsServiceTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION_ID, cost.getDescriptionIdentifier());
         Assertions.assertEquals(DEFAULT_VALUE, cost.getDescriptionValues().get(DEFAULT_KEY));
         Assertions.assertEquals(DEFAULT_KIND, cost.getKind());
-        Assertions.assertEquals(DEFAULT_PRODUCT_TYPE, cost.getProductType());
-        Assertions.assertEquals(DEFAULT_KIND, cost.getResourceKind());
+        Assertions.assertEquals(expectedProductType, cost.getProductType());
+        Assertions.assertEquals(expectedResourceKind, cost.getResourceKind());
     }
 
-    void assertFeeAndCostValuesForCIC(List<Cost> costs, String expectedFee){
-        Assertions.assertNotNull(costs);
-        Assertions.assertFalse(costs.isEmpty());
-        Cost cost = costs.getFirst();
-        Assertions.assertEquals(expectedFee, cost.getAmount());
-        Assertions.assertEquals(DEFAULT_PAYMENT_METHOD, cost.getAvailablePaymentMethods().getFirst());
-        Assertions.assertEquals(DEFAULT_PAYMENT_CLASS, cost.getClassOfPayment().getFirst());
-        Assertions.assertNotNull(cost.getDescription());
-        Assertions.assertEquals(DEFAULT_DESCRIPTION_ID, cost.getDescriptionIdentifier());
-        Assertions.assertEquals(DEFAULT_VALUE, cost.getDescriptionValues().get(DEFAULT_KEY));
-        Assertions.assertEquals(CIC_RESOURCE_KIND, cost.getResourceKind());
-        Assertions.assertEquals(CIC_PRODUCT_TYPE, cost.getProductType());
-        Assertions.assertEquals(DEFAULT_KIND, cost.getKind());
+    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee) {
+        assertFeeAndDefaultValues(costs, expectedFee, DEFAULT_PRODUCT_TYPE, DEFAULT_KIND);
     }
 }
