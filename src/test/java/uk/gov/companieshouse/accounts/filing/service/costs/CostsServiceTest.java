@@ -38,6 +38,11 @@ public class CostsServiceTest {
 
     String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
+    String CIC_RESOURCE_KIND = "cic-package-accounts";
+
+    String CIC_PRODUCT_TYPE = "cic-package-accounts";
+
+
     @BeforeEach
     void setUp(){
         costsService = new CostsServiceImpl();
@@ -50,7 +55,7 @@ public class CostsServiceTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
         List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndDefaultValues(costs, cicAccountsFee);
+        assertFeeAndCostValuesForCIC(costs, cicAccountsFee);
     }
 
     @Test
@@ -83,5 +88,20 @@ public class CostsServiceTest {
         Assertions.assertEquals(DEFAULT_KIND, cost.getKind());
         Assertions.assertEquals(DEFAULT_PRODUCT_TYPE, cost.getProductType());
         Assertions.assertEquals(DEFAULT_KIND, cost.getResourceKind());
+    }
+
+    void assertFeeAndCostValuesForCIC(List<Cost> costs, String expectedFee){
+        Assertions.assertNotNull(costs);
+        Assertions.assertFalse(costs.isEmpty());
+        Cost cost = costs.getFirst();
+        Assertions.assertEquals(expectedFee, cost.getAmount());
+        Assertions.assertEquals(DEFAULT_PAYMENT_METHOD, cost.getAvailablePaymentMethods().getFirst());
+        Assertions.assertEquals(DEFAULT_PAYMENT_CLASS, cost.getClassOfPayment().getFirst());
+        Assertions.assertNotNull(cost.getDescription());
+        Assertions.assertEquals(DEFAULT_DESCRIPTION_ID, cost.getDescriptionIdentifier());
+        Assertions.assertEquals(DEFAULT_VALUE, cost.getDescriptionValues().get(DEFAULT_KEY));
+        Assertions.assertEquals(CIC_RESOURCE_KIND, cost.getResourceKind());
+        Assertions.assertEquals(CIC_PRODUCT_TYPE, cost.getProductType());
+        Assertions.assertEquals(DEFAULT_KIND, cost.getKind());
     }
 }

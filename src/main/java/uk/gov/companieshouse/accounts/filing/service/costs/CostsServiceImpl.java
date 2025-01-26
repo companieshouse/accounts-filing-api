@@ -35,6 +35,9 @@ public class CostsServiceImpl implements CostsService{
 
     private static final String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
+    private static final String CIC_RESOURCE_KIND = "cic-package-accounts";
+
+    private static final String CIC_PRODUCT_TYPE = "cic-package-accounts";
 
     /**
      * This method returns the cost items with a fee based on the accounts package type
@@ -46,6 +49,8 @@ public class CostsServiceImpl implements CostsService{
         List<Cost> costs = new ArrayList<>();
         if(PackageTypeApi.CIC.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
+            cost.setProductType(CIC_PRODUCT_TYPE);
+            cost.setResourceKind(CIC_RESOURCE_KIND);
             cost.setAmount(cicAccountsFee);
             costs.add(cost);
         }
