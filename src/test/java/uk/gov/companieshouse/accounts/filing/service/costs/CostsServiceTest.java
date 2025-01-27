@@ -10,7 +10,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
-import uk.gov.companieshouse.api.model.payment.CostsApi;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +58,7 @@ public class CostsServiceTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.OVERSEAS);
         ReflectionTestUtils.setField(costsService, "overseasAccountsFee", overseasAccountsFee);
         List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndDefaultValues(costs, overseasAccountsFee);
+        assertFeeAndDefaultValues(costs, overseasAccountsFee, CostsServiceImpl.OVERSEAS_PRODUCT_TYPE, CostsServiceImpl.OVERSEAS_RESOURCE_KIND);
     }
 
     @Test
@@ -70,7 +69,7 @@ public class CostsServiceTest {
         Assertions.assertTrue(costs.isEmpty());
     }
 
-    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee){
+    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee, String expectedProductType, String expectedResourceKind) {
         Assertions.assertNotNull(costs);
         Assertions.assertFalse(costs.isEmpty());
         Cost cost = costs.getFirst();
@@ -81,7 +80,11 @@ public class CostsServiceTest {
         Assertions.assertEquals(DEFAULT_DESCRIPTION_ID, cost.getDescriptionIdentifier());
         Assertions.assertEquals(DEFAULT_VALUE, cost.getDescriptionValues().get(DEFAULT_KEY));
         Assertions.assertEquals(DEFAULT_KIND, cost.getKind());
-        Assertions.assertEquals(DEFAULT_PRODUCT_TYPE, cost.getProductType());
-        Assertions.assertEquals(DEFAULT_KIND, cost.getResourceKind());
+        Assertions.assertEquals(expectedProductType, cost.getProductType());
+        Assertions.assertEquals(expectedResourceKind, cost.getResourceKind());
+    }
+
+    void assertFeeAndDefaultValues(List<Cost> costs, String expectedFee) {
+        assertFeeAndDefaultValues(costs, expectedFee, DEFAULT_PRODUCT_TYPE, DEFAULT_KIND);
     }
 }
