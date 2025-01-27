@@ -39,6 +39,10 @@ public class CostsServiceImpl implements CostsService{
 
     protected static final String CIC_PRODUCT_TYPE = "cic-package-accounts";
 
+    protected static final String OVERSEAS_RESOURCE_KIND = "overseas-package-accounts";
+
+    protected static final String OVERSEAS_PRODUCT_TYPE = "overseas-package-accounts";
+
     /**
      * This method returns the cost items with a fee based on the accounts package type
      * @param accountsFilingEntry - Account to be filed
@@ -56,6 +60,8 @@ public class CostsServiceImpl implements CostsService{
         }
         else if(PackageTypeApi.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
+            cost.setProductType(OVERSEAS_PRODUCT_TYPE);
+            cost.setResourceKind(OVERSEAS_RESOURCE_KIND);
             cost.setAmount(overseasAccountsFee);
             costs.add(cost);
         }
