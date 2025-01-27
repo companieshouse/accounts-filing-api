@@ -38,10 +38,6 @@ public class CostsServiceTest {
 
     String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
-    String CIC_RESOURCE_KIND = "cic-package-accounts";
-
-    String CIC_PRODUCT_TYPE = "cic-package-accounts";
-
 
     @BeforeEach
     void setUp(){
