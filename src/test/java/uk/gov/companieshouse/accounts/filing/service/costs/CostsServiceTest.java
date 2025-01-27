@@ -37,6 +37,7 @@ public class CostsServiceTest {
 
     String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
+
     @BeforeEach
     void setUp(){
         costsService = new CostsServiceImpl();
@@ -49,7 +50,7 @@ public class CostsServiceTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         ReflectionTestUtils.setField(costsService, "cicAccountsFee", cicAccountsFee);
         List<Cost> costs = costsService.calculateCosts(accountsFilingEntry);
-        assertFeeAndDefaultValues(costs, cicAccountsFee);
+        assertFeeAndDefaultValues(costs, cicAccountsFee, CostsServiceImpl.CIC_PRODUCT_TYPE, CostsServiceImpl.CIC_RESOURCE_KIND );
     }
 
     @Test
