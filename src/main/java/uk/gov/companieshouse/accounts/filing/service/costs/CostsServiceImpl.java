@@ -51,6 +51,7 @@ public class CostsServiceImpl implements CostsService{
     @Override
     public List<Cost> calculateCosts(AccountsFilingEntry accountsFilingEntry) {
         List<Cost> costs = new ArrayList<>();
+
         if(PackageTypeApi.CIC.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setProductType(CIC_PRODUCT_TYPE);
