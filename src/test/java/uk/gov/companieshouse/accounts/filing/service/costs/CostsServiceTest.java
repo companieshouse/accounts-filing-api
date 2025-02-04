@@ -5,11 +5,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.logging.Logger;
+
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,10 +40,13 @@ public class CostsServiceTest {
 
     String DEFAULT_PRODUCT_TYPE = "package-accounts";
 
+    @Mock
+    Logger logger;
+
 
     @BeforeEach
     void setUp(){
-        costsService = new CostsServiceImpl();
+        costsService = new CostsServiceImpl(logger);
         accountsFilingEntry = new AccountsFilingEntry("", "", "", null, "", "", "", "");
     }
 
