@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
+import uk.gov.companieshouse.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,6 +44,12 @@ public class CostsServiceImpl implements CostsService{
 
     protected static final String OVERSEAS_PRODUCT_TYPE = "overseas-package-accounts";
 
+    private final Logger logger;
+
+    public CostsServiceImpl(Logger logger) {
+        this.logger = logger;
+    }
+
     /**
      * This method returns the cost items with a fee based on the accounts package type
      * @param accountsFilingEntry - Account to be filed
@@ -51,13 +58,15 @@ public class CostsServiceImpl implements CostsService{
     @Override
     public List<Cost> calculateCosts(AccountsFilingEntry accountsFilingEntry) {
         List<Cost> costs = new ArrayList<>();
-
+        logger.debug("PACKAGE TYPE CIC: " + accountsFilingEntry.getPackageType());
         if(PackageTypeApi.CIC.equals(accountsFilingEntry.getPackageType())){
+            logger.debug("INSIDE CIC: " + accountsFilingEntry.getPackageType());
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
             cost.setProductType(CIC_PRODUCT_TYPE);
             cost.setResourceKind(CIC_RESOURCE_KIND);
             cost.setAmount(cicAccountsFee);
             costs.add(cost);
+            logger.debug("ONLY FOR DEBUG: " + cost.getProductType());
         }
         else if(PackageTypeApi.OVERSEAS.equals(accountsFilingEntry.getPackageType())){
             Cost cost = createCostWithDefaultValues(accountsFilingEntry);
@@ -66,6 +75,7 @@ public class CostsServiceImpl implements CostsService{
             cost.setAmount(overseasAccountsFee);
             costs.add(cost);
         }
+
         return costs;
     }
 
