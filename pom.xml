@@ -34,7 +34,7 @@
         <!-- internal -->
         <structured-logging.version>3.0.1</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.258</private-api-sdk-java.version>
+        <private-api-sdk-java.version>4.0.268</private-api-sdk-java.version>
         <api-security-java-version>2.0.8</api-security-java-version>
 
         <!--sonar configuration-->
