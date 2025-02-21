@@ -24,6 +24,12 @@ public class FilingGeneratorMapper {
     @Value("${file.scheme}")
     private String scheme;
 
+    @Value("${fee.cic.accounts}")
+    private String cicCost;
+
+    @Value("${fee.overseas.accounts}")
+    private String overseasCost;
+
     public FilingApi mapToFilingApi(AccountsFilingEntry accountsFilingEntry) {
 
         var madeUpDate = accountsFilingEntry.getMadeUpDate();
@@ -31,10 +37,16 @@ public class FilingGeneratorMapper {
         Map<String, String> descriptionValue = Collections.singletonMap("made up date", madeUpDate);
 
         var filingApiEntity = new FilingApi();
-        if (PackageTypeApi.OVERSEAS == accountsFilingEntry.getPackageType()) {
-            filingApiEntity.setDescription("Package accounts with package type overseas");
-        } else {
-            filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
+        switch (accountsFilingEntry.getPackageType()) {
+            case PackageTypeApi.OVERSEAS:
+                filingApiEntity.setCost(overseasCost);
+                filingApiEntity.setDescription("Package accounts with package type overseas");
+                break;
+            case PackageTypeApi.CIC:
+                filingApiEntity.setCost(cicCost);
+            default:
+                filingApiEntity.setDescription("Package accounts made up to " + formatMadeUpDate(madeUpDate));
+                break;
         }
 
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
