@@ -144,6 +144,13 @@
         </dependency>
 
         <!-- spring boot apis support libs ends-->
+        <!-- Temp fix please review -->
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.11.0</version>
+        </dependency>
+        <!-- End of fix -->
         <!-- CH apis support libs starts-->
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
