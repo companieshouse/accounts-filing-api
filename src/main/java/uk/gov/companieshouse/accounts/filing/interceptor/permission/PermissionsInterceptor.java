@@ -2,6 +2,7 @@ package uk.gov.companieshouse.accounts.filing.interceptor.permission;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -35,7 +36,7 @@ public class PermissionsInterceptor implements HandlerInterceptor {
             throws Exception {
         
         LOGGER.debug(String.format("Interceptor running checking for any permission within [%s]",
-                String.join(" ,", permissionKeys.stream().map(Permission.Key::toString).toList())));
+                String.join(" ,", permissionKeys.stream().map(Permission.Key::toString).collect(Collectors.toList()))));
         
         List<Boolean> interceptorResults = new ArrayList<>();
         for (var interceptor : interceptors) {
