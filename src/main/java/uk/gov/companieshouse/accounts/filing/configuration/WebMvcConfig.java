@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import uk.gov.companieshouse.accounts.filing.interceptor.permission.PermissionsInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.AccountsFilingIdInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.FileIdInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.TransactionIdInterceptor;
@@ -15,8 +14,6 @@ import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 
 import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_ACCOUNTS;
 import static uk.gov.companieshouse.api.util.security.Permission.Key.USER_PROFILE;
-
-import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_PACKAGE_ACCOUNTS;
 
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -52,7 +49,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(HEALTHCHECK_URI);
         registry.addInterceptor(getUserCrudAuthenticationInterceptor())
                 .excludePathPatterns(OAUTH2_EXCLUDE);
-        addCompanyOrPackageCompanyInterceptor(registry);
+        registry.addInterceptor(getCompanyCrudAuthenticationInterceptor())
+                .excludePathPatterns(OAUTH2_EXCLUDE);
         registry.addInterceptor(getInternalApiKeyInterceptor())
                 .addPathPatterns(INTERNAL_AUTH_INCLUDE);
         addAccountsFilingIdInterceptor(registry);
@@ -76,23 +74,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     /**
-     * Creates CRUDAuthenticationInterceptor which checks the User has company accounts or company package accounts permissions
-     *
-     */
-    private void addCompanyOrPackageCompanyInterceptor(final InterceptorRegistry registry) {
-            registry.addInterceptor(new PermissionsInterceptor(
-                    COMPANY_ACCOUNTS, COMPANY_PACKAGE_ACCOUNTS
-                ))
-            .excludePathPatterns(OAUTH2_EXCLUDE);
-    }
-
-    /**
      * Creates CRUDAuthenticationInterceptor which checks the User has user profile permissions
      *
      * @return the CRUDAuthenticationInterceptor
      */
     private CRUDAuthenticationInterceptor getUserCrudAuthenticationInterceptor() {
         return new CRUDAuthenticationInterceptor(USER_PROFILE);
+    }
+
+    /**
+     * Creates CRUDAuthenticationInterceptor which checks the User has company accounts permissions
+     *
+     * @return the CRUDAuthenticationInterceptor
+     */
+    private CRUDAuthenticationInterceptor getCompanyCrudAuthenticationInterceptor() {
+        return new CRUDAuthenticationInterceptor(COMPANY_ACCOUNTS);
     }
 
     /**
