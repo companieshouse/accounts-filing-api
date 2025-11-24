@@ -2,7 +2,7 @@ package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,10 +11,10 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -23,10 +23,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceExc
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
-import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.api.charges.TransactionsApi;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
-import uk.gov.companieshouse.api.handler.accountvalidator.PrivateAccountsValidatorResourceHandler;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
@@ -39,21 +36,11 @@ import uk.gov.companieshouse.logging.Logger;
 @ExtendWith(MockitoExtension.class)
 class AccountsValidationServiceTest {
 
-
     @Mock
     AccountsFilingRepository accountsFilingRepository;
 
     @Mock
-    TransactionsApi transactionsApi;
-
-    @Mock
-    InternalApiClient internalApiClient;
-
-    @Mock
     Logger logger;
-
-    @Mock
-    PrivateAccountsValidatorResourceHandler resourceHandler;
 
     @Mock
     ApiResponse<AccountsValidatorStatusApi> mockResponse;
@@ -61,13 +48,8 @@ class AccountsValidationServiceTest {
     @Mock
     AccountsValidatorAPI api;
 
+    @InjectMocks
     AccountsValidationServiceImpl service;
-
-    @BeforeEach
-    void setUp(){
-        service = new AccountsValidationServiceImpl(
-            logger, accountsFilingRepository, api);
-    }
 
     @Test
     @DisplayName("Get account filing entry from DB.")
@@ -160,7 +142,6 @@ class AccountsValidationServiceTest {
         String accountFilingId = "accountFilingId";
         String accountType = "04";
         String fileName = "fileName";
-        String balanceSheetDate = null;
         String registrationNumber = "0";
         AccountsValidatorValidationStatusApi validationStatus = AccountsValidatorValidationStatusApi.OK;
         AccountsFilingEntry accountsFilingEntryRequest = new AccountsFilingEntry(accountFilingId);
@@ -173,7 +154,7 @@ class AccountsValidationServiceTest {
         service.saveFileValidationResult(accountsFilingEntryRequest, accountsValidatorStatus);
         Assertions.assertEquals(accountType, accountsFilingEntryRequest.getAccountsType());
         Assertions.assertEquals(fileId, accountsFilingEntryRequest.getFileId());
-        Assertions.assertEquals(null, accountsFilingEntryRequest.getMadeUpDate());
+        Assertions.assertNull(accountsFilingEntryRequest.getMadeUpDate());
 
         verify(accountsFilingRepository, times(1)).save(accountsFilingEntryRequest);
     }

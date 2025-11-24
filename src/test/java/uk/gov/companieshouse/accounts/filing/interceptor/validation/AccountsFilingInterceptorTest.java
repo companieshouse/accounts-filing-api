@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.interceptor.validation;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -17,7 +17,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.HandlerMapping;
 
 import jakarta.servlet.http.HttpServletRequest;
-import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.utils.constant.Constants;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -28,9 +27,6 @@ class AccountsFilingInterceptorTest {
 
     @Mock
     private HttpServletRequest mockHttpServletRequest;
-
-    @Mock
-    private AccountsFilingService accountsFilingService;
 
     @Mock
     private Logger logger;

@@ -16,13 +16,13 @@
         <java.version>21</java.version>
 
         <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-        <spring-boot-dependencies.version>3.4.6</spring-boot-dependencies.version>
-        <spring-boot-maven-plugin.version>3.4.6</spring-boot-maven-plugin.version>
+        <spring-boot-dependencies.version>3.5.7</spring-boot-dependencies.version>
+        <spring-boot-maven-plugin.version>3.5.7</spring-boot-maven-plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- tests -->
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
         <test-containers.version>1.19.2</test-containers.version>
         <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
@@ -31,32 +31,28 @@
         <maven-resources-plugin.version>2.5</maven-resources-plugin.version>
         <mockito.version>5.7.0</mockito.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-
+        <commons-lang3-version>3.19.0</commons-lang3-version>
         <!-- internal -->
-        <structured-logging.version>3.0.1</structured-logging.version>
-        <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
-        <private-api-sdk-java.version>4.0.268</private-api-sdk-java.version>
-        <api-security-java-version>2.0.8</api-security-java-version>
+        <structured-logging.version>3.0.43</structured-logging.version>
+        <api-sdk-manager-java-library.version>3.0.13</api-sdk-manager-java-library.version>
+        <private-api-sdk-java.version>4.0.412</private-api-sdk-java.version>
+        <api-security-java-version>2.0.11</api-security-java-version>
 
         <!--sonar configuration-->
-        <sonar-maven-plugin.version>3.11.0.3922</sonar-maven-plugin.version>
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login></sonar.login>
+        <sonar.password></sonar.password>
+        <sonar.projectName>accounts-filing-api</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:accounts-filing-api</sonar.projectKey>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test</sonar.tests>
-        <sonar.verbose>true</sonar.verbose>
         <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/target/site/jacoco/jacoco.xml
+            ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
+        <sonar.jacoco.reports>${project.build.directory}/site</sonar.jacoco.reports>
     </properties>
-    <profiles>
-        <profile>
-            <id>sonar-pr-analysis</id>
-            <properties>
-                <sonar.pullrequest.base>main</sonar.pullrequest.base>
-            </properties>
-        </profile>
-    </profiles>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -143,15 +139,15 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.0</version>
         </dependency>
-
         <!-- spring boot apis support libs ends-->
-        <!-- Temp fix please review -->
+
+        <!-- CVE-2025-48924 -->
         <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.11.0</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3-version}</version>
         </dependency>
-        <!-- End of fix -->
+
         <!-- CH apis support libs starts-->
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
@@ -180,12 +176,7 @@
             <version>${api-security-java-version}</version>
         </dependency>
         <!-- CH apis support libs ends-->
-        <dependency>
-            <groupId>org.sonarsource.scanner.maven</groupId>
-            <artifactId>sonar-maven-plugin</artifactId>
-            <version>${sonar-maven-plugin.version}</version>
-            <scope>test</scope>
-        </dependency>
+
         <!-- Junit testing libs starts-->
         <dependency>
             <groupId>org.junit.platform</groupId>
@@ -195,11 +186,6 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-commons</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
