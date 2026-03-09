@@ -78,16 +78,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns(FILE_URI);
     }
 
-    /**
-     * Creates CRUDAuthenticationInterceptor which checks the User has company accounts or company package accounts permissions
-     *
-     */
-    private void addCompanyOrPackageCompanyInterceptor(final InterceptorRegistry registry) {
-            registry.addInterceptor(new PermissionsInterceptor(
-                    COMPANY_ACCOUNTS, COMPANY_PACKAGE_ACCOUNTS
-                ))
-            .excludePathPatterns(OAUTH2_EXCLUDE);
-    }
 
     /**
      * Creates CRUDAuthenticationInterceptor which checks the User has user profile permissions
