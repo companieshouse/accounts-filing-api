@@ -15,6 +15,10 @@ import uk.gov.companieshouse.api.interceptor.InternalUserInterceptor;
 import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_ACCOUNTS;
 import static uk.gov.companieshouse.api.util.security.Permission.Key.USER_PROFILE;
 
+import java.util.Arrays;
+
+import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_PACKAGE_ACCOUNTS;
+
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -73,6 +77,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns(FILE_URI);
     }
 
+
     /**
      * Creates CRUDAuthenticationInterceptor which checks the User has user profile permissions
      *
@@ -88,7 +93,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
      * @return the CRUDAuthenticationInterceptor
      */
     private CRUDAuthenticationInterceptor getCompanyCrudAuthenticationInterceptor() {
-        return new CRUDAuthenticationInterceptor(COMPANY_ACCOUNTS);
+        return new CRUDAuthenticationInterceptor(Arrays.asList(COMPANY_ACCOUNTS, COMPANY_PACKAGE_ACCOUNTS));
     }
 
     /**
