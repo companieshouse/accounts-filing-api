@@ -36,7 +36,7 @@
         <structured-logging.version>3.0.56</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.22</api-sdk-manager-java-library.version>
         <private-api-sdk-java.version>6.0.8</private-api-sdk-java.version>
-        <api-security-java-version>2.0.11</api-security-java-version>
+        <api-security-java-version>2.0.27</api-security-java-version>
 
         <!--sonar configuration-->
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
