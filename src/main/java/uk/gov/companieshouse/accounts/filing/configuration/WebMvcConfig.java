@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import uk.gov.companieshouse.accounts.filing.interceptor.permission.PermissionsInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.AccountsFilingIdInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.FileIdInterceptor;
 import uk.gov.companieshouse.accounts.filing.interceptor.validation.TransactionIdInterceptor;
