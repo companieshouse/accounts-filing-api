@@ -13,7 +13,7 @@ locals {
   application_subnet_ids     = data.aws_subnets.application.ids
   stack_secrets              = jsondecode(data.vault_generic_secret.stack_secrets.data_json)
   application_subnet_pattern = local.stack_secrets["application_subnet_pattern"]
-  vpc_name                   = data.aws_ssm_parameter.secret[format("/%s/%s", local.name_prefix, "vpc-name")].value
+  vpc_name                   = local.stack_secrets["vpc_name"]
   kms_alias                  = "alias/${var.aws_profile}/environment-services-kms"
   service_secrets            = jsondecode(data.vault_generic_secret.service_secrets.data_json)
   use_set_environment_files  = var.use_set_environment_files
@@ -23,14 +23,6 @@ locals {
   use_eric_reverse_proxy  = true
   eric_port               = "3001" # container port plus 1
   eric_version            = "latest"
-
-
-  # create a map of secret name => secret arn to pass into ecs service module
-  # using the trimprefix function to remove the prefixed path from the secret name
-  secrets_arn_map = {
-    for sec in data.aws_ssm_parameter.secret :
-    trimprefix(sec.name, "/${local.name_prefix}/") => sec.arn
-  }
 
   service_secrets_arn_map = {
     for sec in module.secrets.secrets :
