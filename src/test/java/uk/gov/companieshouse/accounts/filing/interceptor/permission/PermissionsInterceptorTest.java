@@ -9,12 +9,14 @@ import static org.mockito.Mockito.mock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import uk.gov.companieshouse.api.util.security.Permission;
 
 @SpringBootTest(classes = PermissionsInterceptor.class)
+@AutoConfigureMockMvc
 class PermissionsInterceptorTest {
     
     private static final String TOKEN_PERMISSIONS = "token_permissions";
