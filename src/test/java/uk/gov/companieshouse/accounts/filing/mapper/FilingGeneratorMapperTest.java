@@ -63,7 +63,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
-        assertEquals("accounts", filingApi.getKind());
+        assertEquals("accounts#package-accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
@@ -80,7 +80,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts with package type overseas", filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", null), filingApi.getDescriptionValues());
-        assertEquals("accounts", filingApi.getKind());
+        assertEquals("accounts#package-accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.OVERSEAS.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
@@ -96,7 +96,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
-        assertEquals("accounts", filingApi.getKind());
+        assertEquals("accounts#package-accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.CIC.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));

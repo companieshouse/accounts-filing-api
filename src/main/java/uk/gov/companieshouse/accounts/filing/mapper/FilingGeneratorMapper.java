@@ -51,7 +51,7 @@ public class FilingGeneratorMapper {
 
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
         filingApiEntity.setDescriptionValues(descriptionValue);
-        filingApiEntity.setKind("accounts");
+        filingApiEntity.setKind("accounts#package-accounts");
         filingApiEntity.setData(mapData(accountsFilingEntry, madeUpDate));
 
         return filingApiEntity;
