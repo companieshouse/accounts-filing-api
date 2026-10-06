@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
@@ -53,6 +55,7 @@ class FilingGeneratorMapperTest {
         ReflectionTestUtils.setField(filingGeneratorMapper, "scheme", "scheme");
         ReflectionTestUtils.setField(filingGeneratorMapper, "cicCost", CIC_COST);
         ReflectionTestUtils.setField(filingGeneratorMapper, "overseasCost", OVERSEAS_COST);
+        ReflectionTestUtils.setField(filingGeneratorMapper, "amendedAccountsOffset", "50");
         links = createLinks();
     }
 
@@ -63,7 +66,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
-        assertEquals("accounts#package-accounts", filingApi.getKind());
+        assertEquals("accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.UKSEF.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
@@ -80,7 +83,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts with package type overseas", filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", null), filingApi.getDescriptionValues());
-        assertEquals("accounts#package-accounts", filingApi.getKind());
+        assertEquals("accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.OVERSEAS.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
@@ -96,7 +99,7 @@ class FilingGeneratorMapperTest {
         assertEquals("Package accounts made up to " + madeUpDateFormatted, filingApi.getDescription());
         assertEquals("AUDITED FULL", filingApi.getDescriptionIdentifier());
         assertEquals(Collections.singletonMap("made up date", madeUpDate), filingApi.getDescriptionValues());
-        assertEquals("accounts#package-accounts", filingApi.getKind());
+        assertEquals("accounts", filingApi.getKind());
         assertEquals(PackageTypeApi.CIC.toString(), filingApi.getData().get("package_type"));
         assertEquals(accountsType, filingApi.getData().get("accounts_type"));
         assertEquals(createLinks(), filingApi.getData().get("links"));
@@ -109,5 +112,31 @@ class FilingGeneratorMapperTest {
         accountsFilingEntry = createAccountsFilingEntry();
         accountsFilingEntry.setMadeUpDate(null);
         assertThrows(NullPointerException.class, () -> filingGeneratorMapper.mapToFilingApi(accountsFilingEntry));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"50", "51", "58", "66", "68"})
+    void testMapToFilingApiSetsAmendedKindWhenAccountsTypeIs50OrAbove(String type) {
+        accountsFilingEntry = createAccountsFilingEntry();
+        accountsFilingEntry.setAccountsType(type);
+        FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
+        assertEquals("accounts#package-accounts#aamd", filingApi.getKind());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"00", "01", "09", "18", "49"})
+    void testMapToFilingApiSetsAccountsKindWhenAccountsTypeIsBelow50(String type) {
+        accountsFilingEntry = createAccountsFilingEntry();
+        accountsFilingEntry.setAccountsType(type);
+        FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
+        assertEquals("accounts", filingApi.getKind());
+    }
+
+    @Test
+    void testMapToFilingApiSetsAccountsKindWhenAccountsTypeIsNull() {
+        accountsFilingEntry = createAccountsFilingEntry();
+        accountsFilingEntry.setAccountsType(null);
+        FilingApi filingApi = filingGeneratorMapper.mapToFilingApi(accountsFilingEntry);
+        assertEquals("accounts", filingApi.getKind());
     }
 }
