@@ -30,9 +30,6 @@ public class FilingGeneratorMapper {
     @Value("${fee.overseas.accounts}")
     private String overseasCost;
 
-    @Value("${amended.accounts.offset}")
-    private String amendedAccountsOffset;
-
     public FilingApi mapToFilingApi(AccountsFilingEntry accountsFilingEntry) {
 
         var madeUpDate = accountsFilingEntry.getMadeUpDate();
@@ -54,14 +51,7 @@ public class FilingGeneratorMapper {
 
         filingApiEntity.setDescriptionIdentifier(getAccountTypeName(accountsFilingEntry));
         filingApiEntity.setDescriptionValues(descriptionValue);
-
-        var accountsType = accountsFilingEntry.getAccountsType();
-        if (accountsType != null && accountsType.compareTo(amendedAccountsOffset) >= 0) {
-            filingApiEntity.setKind("accounts#package-accounts#aamd");
-        } else {
-            filingApiEntity.setKind("accounts");
-        }
-
+        filingApiEntity.setKind("accounts");
         filingApiEntity.setData(mapData(accountsFilingEntry, madeUpDate));
 
         return filingApiEntity;
