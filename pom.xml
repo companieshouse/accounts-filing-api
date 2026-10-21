@@ -42,7 +42,6 @@
         <api-security-java-version>2.0.27</api-security-java-version>
 
         <!--sonar configuration-->
-        <!--suppress UnresolvedMavenProperty -->
         <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
         <sonar.projectName>accounts-filing-api</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:accounts-filing-api</sonar.projectKey>
