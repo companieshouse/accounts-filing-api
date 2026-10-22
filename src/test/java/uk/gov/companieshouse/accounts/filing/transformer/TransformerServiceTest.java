@@ -5,14 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
+import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.transaction.Resource;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -47,6 +52,7 @@ class TransformerServiceTest {
         transaction.setResources(new HashMap<>());
         service = new TransactionTransformerImpl();
         ReflectionTestUtils.setField(service, "resourceKind", "abc");
+        ReflectionTestUtils.setField(service, "isRevisedCicEnabled", true);
     }
 
     @Test
@@ -54,7 +60,7 @@ class TransformerServiceTest {
         var packageTypes = PackageTypeApi.values();
         for(PackageTypeApi packageTypeApi : packageTypes){
             var packageType = packageTypeApi.toString();
-            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageType);
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageType, null);
             Resource resourceResult = transaction.getResources().get(URI);
             assertEquals(1, transaction.getResources().size());
             assertTrue(transaction.getResources().containsKey(URI));
@@ -69,5 +75,43 @@ class TransformerServiceTest {
                 assertEquals(linksWithNoCost, resourceResult.getLinks(), "Links mismatch, please verify the logic for package type" + packageType);
             }
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"51", "52", "53", "54", "55", "58", "59", "66", "67", "68"})
+    void testAmendedAccountsByPassCostsLinkForCicAndOverseas(String amendedStemCode) {
+        var entry = accountsFilingEntry(amendedStemCode);
+        for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
+            transaction.setResources(new HashMap<>());
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry);
+            assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks(),
+                    "Amended accounts " + amendedStemCode + " should not have costs link for " + packageTypeApi);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"51", "68"})
+    void testAmendedAccountsByNameByPassCostsLink(String amendedStemCode) {
+        var entry = accountsFilingEntry(AccountsType.fromStemCode(amendedStemCode).getType());
+        service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, PackageTypeApi.CIC.toString(), entry);
+        assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"01", "04", "18", "00"})
+    void testNonAmendedAccountsKeepCostsLinkForCicAndOverseas(String stemCode) {
+        var entry = accountsFilingEntry(stemCode);
+        for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
+            transaction.setResources(new HashMap<>());
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry);
+            assertEquals(linksWithCost, transaction.getResources().get(URI).getLinks(),
+                    "Non-amended accounts " + stemCode + " should have costs link for " + packageTypeApi);
+        }
+    }
+
+    private AccountsFilingEntry accountsFilingEntry(String accountsType) {
+        var entry = new AccountsFilingEntry(ACCOUNTS_FILING_ID, "", "", null, TRANSACTION_ID, "", "", "");
+        entry.setAccountsType(accountsType);
+        return entry;
     }
 }
