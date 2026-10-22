@@ -109,19 +109,6 @@ class TransformerServiceTest {
         }
     }
 
-    @Test
-    void testCostsLinkIsNotAddedWhenRevisedCicFlagIsDisabled() {
-        ReflectionTestUtils.setField(service, "isRevisedCicEnabled", false);
-
-        for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
-            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(),
-                    accountsFilingEntry("01"));
-            assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks(),
-                    "Costs link should not be added when the revised CIC flag is disabled for " + packageTypeApi);
-            transaction.setResources(new HashMap<>());
-        }
-    }
-
     private AccountsFilingEntry accountsFilingEntry(String accountsType) {
         var entry = new AccountsFilingEntry(ACCOUNTS_FILING_ID, "", "", null, TRANSACTION_ID, "", "", "");
         entry.setAccountsType(accountsType);
