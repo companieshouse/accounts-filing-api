@@ -52,6 +52,7 @@ class TransformerServiceTest {
         transaction.setResources(new HashMap<>());
         service = new TransactionTransformerImpl();
         ReflectionTestUtils.setField(service, "resourceKind", "abc");
+        ReflectionTestUtils.setField(service, "isRevisedCicEnabled", true);
     }
 
     @Test
@@ -105,6 +106,19 @@ class TransformerServiceTest {
             service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry);
             assertEquals(linksWithCost, transaction.getResources().get(URI).getLinks(),
                     "Non-amended accounts " + stemCode + " should have costs link for " + packageTypeApi);
+        }
+    }
+
+    @Test
+    void testCostsLinkIsNotAddedWhenRevisedCicFlagIsDisabled() {
+        ReflectionTestUtils.setField(service, "isRevisedCicEnabled", false);
+
+        for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(),
+                    accountsFilingEntry("01"));
+            assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks(),
+                    "Costs link should not be added when the revised CIC flag is disabled for " + packageTypeApi);
+            transaction.setResources(new HashMap<>());
         }
     }
 

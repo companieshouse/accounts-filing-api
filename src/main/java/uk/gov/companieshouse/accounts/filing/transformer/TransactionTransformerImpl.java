@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
@@ -19,6 +20,8 @@ public class TransactionTransformerImpl implements TransactionTransformer {
     
     private String resourceKind;
 
+    @Value("${revised.cic.accounts.flag}")
+    private boolean isRevisedCicEnabled;
 
     @Override
     public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType, final AccountsFilingEntry accountsFilingEntry) {
@@ -31,8 +34,8 @@ public class TransactionTransformerImpl implements TransactionTransformer {
                 "validation_status", uri+"/validation-status"
             )
         );
-        if(!isAmendedAccounts(accountsFilingEntry)){
-            if(PackageTypeApi.CIC.toString().equals(packageType) || PackageTypeApi.OVERSEAS.toString().equals(packageType)) {
+        if(!(isAmendedAccounts(accountsFilingEntry) && isRevisedCicEnabled)){
+            if(PackageTypeApi.CIC.toString().equals(packageType)  || PackageTypeApi.OVERSEAS.toString().equals(packageType)) {
                 links.put("costs", uri + "/costs");
             }
         }
