@@ -20,9 +20,6 @@ public class TransactionTransformerImpl implements TransactionTransformer {
     
     private String resourceKind;
 
-    @Value("${revised.cic.accounts.flag}")
-    private boolean isRevisedCicEnabled;
-
     @Override
     public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType, final AccountsFilingEntry accountsFilingEntry) {
         

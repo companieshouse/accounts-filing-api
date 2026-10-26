@@ -52,7 +52,6 @@ class TransformerServiceTest {
         transaction.setResources(new HashMap<>());
         service = new TransactionTransformerImpl();
         ReflectionTestUtils.setField(service, "resourceKind", "abc");
-        ReflectionTestUtils.setField(service, "isRevisedCicEnabled", true);
     }
 
     @Test
