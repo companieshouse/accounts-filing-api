@@ -84,7 +84,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             String accountType = data.accountType();
-            if (disableRevisedFiling && accountType != null && accountType.matches("[0-9]+")
+            if (disableRevisedFiling && accountType != null && accountType.matches("\\d+")
                     && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0) {
                 throw new RevisedFilingDisabledException();
             }
