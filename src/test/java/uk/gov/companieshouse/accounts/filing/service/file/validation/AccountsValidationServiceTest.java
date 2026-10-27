@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,13 +15,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -50,6 +56,86 @@ class AccountsValidationServiceTest {
 
     @InjectMocks
     AccountsValidationServiceImpl service;
+
+    @ParameterizedTest
+    @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+    void rejectsRevisedAccountsWhenFlagEnabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.UKSEF);
+        var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        assertThrows(RevisedFilingDisabledException.class,
+                () -> service.saveFileValidationResult(filingEntry, status));
+
+        Assertions.assertNull(filingEntry.getFileId());
+        Assertions.assertNull(filingEntry.getAccountsType());
+        verify(accountsFilingRepository, never()).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"04", "49"})
+    void allowsOriginalAccountsWhenFlagEnabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
+        var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        service.saveFileValidationResult(filingEntry, status);
+
+        Assertions.assertEquals(accountType, filingEntry.getAccountsType());
+        verify(accountsFilingRepository).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"", "UNKNOWN", "accountType"})
+    void preservesNonNumericValidatorResultsWhenFlagEnabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
+        var data = createAccountsValidatorDataApi(null, accountType, "UNKNOWN");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.FAILED, data);
+
+        service.saveFileValidationResult(filingEntry, status);
+
+        Assertions.assertEquals(accountType, filingEntry.getAccountsType());
+        verify(accountsFilingRepository).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"50", "51", "99"})
+    void allowsRevisedAccountsWhenFlagDisabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", false);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
+        var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        service.saveFileValidationResult(filingEntry, status);
+
+        Assertions.assertEquals(accountType, filingEntry.getAccountsType());
+        verify(accountsFilingRepository).save(filingEntry);
+    }
+
+    @Test
+    void preservesFailedValidationWithoutDataWhenFlagEnabled() {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.FAILED, null);
+
+        service.saveFileValidationResult(filingEntry, status);
+
+        Assertions.assertEquals("fileId", filingEntry.getFileId());
+        verify(accountsFilingRepository).save(filingEntry);
+    }
 
     @Test
     @DisplayName("Get account filing entry from DB.")
