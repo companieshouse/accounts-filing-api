@@ -42,6 +42,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultA
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -271,6 +272,8 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 200 with true")
     void testValidateAccountsFilingDataReturns200True() {
         // Given
+        accountsFilingEntry.setPackageType(PackageTypeApi.UKSEF);
+        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(new Transaction()));
         validationStatusResponse.setValid(true);
         when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
                 .thenReturn(accountsFilingEntry);
@@ -291,6 +294,8 @@ class TransactionControllerTest {
     @DisplayName("Test validation status returns 200 with false")
     void testValidateAccountsFilingDataReturns200False() {
         // Given
+        accountsFilingEntry.setPackageType(PackageTypeApi.UKSEF);
+        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(new Transaction()));
         validationStatusResponse.setValid(false);
         when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
                 .thenReturn(accountsFilingEntry);
