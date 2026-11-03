@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -65,7 +66,7 @@ class TransformerServiceTest {
             assertTrue(transaction.getResources().containsKey(URI));
             assertEquals(RESOURCE_KIND, resourceResult.getKind());
             assertNotNull(resourceResult.getUpdatedAt());
-            if(packageType == PackageTypeApi.CIC.toString() || packageType == PackageTypeApi.OVERSEAS.toString()){
+            if(Objects.equals(packageType, PackageTypeApi.CIC.toString()) || Objects.equals(packageType, PackageTypeApi.OVERSEAS.toString())){
                 assertEquals(linksWithCost.size(), resourceResult.getLinks().size(), "Links with cost count is mismatch, please verify the logic for package type " + packageType);
                 assertEquals(linksWithCost, resourceResult.getLinks(), "Links with cost is mismatch, please verify the logic for package type " + packageType);
             }
