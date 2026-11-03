@@ -50,6 +50,13 @@ public class TransactionController {
         this.costsService = costsService;
     }
 
+    /**
+     * Retrieves the validator status for a file and saves it to the accounts filing entry when available.
+     *
+     * @param fileId the identifier of the file
+     * @param accountsFilingId the identifier of the accounts filing
+     * @return the validator status, or 404 when no status is available
+     */
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         
@@ -64,6 +71,16 @@ public class TransactionController {
         return ResponseEntity.of(accountsValidationResultOptional);
     }
 
+    /**
+     * Saves the package type for an accounts filing and updates its transaction resources.
+     *
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @param packageType the package type to save
+     * @return 204 when updated, or 404 when the transaction is not found
+     * @throws UriValidationException if a URI is invalid
+     * @throws EntryNotFoundException if the accounts filing entry is not found
+     */
     @PutMapping
     public ResponseEntity<String> setPackageType(@PathVariable("transactionId") final String transactionId, 
                                                  @PathVariable("accountsFilingId") final String accountsFilingId,
@@ -72,29 +89,31 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
-
-        if (optionalTransaction.isEmpty()) {
+        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
-        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId, packageType.type(), entry);
-        transactionService.updateTransaction(optionalTransaction.get());
         
         return ResponseEntity.noContent().build();
     }
 
     /**
-     * This method is used to validate the accounts filing data
-     * @param transactionId - Transaction id
-     * @param accountsFilingId - Filing id of the accounts
-     * @return contains the validation status of the account filing
+     * Validates the accounts filing entry after updating its transaction resources.
+     *
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @return the validation result, or 404 if the filing entry or transaction is not found
      */
     @GetMapping("/validation-status")
     public ResponseEntity<?> validateAccountsFilingData(@PathVariable("transactionId") final String transactionId,
                                                         @PathVariable("accountsFilingId") final String accountsFilingId){
         try{
             final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
+
+            if (updateTransactionResources(transactionId, accountsFilingId,
+                    accountsFilingEntry.getPackageType().toString(), accountsFilingEntry).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
             return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
         }
         catch(final EntryNotFoundException entryNotFoundException){
@@ -103,10 +122,11 @@ public class TransactionController {
     }
 
     /**
-     * This method is used to calculate the costs for the filing
-     * @param transactionId - Transaction id
-     * @param accountsFilingId - Filing id of the accounts
-     * @return contains the cost of the account filing
+     * Calculates the costs for an accounts filing.
+     *
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @return the calculated costs, or 404 if the filing entry is not found
      */
     @GetMapping("/costs")
     public ResponseEntity<?> calculateCosts(@PathVariable("transactionId") final String transactionId,
@@ -121,10 +141,31 @@ public class TransactionController {
     }
 
     /**
-     * Handles all un-caught exceptions
+     * Updates the transaction resources for an accounts filing when the transaction exists.
      *
-     * @param ex the exception
-     * @return response
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @param packageType the package type to apply
+     * @param filingEntry the accounts filing entry used to configure the resources
+     * @return the transaction when found, or an empty optional otherwise
+     */
+    private Optional<Transaction> updateTransactionResources(final String transactionId,
+                                                             final String accountsFilingId,
+                                                             final String packageType,
+                                                             final AccountsFilingEntry filingEntry) {
+        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
+        optionalTransaction.ifPresent(transaction -> {
+            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType, filingEntry);
+            transactionService.updateTransaction(transaction);
+        });
+        return optionalTransaction;
+    }
+
+    /**
+     * Converts uncaught exceptions into the controller's standard error response.
+     *
+     * @param ex the exception to handle
+     * @return the error response
      */
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(final Exception ex) {
