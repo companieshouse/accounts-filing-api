@@ -1,11 +1,13 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
@@ -32,6 +35,10 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     private final Logger logger;
     private final AccountsFilingRepository requestFilingRepository;
     private final AccountsValidatorAPI accountsValidatorAPI;
+
+    @Value("${feature.flag.disable.revised.filing:false}")
+    private boolean disableRevisedFiling;
+
     private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
             PackageTypeApi.UKSEF, AccountsType.GROUP.getStemCode(),
             PackageTypeApi.GROUP_PACKAGE_401, AccountsType.GROUP.getStemCode(),
@@ -76,6 +83,11 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         String fileId = accountStatus.fileId();
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
+            String accountType = data.accountType();
+            if (disableRevisedFiling && accountType != null && accountType.matches("\\d+")
+                    && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0) {
+                throw new RevisedFilingDisabledException();
+            }
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
             if(PackageTypeApi.OVERSEAS != packageType) {

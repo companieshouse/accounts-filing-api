@@ -1,9 +1,11 @@
 package uk.gov.companieshouse.accounts.filing.controller.handler.controller.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -14,6 +16,10 @@ public class ControllerExceptionHandler {
 
     public static ResponseEntity<String> handleExpection(Exception ex, Logger logger) {
         return switch (ex) {
+            case RevisedFilingDisabledException e -> {
+                logger.info(e.getMessage());
+                yield ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
+            }
             case ResponseException e -> responseException(e, logger);
             case UriValidationException e -> validationException(e, logger);
             case EntryNotFoundException e -> entryNotFoundException();

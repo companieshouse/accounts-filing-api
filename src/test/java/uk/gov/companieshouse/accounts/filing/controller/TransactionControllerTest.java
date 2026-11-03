@@ -15,6 +15,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,7 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
@@ -139,6 +143,23 @@ class TransactionControllerTest {
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+    }
+
+    @Test
+    void returns503WhenRevisedFilingDisabled() throws Exception {
+        String fileId = "fileId";
+        var validationStatus = new AccountsValidatorStatusApi(fileId, "accounts.zip", "complete",
+                new AccountsValidatorResultApi(null, AccountsValidatorValidationStatusApi.OK));
+        when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(validationStatus));
+        when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        doThrow(new RevisedFilingDisabledException()).when(accountsValidationService)
+                .saveFileValidationResult(accountsFilingEntry, validationStatus);
+
+        standaloneSetup(controller).build()
+                .perform(get(
+                        "/transactions/{transactionId}/accounts-filing/{accountsFilingId}/file/{fileId}/status",
+                        transactionId, accountsFilingId, fileId))
+                .andExpect(status().isServiceUnavailable());
     }
 
     @Test
