@@ -316,7 +316,7 @@ class TransactionControllerTest {
     void testValidateAccountsFilingDataReturns200False() {
         // Given
         accountsFilingEntry.setPackageType(PackageTypeApi.UKSEF);
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(new Transaction()));
+        //when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(new Transaction()));
         validationStatusResponse.setValid(false);
         when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId, accountsFilingId))
                 .thenReturn(accountsFilingEntry);

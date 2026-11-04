@@ -65,6 +65,10 @@ public class TransactionController {
         if (accountsValidationResultOptional.isPresent()) {
             final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
+
+            if (updateTransactionResources(filingEntry.getTransactionId(), accountsFilingId, filingEntry.getPackageType().toString(), filingEntry.getAccountsType()).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
         }
 
         //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
@@ -89,10 +93,6 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        
         return ResponseEntity.noContent().build();
     }
 
@@ -108,12 +108,6 @@ public class TransactionController {
                                                         @PathVariable("accountsFilingId") final String accountsFilingId){
         try{
             final AccountsFilingEntry accountsFilingEntry = accountsFilingService.getAccountsFilingEntryForIDAndTransaction(transactionId,accountsFilingId);
-
-            if (updateTransactionResources(transactionId, accountsFilingId,
-                    accountsFilingEntry.getPackageType().toString(), accountsFilingEntry).isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-
             return ResponseEntity.ok(accountsFilingService.validateAccountsFilingEntry(accountsFilingEntry));
         }
         catch(final EntryNotFoundException entryNotFoundException){
@@ -146,16 +140,16 @@ public class TransactionController {
      * @param transactionId the identifier of the transaction
      * @param accountsFilingId the identifier of the accounts filing
      * @param packageType the package type to apply
-     * @param filingEntry the accounts filing entry used to configure the resources
+     * @param accountsType the accounts type used to configure the resources
      * @return the transaction when found, or an empty optional otherwise
      */
     private Optional<Transaction> updateTransactionResources(final String transactionId,
                                                              final String accountsFilingId,
                                                              final String packageType,
-                                                             final AccountsFilingEntry filingEntry) {
+                                                             final String accountsType) {
         final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
         optionalTransaction.ifPresent(transaction -> {
-            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType, filingEntry);
+            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType, accountsType);
             transactionService.updateTransaction(transaction);
         });
         return optionalTransaction;

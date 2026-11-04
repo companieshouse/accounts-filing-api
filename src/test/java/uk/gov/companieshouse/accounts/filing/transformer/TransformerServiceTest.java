@@ -83,7 +83,7 @@ class TransformerServiceTest {
         var entry = accountsFilingEntry(amendedStemCode);
         for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
             transaction.setResources(new HashMap<>());
-            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry);
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry.getAccountsType());
             assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks(),
                     "Amended accounts " + amendedStemCode + " should not have costs link for " + packageTypeApi);
         }
@@ -93,7 +93,7 @@ class TransformerServiceTest {
     @ValueSource(strings = {"51", "68"})
     void testAmendedAccountsByNameByPassCostsLink(String amendedStemCode) {
         var entry = accountsFilingEntry(AccountsType.fromStemCode(amendedStemCode).getType());
-        service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, PackageTypeApi.CIC.toString(), entry);
+        service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, PackageTypeApi.CIC.toString(), entry.getAccountsType());
         assertEquals(linksWithNoCost, transaction.getResources().get(URI).getLinks());
     }
 
@@ -103,7 +103,7 @@ class TransformerServiceTest {
         var entry = accountsFilingEntry(stemCode);
         for (PackageTypeApi packageTypeApi : List.of(PackageTypeApi.CIC, PackageTypeApi.OVERSEAS)) {
             transaction.setResources(new HashMap<>());
-            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry);
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageTypeApi.toString(), entry.getAccountsType());
             assertEquals(linksWithCost, transaction.getResources().get(URI).getLinks(),
                     "Non-amended accounts " + stemCode + " should have costs link for " + packageTypeApi);
         }

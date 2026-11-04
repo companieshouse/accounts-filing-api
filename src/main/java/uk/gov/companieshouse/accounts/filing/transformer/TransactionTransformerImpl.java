@@ -21,7 +21,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
     private String resourceKind;
 
     @Override
-    public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType, final AccountsFilingEntry accountsFilingEntry) {
+    public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType, final String accountsType) {
         
         final var uri = String.format("/transactions/%s/accounts-filing/%s", transaction.getId(), accountsFilingId);
         
@@ -32,7 +32,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
             )
         );
 
-        if(!isAmendedAccounts(accountsFilingEntry)){
+        if(!isAmendedAccounts(accountsType)){
             if(PackageTypeApi.CIC.toString().equals(packageType)  || PackageTypeApi.OVERSEAS.toString().equals(packageType)) {
                 links.put("costs", uri + "/costs");
             }
@@ -47,8 +47,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
         transaction.getResources().put(uri, resource);
     }
 
-    private boolean isAmendedAccounts(final AccountsFilingEntry accountsFilingEntry) {
-        final String accountsType = accountsFilingEntry == null ? null : accountsFilingEntry.getAccountsType();
+    private boolean isAmendedAccounts(final String accountsType) {
         if (accountsType == null) {
             return false;
         }
