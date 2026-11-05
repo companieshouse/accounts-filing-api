@@ -58,7 +58,12 @@ public class TransactionController {
         if (accountsValidationResultOptional.isPresent()) {
             final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
+            if (updateTransactionResources(filingEntry.getTransactionId(),
+                    filingEntry.getAccountsFilingId(), filingEntry.getPackageType().toString(), filingEntry).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
         }
+
 
         //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
         return ResponseEntity.of(accountsValidationResultOptional);
@@ -72,15 +77,6 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
-
-        if (optionalTransaction.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId, packageType.type());
-        transactionService.updateTransaction(optionalTransaction.get());
-        
         return ResponseEntity.noContent().build();
     }
 
@@ -129,5 +125,27 @@ public class TransactionController {
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(final Exception ex) {
         return ControllerExceptionHandler.handleExpection(ex, logger);
+    }
+
+    /**
+     * Updates the transaction resources for an accounts filing when the transaction exists.
+     *
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @param packageType the package type to apply
+     * @param filingEntry the accounts filing entry containing the accounts type
+     * @return the transaction when found, or an empty optional otherwise
+     */
+    private Optional<Transaction> updateTransactionResources(final String transactionId,
+                                                            final String accountsFilingId,
+                                                            final String packageType,
+                                                            final AccountsFilingEntry filingEntry) {
+        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
+        optionalTransaction.ifPresent(transaction -> {
+            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType,
+                    filingEntry.getAccountsType());
+            transactionService.updateTransaction(transaction);
+        });
+        return optionalTransaction;
     }
 }

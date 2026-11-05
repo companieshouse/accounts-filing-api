@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -46,6 +47,7 @@ import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultA
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.payment.Cost;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
@@ -110,10 +112,13 @@ class TransactionControllerTest {
                 AccountsValidatorValidationStatusApi.OK);
         AccountsValidatorStatusApi accountStatus = new AccountsValidatorStatusApi(fileId, fileName, "complete",
                 accountStatusResult);
-        var filingEntry = new AccountsFilingEntry(accountsFilingId);
+        var filingEntry = accountsFilingEntry;
+        filingEntry.setPackageType(PackageTypeApi.CIC);
+        Transaction transaction = new Transaction();
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
+        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
 
         // When
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
@@ -126,6 +131,51 @@ class TransactionControllerTest {
         assertNotNull(body);
         assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
         verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
+        verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
+                PackageTypeApi.CIC.toString(), filingEntry.getAccountsType());
+        verify(transactionService).updateTransaction(transaction);
+    }
+
+    @Test
+    void testFileStatusUpdatesTransaction() {
+        String fileId = "fileId";
+        var accountStatus = new AccountsValidatorStatusApi(fileId, "accounts.zip", "complete",
+                new AccountsValidatorResultApi(null, AccountsValidatorValidationStatusApi.OK));
+        accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
+        Transaction transaction = new Transaction();
+        when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
+        when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
+
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
+                accountsFilingId);
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(accountStatus, result.getBody());
+        verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
+        verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
+                PackageTypeApi.CIC.toString(), accountsFilingEntry.getAccountsType());
+        verify(transactionService).updateTransaction(transaction);
+    }
+
+    @Test
+    void testFileStatusReturns404WhenTransactionMissing() {
+        String fileId = "fileId";
+        var accountStatus = new AccountsValidatorStatusApi(fileId, "accounts.zip", "complete",
+                new AccountsValidatorResultApi(null, AccountsValidatorValidationStatusApi.OK));
+        accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
+        when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
+        when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.empty());
+
+        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
+                accountsFilingId);
+
+        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        Assertions.assertNull(result.getBody());
+        verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
+        verify(transactionService).getTransaction(transactionId);
+        verifyNoInteractions(accountsFilingTransformer);
     }
 
     @Test
@@ -179,25 +229,29 @@ class TransactionControllerTest {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
-        Transaction transaction = new Transaction();
 
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
+        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
+        verifyNoInteractions(transactionService, accountsFilingTransformer);
     }
 
     @Test
-    @DisplayName("Submit a package type and no matching transaction. Return a 404")
-    void testSetPackageTypeMissingTransaction() throws EntryNotFoundException {
+    @DisplayName("Submit a package type without looking up the transaction. Return a 204")
+    void testSetPackageTypeDoesNotRequireTransaction() throws EntryNotFoundException {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
+        when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+        verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
+        verifyNoInteractions(transactionService, accountsFilingTransformer);
     }
 
     @Test
