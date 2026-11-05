@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -16,7 +16,7 @@ public class ControllerExceptionHandler {
 
     public static ResponseEntity<String> handleExpection(Exception ex, Logger logger) {
         return switch (ex) {
-            case RevisedFilingDisabledException e -> {
+            case AmendedFilingDisabledException e -> {
                 logger.info(e.getMessage());
                 yield ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(e.getMessage());
             }

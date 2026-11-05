@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +14,11 @@ import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
-
+import uk.gov.companieshouse.accounts.filing.configuration.AmendedPackageConfiguration;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
@@ -35,9 +34,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     private final Logger logger;
     private final AccountsFilingRepository requestFilingRepository;
     private final AccountsValidatorAPI accountsValidatorAPI;
-
-    @Value("${feature.flag.disable.revised.filing:false}")
-    private boolean disableRevisedFiling;
+    private final AmendedPackageConfiguration amendedPackageConfiguration;
 
     private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
             PackageTypeApi.UKSEF, AccountsType.GROUP.getStemCode(),
@@ -47,14 +44,16 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             PackageTypeApi.FILING_EXEMPT_SUBSIDIARY, AccountsType.FILING_EXEMPT_SUBSIDIARY.getStemCode()
     );
 
-    @Autowired
     public AccountsValidationServiceImpl(
             Logger logger,
             AccountsFilingRepository requestFilingRepository,
-            AccountsValidatorAPI accountsValidatorAPI) {
+            AccountsValidatorAPI accountsValidatorAPI,
+            AmendedPackageConfiguration amendedPackageConfiguration
+        ) {
         this.logger = logger;
         this.requestFilingRepository = requestFilingRepository;
         this.accountsValidatorAPI = accountsValidatorAPI;
+        this.amendedPackageConfiguration = amendedPackageConfiguration;
     }
 
     @Override
@@ -84,9 +83,8 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             String accountType = data.accountType();
-            if (disableRevisedFiling && accountType != null && accountType.matches("\\d+")
-                    && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0) {
-                throw new RevisedFilingDisabledException();
+            if (isAmendedPackagedDisallowed() && isAccountTypeAmended(accountType)) {
+                throw new AmendedFilingDisabledException();
             }
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
@@ -145,5 +143,14 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         } else {
             throw new ResponseException(message);
         }
+    }
+
+    private boolean isAccountTypeAmended(String accountType) {
+        return accountType != null && accountType.matches("\\d+")
+                && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0;
+    }
+
+    private boolean isAmendedPackagedDisallowed() {
+        return !amendedPackageConfiguration.enableAllAmendedPackages();
     }
 }

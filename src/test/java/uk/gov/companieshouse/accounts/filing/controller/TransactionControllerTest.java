@@ -35,7 +35,7 @@ import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.model.AccountsPackageType;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.RevisedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
@@ -146,13 +146,13 @@ class TransactionControllerTest {
     }
 
     @Test
-    void returns503WhenRevisedFilingDisabled() throws Exception {
+    void returns503WhenAmendedFilingDisabled() throws Exception {
         String fileId = "fileId";
         var validationStatus = new AccountsValidatorStatusApi(fileId, "accounts.zip", "complete",
                 new AccountsValidatorResultApi(null, AccountsValidatorValidationStatusApi.OK));
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(validationStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        doThrow(new RevisedFilingDisabledException()).when(accountsValidationService)
+        doThrow(new AmendedFilingDisabledException()).when(accountsValidationService)
                 .saveFileValidationResult(accountsFilingEntry, validationStatus);
 
         standaloneSetup(controller).build()
