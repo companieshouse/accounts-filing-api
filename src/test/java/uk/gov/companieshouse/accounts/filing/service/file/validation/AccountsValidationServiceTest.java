@@ -68,7 +68,7 @@ class AccountsValidationServiceTest {
 
         @BeforeEach
         void setup() {
-            when(amendedPackageConfiguration.enableAllAmendedPackages()).thenReturn(false);
+            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(false);
         }
 
         @ParameterizedTest
@@ -138,7 +138,7 @@ class AccountsValidationServiceTest {
     class AmendedAccounts {
         @BeforeEach
         void setup() {
-            when(amendedPackageConfiguration.enableAllAmendedPackages()).thenReturn(true);
+            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(true);
         }
 
         @ParameterizedTest

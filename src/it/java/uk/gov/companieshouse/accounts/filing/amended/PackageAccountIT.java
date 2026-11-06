@@ -177,7 +177,7 @@ class PackageAccountIT {
 
     @Nested
     @DisplayName("Disallow amended accounts")
-    @TestPropertySource(properties = {"feature.flag.amended.enable-all-amended-packages=false"})
+    @TestPropertySource(properties = {"feature.flag.amended.default-enable-amended-packages=false"})
     class DisallowAmendedAccounts {
 
         @ParameterizedTest(name = "Account Type {0}")

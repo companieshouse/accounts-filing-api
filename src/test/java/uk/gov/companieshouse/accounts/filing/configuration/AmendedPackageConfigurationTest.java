@@ -25,19 +25,19 @@ class AmendedPackageConfigurationTest {
         @Test
         @DisplayName("Enable all revised packages true")
         void testShouldReturnTrueWhenEnableAllRevisedPackagesIsTrue() {
-            assertThat(configuration.enableAllAmendedPackages()).isTrue();
+            assertThat(configuration.defaultEnableAmendedPackages()).isTrue();
         }
     }
 
 
     @Nested
-    @TestPropertySource(properties = {"feature.flag.revised.enable-all-revised-packages=false"})
+    @TestPropertySource(properties = {"feature.flag.amended.default-enable-amended-packages=false"})
     @DisplayName("Disabled revised packages")
     class Disabled {
         @Test
         @DisplayName("Enable all revised packages false")
         void testShouldReturnFalseWhenEnableAllRevisedPackagesIsFalse() {
-            assertThat(configuration.enableAllAmendedPackages()).isFalse();
+            assertThat(configuration.defaultEnableAmendedPackages()).isFalse();
         }
     }
 

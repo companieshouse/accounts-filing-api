@@ -151,6 +151,6 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     }
 
     private boolean isAmendedPackagedDisallowed() {
-        return !amendedPackageConfiguration.enableAllAmendedPackages();
+        return !amendedPackageConfiguration.defaultEnableAmendedPackages();
     }
 }
