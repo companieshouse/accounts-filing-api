@@ -35,6 +35,7 @@
         <mockito.version>5.7.0</mockito.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
         <commons-lang3-version>3.19.0</commons-lang3-version>
+        <wiremock-spring-boot.version>4.4.2</wiremock-spring-boot.version>
         <!-- internal -->
         <structured-logging.version>4.0.4</structured-logging.version>
         <api-sdk-manager-java-library.version>3.0.22</api-sdk-manager-java-library.version>
@@ -274,6 +275,12 @@
             <artifactId>testcontainers-mongodb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>${wiremock-spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- spring boot test libs ends-->
     </dependencies>
 
@@ -327,7 +334,7 @@
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     <skipITs>${skip.integration.tests}</skipITs>
                     <includes>
-                        <include>**/uk.gov.companieshouse.accounts.filing.java</include>
+                        <include>**/*IT.java</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -346,7 +353,7 @@
                             <outputDirectory>${basedir}/target/test-classes</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/feature/resources</directory>
+                                    <directory>${basedir}/src/it/resources</directory>
                                     <includes>
                                         <include>**/*.*</include>
                                     </includes>
@@ -369,7 +376,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/feature/java</source>
+                                <source>src/it/java</source>
                             </sources>
                         </configuration>
                     </execution>
