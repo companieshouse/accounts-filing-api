@@ -24,6 +24,7 @@ import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsVal
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -55,10 +56,22 @@ public class TransactionController {
         
         final Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
 
-        if (accountsValidationResultOptional.isPresent()) {
+        if (accountsValidationResultOptional.isPresent()
+                && accountsValidationResultOptional.get().resultApi() != null
+                && accountsValidationResultOptional.get().resultApi().fileValidationStatusApi()
+                    == AccountsValidatorValidationStatusApi.OK
+                && accountsValidationResultOptional.get().resultApi().data() != null
+                && accountsValidationResultOptional.get().resultApi().data().accountType() != null
+                && accountsValidationResultOptional.get().resultApi().data().accountType().matches("\\d+")) {
             final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
+            if (updateTransactionResources(filingEntry.getTransactionId(),
+                    filingEntry.getAccountsFilingId(), filingEntry.getPackageType().toString(),
+                    filingEntry.getAccountsType()).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
         }
+
 
         //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
         return ResponseEntity.of(accountsValidationResultOptional);
@@ -72,15 +85,9 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
-
-        if (optionalTransaction.isEmpty()) {
+        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), null).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
-        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId, packageType.type());
-        transactionService.updateTransaction(optionalTransaction.get());
-        
         return ResponseEntity.noContent().build();
     }
 
@@ -129,5 +136,27 @@ public class TransactionController {
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(final Exception ex) {
         return ControllerExceptionHandler.handleExpection(ex, logger);
+    }
+
+    /**
+     * Updates the transaction resources for an accounts filing when the transaction exists.
+     *
+     * @param transactionId the identifier of the transaction
+     * @param accountsFilingId the identifier of the accounts filing
+     * @param packageType the package type to apply
+     * @param accountsType the validated accounts type, or null to withhold the costs link during initial setup
+     * @return the transaction when found, or an empty optional otherwise
+     */
+    private Optional<Transaction> updateTransactionResources(final String transactionId,
+                                                            final String accountsFilingId,
+                                                            final String packageType,
+                                                            final String accountsType) {
+        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
+        optionalTransaction.ifPresent(transaction -> {
+            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType,
+                    accountsType);
+            transactionService.updateTransaction(transaction);
+        });
+        return optionalTransaction;
     }
 }
