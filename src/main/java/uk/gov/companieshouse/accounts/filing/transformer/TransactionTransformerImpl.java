@@ -30,10 +30,10 @@ public class TransactionTransformerImpl implements TransactionTransformer {
                 "validation_status", uri+"/validation-status"
             )
         );
-        if(accountsType != null && !isAmendedAccounts(accountsType)){
-            if(PackageTypeApi.CIC.toString().equals(packageType)  || PackageTypeApi.OVERSEAS.toString().equals(packageType)) {
-                links.put("costs", uri + "/costs");
-            }
+        if (accountsType != null && !isAmendedAccounts(accountsType)
+                && (PackageTypeApi.CIC.toString().equals(packageType)
+                    || PackageTypeApi.OVERSEAS.toString().equals(packageType))) {
+            links.put("costs", uri + "/costs");
         }
         final Resource resource = new Resource();
         resource.setKind(resourceKind);
