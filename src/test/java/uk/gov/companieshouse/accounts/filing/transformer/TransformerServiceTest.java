@@ -60,7 +60,7 @@ class TransformerServiceTest {
         var packageTypes = PackageTypeApi.values();
         for(PackageTypeApi packageTypeApi : packageTypes){
             var packageType = packageTypeApi.toString();
-            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageType, null);
+            service.setupTransactionResources(transaction, ACCOUNTS_FILING_ID, packageType, "01");
             Resource resourceResult = transaction.getResources().get(URI);
             assertEquals(1, transaction.getResources().size());
             assertTrue(transaction.getResources().containsKey(URI));
@@ -120,7 +120,7 @@ class TransformerServiceTest {
 
         assertEquals(1, transaction.getResources().size());
         Resource resource = transaction.getResources().get(URI);
-        assertEquals(linksWithCost, resource.getLinks());
+        assertEquals(linksWithNoCost, resource.getLinks());
         assertEquals(RESOURCE_KIND, resource.getKind());
         assertNotNull(resource.getUpdatedAt());
     }

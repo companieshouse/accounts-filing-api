@@ -30,7 +30,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
                 "validation_status", uri+"/validation-status"
             )
         );
-        if(!isAmendedAccounts(accountsType)){
+        if(accountsType != null && !isAmendedAccounts(accountsType)){
             if(PackageTypeApi.CIC.toString().equals(packageType)  || PackageTypeApi.OVERSEAS.toString().equals(packageType)) {
                 links.put("costs", uri + "/costs");
             }
