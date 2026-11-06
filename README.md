@@ -11,3 +11,11 @@ In order to run the API locally you'll need the following installed on your mach
 ## Getting Started
 1. Run `make`
 2. Run `./start.sh`
+
+## Revised filing feature flags
+
+Set `FEATURE_FLAG_DISABLE_REVISED_FILING_22102026=true` to block revised filings
+(numeric validator account types of 50 or greater). Set
+`FEATURE_FLAG_ALLOW_CIC_REVISED_FILING_22102026=true` to allow revised CIC packages
+while keeping other revised packages blocked. Both flags default to `false`;
+when the disable flag is `false`, revised filings remain permitted for all packages.

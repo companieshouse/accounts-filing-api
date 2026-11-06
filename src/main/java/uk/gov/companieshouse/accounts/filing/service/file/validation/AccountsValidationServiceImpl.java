@@ -39,6 +39,9 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     @Value("${feature.flag.disable.revised.filing:false}")
     private boolean disableRevisedFiling;
 
+    @Value("${feature.flag.allow.cic.revised.filing:false}")
+    private boolean allowCicRevisedFiling;
+
     private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
             PackageTypeApi.UKSEF, AccountsType.GROUP.getStemCode(),
             PackageTypeApi.GROUP_PACKAGE_401, AccountsType.GROUP.getStemCode(),
@@ -84,11 +87,12 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             String accountType = data.accountType();
+            PackageTypeApi packageType = accountsFilingEntry.getPackageType();
             if (disableRevisedFiling && accountType != null && accountType.matches("\\d+")
-                    && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0) {
+                    && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0
+                    && !(allowCicRevisedFiling && packageType == PackageTypeApi.CIC)) {
                 throw new RevisedFilingDisabledException();
             }
-            PackageTypeApi packageType = accountsFilingEntry.getPackageType();
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
             if(PackageTypeApi.OVERSEAS != packageType) {
                 accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -72,6 +73,66 @@ class AccountsValidationServiceTest {
 
         Assertions.assertNull(filingEntry.getFileId());
         Assertions.assertNull(filingEntry.getAccountsType());
+        verify(accountsFilingRepository, never()).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+    void allowsCicRevisedAccountsWhenCicFlagEnabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        ReflectionTestUtils.setField(service, "allowCicRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.CIC);
+        var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        service.saveFileValidationResult(filingEntry, status);
+
+        Assertions.assertEquals(accountType, filingEntry.getAccountsType());
+        Assertions.assertEquals("2026-01-30", filingEntry.getMadeUpDate());
+        Assertions.assertEquals("fileId", filingEntry.getFileId());
+        verify(accountsFilingRepository).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+    void rejectsCicRevisedAccountsWhenCicFlagDisabled(String accountType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        ReflectionTestUtils.setField(service, "allowCicRevisedFiling", false);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(PackageTypeApi.CIC);
+        var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        assertThrows(RevisedFilingDisabledException.class,
+                () -> service.saveFileValidationResult(filingEntry, status));
+
+        Assertions.assertNull(filingEntry.getFileId());
+        Assertions.assertNull(filingEntry.getAccountsType());
+        Assertions.assertNull(filingEntry.getMadeUpDate());
+        verify(accountsFilingRepository, never()).save(filingEntry);
+    }
+
+    @ParameterizedTest
+    @NullSource
+    @EnumSource(value = PackageTypeApi.class, names = "CIC", mode = EnumSource.Mode.EXCLUDE)
+    void rejectsNonCicRevisedAccountsWhenCicFlagEnabled(PackageTypeApi packageType) {
+        ReflectionTestUtils.setField(service, "disableRevisedFiling", true);
+        ReflectionTestUtils.setField(service, "allowCicRevisedFiling", true);
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(packageType);
+        var data = createAccountsValidatorDataApi("2026-01-30", "51", "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        assertThrows(RevisedFilingDisabledException.class,
+                () -> service.saveFileValidationResult(filingEntry, status));
+
+        Assertions.assertNull(filingEntry.getFileId());
+        Assertions.assertNull(filingEntry.getAccountsType());
+        Assertions.assertNull(filingEntry.getMadeUpDate());
         verify(accountsFilingRepository, never()).save(filingEntry);
     }
 
