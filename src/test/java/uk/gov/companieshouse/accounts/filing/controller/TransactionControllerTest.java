@@ -38,6 +38,7 @@ import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundExcep
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
+import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingService;
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
@@ -133,7 +134,7 @@ class TransactionControllerTest {
         assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
         verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
         verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
-                PackageTypeApi.CIC.toString(), filingEntry.getAccountsType());
+                PackageTypeApi.CIC.toString(), "01");
         verify(transactionService).updateTransaction(transaction);
     }
 
@@ -172,6 +173,7 @@ class TransactionControllerTest {
         var accountStatus = new AccountsValidatorStatusApi(fileId, "accounts.zip", "complete",
                 new AccountsValidatorResultApi(new AccountsValidatorDataApi("2026-01-30", "01", "0"), AccountsValidatorValidationStatusApi.OK));
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
+        accountsFilingEntry.setAccountsType("01");
         Transaction transaction = new Transaction();
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);

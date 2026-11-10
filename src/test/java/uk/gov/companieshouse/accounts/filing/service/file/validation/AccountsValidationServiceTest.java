@@ -21,16 +21,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.configuration.AmendedPackageConfiguration;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.*;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -74,7 +70,7 @@ class AccountsValidationServiceTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+        @ValueSource(strings = {"51", "54", "59", "66", "68"})
         void rejectsAmendedAccountsWhenAmendedPackagesAreDisabled(String accountType) {
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
             filingEntry.setPackageType(PackageTypeApi.UKSEF);

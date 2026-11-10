@@ -1,12 +1,8 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -36,9 +32,6 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     private final AccountsValidatorAPI accountsValidatorAPI;
     private final AmendedPackageConfiguration amendedPackageConfiguration;
 
-    @Value("${feature.flag.allow.cic.revised.filing:false}")
-    private boolean allowCicRevisedFiling;
-
     private static final Map<PackageTypeApi, String> accountsFilingTypeMap = Map.of(
             PackageTypeApi.UKSEF, AccountsType.GROUP.getStemCode(),
             PackageTypeApi.GROUP_PACKAGE_401, AccountsType.GROUP.getStemCode(),
@@ -52,7 +45,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             AccountsFilingRepository requestFilingRepository,
             AccountsValidatorAPI accountsValidatorAPI,
             AmendedPackageConfiguration amendedPackageConfiguration
-        ) {
+    ) {
         this.logger = logger;
         this.requestFilingRepository = requestFilingRepository;
         this.accountsValidatorAPI = accountsValidatorAPI;
@@ -87,12 +80,8 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         if (data != null) {
             String accountType = data.accountType();
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
-            if (disableRevisedFiling && accountType != null && accountType.matches("\\d+")
-                    && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0
-                    && !(allowCicRevisedFiling && packageType == PackageTypeApi.CIC)) {
-                throw new RevisedFilingDisabledException();
-            }
-            if (isAmendedPackagedDisallowed() && isAccountTypeAmended(accountType)) {
+
+            if (isAmendedPackagedDisallowed() && isAccountTypeAmended(accountType) && isCICAmendedPackagedDisallowed() && packageType != PackageTypeApi.CIC) {
                 throw new AmendedFilingDisabledException();
             }
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
@@ -153,12 +142,25 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         }
     }
 
-    private boolean isAccountTypeAmended(String accountType) {
-        return accountType != null && accountType.matches("\\d+")
-                && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0;
-    }
-
     private boolean isAmendedPackagedDisallowed() {
         return !amendedPackageConfiguration.defaultEnableAmendedPackages();
+    }
+
+    private boolean isCICAmendedPackagedDisallowed() {
+        return !amendedPackageConfiguration.allowCICAmendedPackages();
+    }
+
+    /**
+     * Check if the accounts type is an amended accounts type.
+     * @param accountsType the accounts type to check
+     * @return true if the accounts type is an amended accounts type, false otherwise
+     */
+    private boolean isAccountTypeAmended(final String accountsType) {
+        if (accountsType == null) {
+            return false;
+        }
+        return Arrays.stream(AccountsType.values())
+                .filter(type -> type.name().endsWith("_AMENDED"))
+                .anyMatch(type -> type.getStemCode().equals(accountsType) || type.getType().equals(accountsType));
     }
 }

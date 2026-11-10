@@ -85,7 +85,7 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), null).isEmpty()) {
+        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry.getAccountsType()).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.noContent().build();
