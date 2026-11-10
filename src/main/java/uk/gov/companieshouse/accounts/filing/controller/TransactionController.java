@@ -67,7 +67,7 @@ public class TransactionController {
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
             if (updateTransactionResources(filingEntry.getTransactionId(),
                     filingEntry.getAccountsFilingId(), filingEntry.getPackageType().toString(),
-                    filingEntry.getAccountsType()).isEmpty()) {
+                    accountsValidationResultOptional.get().resultApi().data().accountType()).isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
         }
