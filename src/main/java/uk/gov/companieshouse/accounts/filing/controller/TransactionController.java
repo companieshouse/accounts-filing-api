@@ -22,7 +22,6 @@ import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingServ
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
-import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
@@ -36,18 +35,16 @@ public class TransactionController {
     private final AccountsValidationService accountsValidationService;
     private final AccountsFilingService accountsFilingService;
     private final TransactionService transactionService;
-    private final TransactionTransformer accountsFilingTransformer;
     private final CostsService costsService;
 
     @Autowired
     public TransactionController(final Logger logger, final AccountsValidationService accountsValidationService,
                                  final AccountsFilingService accountsFilingService, final TransactionService transactionService,
-                                 final TransactionTransformer accountsFilingTransformer, final CostsService costsService) {
+                                 final CostsService costsService) {
         this.logger = logger;
         this.accountsValidationService = accountsValidationService;
         this.accountsFilingService = accountsFilingService;
         this.transactionService = transactionService;
-        this.accountsFilingTransformer = accountsFilingTransformer;
         this.costsService = costsService;
     }
 
@@ -65,9 +62,10 @@ public class TransactionController {
                 && accountsValidationResultOptional.get().resultApi().data().accountType().matches("\\d+")) {
             final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
             accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
-            if (updateTransactionResources(filingEntry.getTransactionId(),
+            final Optional<Transaction> updatedTransaction = transactionService.updateTransactionResources(filingEntry.getTransactionId(),
                     filingEntry.getAccountsFilingId(), filingEntry.getPackageType().toString(),
-                    accountsValidationResultOptional.get().resultApi().data().accountType()).isEmpty()) {
+                    accountsValidationResultOptional.get().resultApi().data().accountType());
+            if (updatedTransaction.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
         }
@@ -85,7 +83,8 @@ public class TransactionController {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        if (updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry.getAccountsType()).isEmpty()) {
+        final Optional<Transaction> updatedTransaction = transactionService.updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry.getAccountsType());
+        if (updatedTransaction.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.noContent().build();
@@ -136,27 +135,5 @@ public class TransactionController {
     @ExceptionHandler
     ResponseEntity<String> exceptionHandler(final Exception ex) {
         return ControllerExceptionHandler.handleExpection(ex, logger);
-    }
-
-    /**
-     * Updates the transaction resources for an accounts filing when the transaction exists.
-     *
-     * @param transactionId the identifier of the transaction
-     * @param accountsFilingId the identifier of the accounts filing
-     * @param packageType the package type to apply
-     * @param accountsType the validated accounts type, or null to withhold the costs link during initial setup
-     * @return the transaction when found, or an empty optional otherwise
-     */
-    private Optional<Transaction> updateTransactionResources(final String transactionId,
-                                                            final String accountsFilingId,
-                                                            final String packageType,
-                                                            final String accountsType) {
-        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
-        optionalTransaction.ifPresent(transaction -> {
-            accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType,
-                    accountsType);
-            transactionService.updateTransaction(transaction);
-        });
-        return optionalTransaction;
     }
 }

@@ -43,7 +43,6 @@ import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingServ
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
-import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
@@ -84,7 +83,6 @@ class TransactionControllerTest {
     AccountsValidatorDataApi AccountsValidatorDataApi;
 
     @Mock
-    TransactionTransformer accountsFilingTransformer;
 
     List<Cost> costs;
 
@@ -94,7 +92,7 @@ class TransactionControllerTest {
     @BeforeEach
     void setUp() {
         controller = new TransactionController(logger, accountsValidationService, accountsFilingService,
-                transactionService, accountsFilingTransformer, costsService);
+                transactionService, costsService);
 
         accountsFilingEntry = new AccountsFilingEntry(accountsFilingId, null, null, null,
                 transactionId, null, null, null);
@@ -120,7 +118,8 @@ class TransactionControllerTest {
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
+        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
+                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.of(transaction));
 
         // When
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
@@ -133,9 +132,8 @@ class TransactionControllerTest {
         assertNotNull(body);
         assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
         verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
-        verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
+        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
                 PackageTypeApi.CIC.toString(), "01");
-        verify(transactionService).updateTransaction(transaction);
     }
 
     @Test
@@ -150,7 +148,7 @@ class TransactionControllerTest {
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(accountStatus, result.getBody());
-        verifyNoInteractions(transactionService, accountsFilingTransformer);
+        verifyNoInteractions(transactionService);
         verify(accountsValidationService, org.mockito.Mockito.never()).getFilingEntry(accountsFilingId);
     }
 
@@ -164,7 +162,7 @@ class TransactionControllerTest {
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(accountStatus, result.getBody());
-        verifyNoInteractions(transactionService, accountsFilingTransformer);
+        verifyNoInteractions(transactionService);
     }
 
     @Test
@@ -177,7 +175,8 @@ class TransactionControllerTest {
         Transaction transaction = new Transaction();
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
+        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
+                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.of(transaction));
 
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
                 accountsFilingId);
@@ -185,9 +184,8 @@ class TransactionControllerTest {
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(accountStatus, result.getBody());
         verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
-        verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
-                PackageTypeApi.CIC.toString(), accountsFilingEntry.getAccountsType());
-        verify(transactionService).updateTransaction(transaction);
+        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+                PackageTypeApi.CIC.toString(), "01");
     }
 
     @Test
@@ -198,7 +196,8 @@ class TransactionControllerTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.empty());
+        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
+                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.empty());
 
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
                 accountsFilingId);
@@ -206,8 +205,8 @@ class TransactionControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
         Assertions.assertNull(result.getBody());
         verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
-        verify(transactionService).getTransaction(transactionId);
-        verifyNoInteractions(accountsFilingTransformer);
+        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+                PackageTypeApi.CIC.toString(), "01");
     }
 
     @Test
@@ -264,15 +263,15 @@ class TransactionControllerTest {
 
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
         Transaction transaction = new Transaction();
-        when(transactionService.getTransaction(transactionId)).thenReturn(Optional.of(transaction));
+        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
+                packageType.type(), null)).thenReturn(Optional.of(transaction));
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
         verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
-        verify(accountsFilingTransformer).setupTransactionResources(transaction, accountsFilingId,
+        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
                 packageType.type(), null);
-        verify(transactionService).updateTransaction(transaction);
     }
 
     @Test
@@ -282,13 +281,15 @@ class TransactionControllerTest {
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
+        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
+                packageType.type(), null)).thenReturn(Optional.empty());
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
         assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
         verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
-        verify(transactionService).getTransaction(transactionId);
-        verifyNoInteractions(accountsFilingTransformer);
+        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+                packageType.type(), null);
     }
 
     @Test

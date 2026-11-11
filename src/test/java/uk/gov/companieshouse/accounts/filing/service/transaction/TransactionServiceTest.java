@@ -25,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -40,11 +41,14 @@ class TransactionServiceTest {
     @Spy
     Logger logger;
 
+    @Mock
+    TransactionTransformer accountsFilingTransformer;
+
     TransactionService transactionService;
 
     @BeforeEach
     void beforeEach() {
-        transactionService = new TransactionServiceImpl(transactionAPI, logger);
+        transactionService = new TransactionServiceImpl(transactionAPI, logger, accountsFilingTransformer);
     }
 
     @Test
