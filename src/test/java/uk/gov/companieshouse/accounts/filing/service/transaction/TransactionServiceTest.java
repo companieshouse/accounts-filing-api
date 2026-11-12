@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -23,8 +25,10 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
+import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.model.ApiResponse;
@@ -40,11 +44,14 @@ class TransactionServiceTest {
     @Spy
     Logger logger;
 
+    @Mock
+    TransactionTransformer accountsFilingTransformer;
+
     TransactionService transactionService;
 
     @BeforeEach
     void beforeEach() {
-        transactionService = new TransactionServiceImpl(transactionAPI, logger);
+        transactionService = new TransactionServiceImpl(transactionAPI, logger, accountsFilingTransformer);
     }
 
     @Test
@@ -98,6 +105,46 @@ class TransactionServiceTest {
 
         verify(transactionAPI, times(1)).patch(transaction);
         verify(logger, never()).errorContext(anyString(), any(Exception.class), anyMap());
+    }
+
+    @Test
+    @DisplayName("Get a required transaction when it exists")
+    void testGetRequiredTransaction() throws ApiErrorResponseException, URIValidationException {
+        var transactionId = "transactionId";
+        var transaction = new Transaction();
+        ApiResponse<Transaction> apiResponse = new ApiResponse<>(200, Collections.emptyMap(), transaction);
+
+        when(transactionAPI.get(transactionId)).thenReturn(apiResponse);
+
+        assertEquals(transaction, transactionService.getRequiredTransaction(transactionId, "accountsFilingId"));
+        verify(logger, never()).errorContext(anyString(), anyString(), any(), anyMap());
+    }
+
+    @Test
+    @DisplayName("Get a required transaction throws and logs when it is missing")
+    void testGetRequiredTransactionMissing() throws ApiErrorResponseException, URIValidationException {
+        var transactionId = "transactionId";
+        ApiErrorResponseException exception = mock(ApiErrorResponseException.class);
+        when(exception.getStatusCode()).thenReturn(404);
+        when(transactionAPI.get(transactionId)).thenThrow(exception);
+
+        assertThrows(EntryNotFoundException.class,
+                () -> transactionService.getRequiredTransaction(transactionId, "accountsFilingId"));
+        verify(logger).errorContext(eq(transactionId), anyString(), isNull(), anyMap());
+    }
+
+    @Test
+    @DisplayName("Update transaction resources applies them to the transaction and saves it")
+    void testUpdateTransactionResources() throws ApiErrorResponseException, URIValidationException {
+        var transaction = new Transaction();
+        ApiResponse<Void> apiResponse = new ApiResponse<>(204, Collections.emptyMap());
+
+        when(transactionAPI.patch(transaction)).thenReturn(apiResponse);
+
+        transactionService.updateTransactionResources(transaction, "accountsFilingId", "Welsh", "01");
+
+        verify(accountsFilingTransformer).setupTransactionResources(transaction, "accountsFilingId", "Welsh", "01");
+        verify(transactionAPI, times(1)).patch(transaction);
     }
 
     @Test

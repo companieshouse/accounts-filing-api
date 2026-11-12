@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -25,10 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.configuration.AmendedPackageConfiguration;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.*;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -72,7 +70,7 @@ class AccountsValidationServiceTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+        @ValueSource(strings = {"51", "54", "59", "66", "68"})
         void rejectsAmendedAccountsWhenAmendedPackagesAreDisabled(String accountType) {
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
             filingEntry.setPackageType(PackageTypeApi.UKSEF);
@@ -307,6 +305,35 @@ class AccountsValidationServiceTest {
         Optional<AccountsValidatorStatusApi> optionalResponse = service.validationStatusResult(fileId);
 
         assertThat(optionalResponse, is(Optional.empty()));
+    }
+
+    @Test
+    @DisplayName("Return an empty optional when the validator API responds with 404")
+    void testValidationStatusResultNotFound() throws ApiErrorResponseException, URIValidationException {
+        String fileId = "fileId";
+        ApiErrorResponseException responseException = mock(ApiErrorResponseException.class);
+        when(responseException.getStatusCode()).thenReturn(404);
+        when(api.getValidationCheck(fileId)).thenThrow(responseException);
+
+        Optional<AccountsValidatorStatusApi> result = service.validationStatusResult(fileId);
+
+        Assertions.assertTrue(result.isEmpty());
+        verify(api).getValidationCheck(fileId);
+        verifyNoInteractions(logger);
+    }
+
+    @Test
+    @DisplayName("Wrap validator URI validation failures and preserve the cause")
+    void testValidationStatusResultInvalidUri() throws ApiErrorResponseException, URIValidationException {
+        String fileId = "fileId";
+        URIValidationException cause = mock(URIValidationException.class);
+        when(api.getValidationCheck(fileId)).thenThrow(cause);
+
+        UriValidationException exception = assertThrows(UriValidationException.class,
+                () -> service.validationStatusResult(fileId));
+
+        Assertions.assertSame(cause, exception.getCause());
+        verify(api).getValidationCheck(fileId);
     }
 
     @Test

@@ -22,8 +22,8 @@ import uk.gov.companieshouse.accounts.filing.service.accounts.AccountsFilingServ
 import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
-import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.logging.Logger;
 
@@ -35,33 +35,53 @@ public class TransactionController {
     private final AccountsValidationService accountsValidationService;
     private final AccountsFilingService accountsFilingService;
     private final TransactionService transactionService;
-    private final TransactionTransformer accountsFilingTransformer;
     private final CostsService costsService;
 
     @Autowired
     public TransactionController(final Logger logger, final AccountsValidationService accountsValidationService,
                                  final AccountsFilingService accountsFilingService, final TransactionService transactionService,
-                                 final TransactionTransformer accountsFilingTransformer, final CostsService costsService) {
+                                 final CostsService costsService) {
         this.logger = logger;
         this.accountsValidationService = accountsValidationService;
         this.accountsFilingService = accountsFilingService;
         this.transactionService = transactionService;
-        this.accountsFilingTransformer = accountsFilingTransformer;
         this.costsService = costsService;
     }
 
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         
-        final Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
+        final Optional<AccountsValidatorStatusApi> optionalStatus = accountsValidationService.validationStatusResult(fileId);
 
-        if (accountsValidationResultOptional.isPresent()) {
-            final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
-            accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
+        if (optionalStatus.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
-        return ResponseEntity.of(accountsValidationResultOptional);
+        final AccountsValidatorStatusApi status = optionalStatus.get();
+
+        if (isSuccessfulValidationResult(status)) {
+            final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
+            final Transaction transaction = transactionService.getRequiredTransaction(
+                    filingEntry.getTransactionId(), filingEntry.getAccountsFilingId());
+            accountsValidationService.saveFileValidationResult(filingEntry, status);
+            transactionService.updateTransactionResources(transaction, filingEntry.getAccountsFilingId(),
+                    filingEntry.getPackageType().toString(),
+                    status.resultApi().data().accountType());
+        }
+
+        return ResponseEntity.ok(status);
+    }
+
+    private boolean isSuccessfulValidationResult(final AccountsValidatorStatusApi status) {
+        final var result = status.resultApi();
+        if (result == null || result.fileValidationStatusApi() != AccountsValidatorValidationStatusApi.OK) {
+            return false;
+        }
+
+        final var data = result.data();
+        return data != null
+                && data.accountType() != null
+                && data.accountType().matches("\\d+");
     }
 
     @PutMapping
@@ -71,16 +91,10 @@ public class TransactionController {
                                                  throws UriValidationException, EntryNotFoundException {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
+        final Transaction transaction = transactionService.getRequiredTransaction(transactionId, accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        final Optional<Transaction> optionalTransaction = transactionService.getTransaction(transactionId);
-
-        if (optionalTransaction.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        accountsFilingTransformer.setupTransactionResources(optionalTransaction.get(), accountsFilingId, packageType.type());
-        transactionService.updateTransaction(optionalTransaction.get());
-        
+        transactionService.updateTransactionResources(transaction, accountsFilingId, packageType.type(),
+                entry.getAccountsType());
         return ResponseEntity.noContent().build();
     }
 
