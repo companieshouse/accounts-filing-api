@@ -40,8 +40,8 @@ import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 class PackageAccountIT {
     private static final String VALIDATION_STATUS_URI = "/account-validator/validate/check/";
     private static final String URI_TO_FILE_STATUS = "/transactions/{transactionId}/accounts-filing/{accountsFilingId}/file/{fileId}/status";
-    private static final String TRANSACTION_ID = "1234-1234-1234";
-    private static final String ACCOUNTS_FILING_ID = "accounts-filing-id";
+    private static final String TRANSACTION_ID = "123456-123456-123456";
+    private static final String ACCOUNTS_FILING_ID = "0123456789abcdef01234567";
     private static final String FILE_ID = "01234567-1234-1234-1234-012345678910";
     private static final String COMPANY_NAME = "Example Company Limited";
     private static final String COMPANY_NUMBER = "01234567";

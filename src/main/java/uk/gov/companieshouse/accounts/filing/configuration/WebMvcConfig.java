@@ -22,11 +22,17 @@ import static uk.gov.companieshouse.api.util.security.Permission.Key.COMPANY_PAC
 @Component
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    private static final String TRANSACTION_URI = "**/transactions/**";
-    private static final String ACCOUNTS_FILING_URI = "**/accounts-filing/**";
-    private static final String FILE_URI = "**/file/**";
+    private static final String[] TRANSACTION_URIS = {
+            "/transactions/{transactionId}/**",
+            "/private/transactions/{transactionId}/**" };
+    private static final String[] ACCOUNTS_FILING_URIS = {
+            "/transactions/*/accounts-filing/{accountsFilingId}/**",
+            "/private/transactions/*/accounts-filing/{accountsFilingId}/**" };
+    // The company-confirmation route has no accountsFilingId path variable.
+    private static final String COMPANY_CONFIRM_URI = "/transactions/*/accounts-filing/company/**";
+    private static final String FILE_URI = "/transactions/*/accounts-filing/*/file/{fileId}/status";
     private static final String PRIVATE_URI = "/private/**";
-    private static final String COSTS_URI = "/transactions/**/costs";
+    private static final String COSTS_URI = "/transactions/*/accounts-filing/*/costs";
     private static final String HEALTHCHECK_URI = "/accounts-filing/healthcheck";
     private static final String[] OAUTH2_EXCLUDE = { COSTS_URI, PRIVATE_URI, HEALTHCHECK_URI };
     private static final String[] INTERNAL_AUTH_INCLUDE = { COSTS_URI, PRIVATE_URI };
@@ -64,12 +70,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     private void addAccountsFilingIdInterceptor(final InterceptorRegistry registry){
         registry.addInterceptor(accountsFilingIdInterceptor)
-                .addPathPatterns(ACCOUNTS_FILING_URI);
+                .addPathPatterns(ACCOUNTS_FILING_URIS)
+                .excludePathPatterns(COMPANY_CONFIRM_URI);
     }
 
     private void addTransactionIdInterceptor(final InterceptorRegistry registry){
         registry.addInterceptor(transactionIdInterceptor)
-                .addPathPatterns(TRANSACTION_URI);
+                .addPathPatterns(TRANSACTION_URIS);
     }
 
     private void addFileIdInterceptor(final InterceptorRegistry registry){
