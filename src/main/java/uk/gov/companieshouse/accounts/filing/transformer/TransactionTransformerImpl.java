@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.accounts.filing.transformer;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
                 "validation_status", uri+"/validation-status"
             )
         );
-        if (accountsType != null && !isAmendedAccounts(accountsType)
+        if (accountsType != null && !AccountsType.isAmended(accountsType)
                 && (PackageTypeApi.CIC.toString().equals(packageType)
                     || PackageTypeApi.OVERSEAS.toString().equals(packageType))) {
             links.put("costs", uri + "/costs");
@@ -43,19 +42,5 @@ public class TransactionTransformerImpl implements TransactionTransformer {
             transaction.setResources(new HashMap<>());
         }
         transaction.getResources().put(uri, resource);
-    }
-
-    /**
-     * Check if the accounts type is an amended accounts type.
-     * @param accountsType the accounts type to check
-     * @return true if the accounts type is an amended accounts type, false otherwise
-     */
-    private boolean isAmendedAccounts(final String accountsType) {
-        if (accountsType == null) {
-            return false;
-        }
-        return Arrays.stream(AccountsType.values())
-                .filter(type -> type.name().endsWith("_AMENDED"))
-                .anyMatch(type -> type.getStemCode().equals(accountsType) || type.getType().equals(accountsType));
     }
 }

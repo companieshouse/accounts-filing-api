@@ -117,8 +117,7 @@ class TransactionControllerTest {
         // Given
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(filingEntry);
-        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
-                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.of(transaction));
+        when(transactionService.getRequiredTransaction(transactionId, accountsFilingId)).thenReturn(transaction);
 
         // When
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
@@ -131,7 +130,7 @@ class TransactionControllerTest {
         assertNotNull(body);
         assertEquals("OK", body.resultApi().fileValidationStatusApi().toString());
         verify(accountsValidationService, times(1)).saveFileValidationResult(filingEntry, accountStatus);
-        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+        verify(transactionService).updateTransactionResources(transaction, accountsFilingId,
                 PackageTypeApi.CIC.toString(), "01");
     }
 
@@ -174,16 +173,14 @@ class TransactionControllerTest {
         Transaction transaction = new Transaction();
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
-                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.of(transaction));
-
+        when(transactionService.getRequiredTransaction(transactionId, accountsFilingId)).thenReturn(transaction);
         ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
                 accountsFilingId);
 
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals(accountStatus, result.getBody());
         verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
-        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+        verify(transactionService).updateTransactionResources(transaction, accountsFilingId,
                 PackageTypeApi.CIC.toString(), "01");
     }
 
@@ -195,17 +192,17 @@ class TransactionControllerTest {
         accountsFilingEntry.setPackageType(PackageTypeApi.CIC);
         when(accountsValidationService.validationStatusResult(fileId)).thenReturn(Optional.of(accountStatus));
         when(accountsValidationService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
-                PackageTypeApi.CIC.toString(), "01")).thenReturn(Optional.empty());
+        when(transactionService.getRequiredTransaction(transactionId, accountsFilingId))
+                .thenThrow(new EntryNotFoundException("missing"));
 
-        ResponseEntity<AccountsValidatorStatusApi> result = controller.fileAccountsValidatorStatus(fileId,
-                accountsFilingId);
+        assertThrows(EntryNotFoundException.class,
+                () -> controller.fileAccountsValidatorStatus(fileId, accountsFilingId));
 
-        assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
-        Assertions.assertNull(result.getBody());
-        verify(accountsValidationService).saveFileValidationResult(accountsFilingEntry, accountStatus);
-        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
-                PackageTypeApi.CIC.toString(), "01");
+        verify(accountsValidationService, org.mockito.Mockito.never())
+                .saveFileValidationResult(accountsFilingEntry, accountStatus);
+        verify(transactionService, org.mockito.Mockito.never())
+                .updateTransactionResources(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+                        org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
@@ -259,17 +256,16 @@ class TransactionControllerTest {
         String transactionId = "transactionId";
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
+        Transaction transaction = new Transaction();
 
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        Transaction transaction = new Transaction();
-        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
-                packageType.type(), null)).thenReturn(Optional.of(transaction));
+        when(transactionService.getRequiredTransaction(transactionId, accountsFilingId)).thenReturn(transaction);
 
         ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
 
         assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
         verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
-        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
+        verify(transactionService).updateTransactionResources(transaction, accountsFilingId,
                 packageType.type(), null);
     }
 
@@ -280,15 +276,14 @@ class TransactionControllerTest {
         String accountsFilingId = "accountsFilingId";
         AccountsPackageType packageType = new AccountsPackageType("Welsh");
         when(accountsFilingService.getFilingEntry(accountsFilingId)).thenReturn(accountsFilingEntry);
-        when(transactionService.updateTransactionResources(transactionId, accountsFilingId,
-                packageType.type(), null)).thenReturn(Optional.empty());
+        when(transactionService.getRequiredTransaction(transactionId, accountsFilingId))
+                .thenThrow(new EntryNotFoundException("missing"));
 
-        ResponseEntity<String> responseEntity = controller.setPackageType(transactionId, accountsFilingId, packageType);
+        assertThrows(EntryNotFoundException.class,
+                () -> controller.setPackageType(transactionId, accountsFilingId, packageType));
 
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        verify(accountsFilingService).savePackageType(accountsFilingEntry, packageType.type());
-        verify(transactionService).updateTransactionResources(transactionId, accountsFilingId,
-                packageType.type(), null);
+        verify(accountsFilingService, org.mockito.Mockito.never()).savePackageType(accountsFilingEntry,
+                packageType.type());
     }
 
     @Test

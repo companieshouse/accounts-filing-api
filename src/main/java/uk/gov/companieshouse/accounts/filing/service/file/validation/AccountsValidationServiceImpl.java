@@ -81,7 +81,8 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             String accountType = data.accountType();
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
 
-            if (isAmendedPackagedDisallowed() && isAccountTypeAmended(accountType) && isCICAmendedPackagedDisallowed() && packageType != PackageTypeApi.CIC) {
+            if (isAmendedPackagedDisallowed() && AccountsType.isAmended(accountType) && (isCICAmendedPackagedDisallowed()
+                    && packageType != PackageTypeApi.CIC)) {
                 throw new AmendedFilingDisabledException();
             }
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
@@ -148,19 +149,5 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
 
     private boolean isCICAmendedPackagedDisallowed() {
         return !amendedPackageConfiguration.allowCICAmendedPackages();
-    }
-
-    /**
-     * Check if the accounts type is an amended accounts type.
-     * @param accountsType the accounts type to check
-     * @return true if the accounts type is an amended accounts type, false otherwise
-     */
-    private boolean isAccountTypeAmended(final String accountsType) {
-        if (accountsType == null) {
-            return false;
-        }
-        return Arrays.stream(AccountsType.values())
-                .filter(type -> type.name().endsWith("_AMENDED"))
-                .anyMatch(type -> type.getStemCode().equals(accountsType) || type.getType().equals(accountsType));
     }
 }

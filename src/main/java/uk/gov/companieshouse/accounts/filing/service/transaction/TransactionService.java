@@ -11,17 +11,21 @@ public interface TransactionService {
     public void updateTransaction(final Transaction transaction);
 
     /**
-     * Updates the transaction resources for an accounts filing when the transaction exists.
+     * Retrieves the transaction, failing if it does not exist.
      *
-     * @param transactionId the identifier of the transaction
-     * @param accountsFilingId the identifier of the accounts filing
-     * @param packageType the package type to apply
-     * @param accountsType the validated accounts type, or null to withhold the costs link during initial setup
-     * @return the transaction when found, or an empty optional otherwise
+     * @throws uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException if the transaction is missing
      */
-    public Optional<Transaction> updateTransactionResources(final String transactionId,
-                                                            final String accountsFilingId,
-                                                            final String packageType,
-                                                            final String accountsType);
+    public Transaction getRequiredTransaction(final String transactionId, final String accountsFilingId);
+
+    /**
+     * Applies the accounts filing resources to an already-resolved transaction and saves it.
+     *
+     * @param transaction the transaction previously returned by {@link #getRequiredTransaction}
+     * @param accountsType the validated accounts type, or null to withhold the costs link during initial setup
+     */
+    public void updateTransactionResources(final Transaction transaction,
+                                           final String accountsFilingId,
+                                           final String packageType,
+                                           final String accountsType);
 
 }

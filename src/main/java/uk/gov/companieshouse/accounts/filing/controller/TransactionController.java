@@ -51,28 +51,37 @@ public class TransactionController {
     @GetMapping("/file/{fileId}/status")
     public ResponseEntity<AccountsValidatorStatusApi> fileAccountsValidatorStatus(@PathVariable("fileId") final String fileId, @PathVariable("accountsFilingId") final String accountsFilingId){
         
-        final Optional<AccountsValidatorStatusApi> accountsValidationResultOptional = accountsValidationService.validationStatusResult(fileId);
+        final Optional<AccountsValidatorStatusApi> optionalStatus = accountsValidationService.validationStatusResult(fileId);
 
-        if (accountsValidationResultOptional.isPresent()
-                && accountsValidationResultOptional.get().resultApi() != null
-                && accountsValidationResultOptional.get().resultApi().fileValidationStatusApi()
-                    == AccountsValidatorValidationStatusApi.OK
-                && accountsValidationResultOptional.get().resultApi().data() != null
-                && accountsValidationResultOptional.get().resultApi().data().accountType() != null
-                && accountsValidationResultOptional.get().resultApi().data().accountType().matches("\\d+")) {
-            final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
-            accountsValidationService.saveFileValidationResult(filingEntry, accountsValidationResultOptional.get());
-            final Optional<Transaction> updatedTransaction = transactionService.updateTransactionResources(filingEntry.getTransactionId(),
-                    filingEntry.getAccountsFilingId(), filingEntry.getPackageType().toString(),
-                    accountsValidationResultOptional.get().resultApi().data().accountType());
-            if (updatedTransaction.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
+        if (optionalStatus.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
+        final AccountsValidatorStatusApi status = optionalStatus.get();
 
-        //.of() returns a 200 when optional resolves to an object and 404 when optional is empty
-        return ResponseEntity.of(accountsValidationResultOptional);
+        if (isSuccessfulValidationResult(status)) {
+            final AccountsFilingEntry filingEntry = accountsValidationService.getFilingEntry(accountsFilingId);
+            final Transaction transaction = transactionService.getRequiredTransaction(
+                    filingEntry.getTransactionId(), filingEntry.getAccountsFilingId());
+            accountsValidationService.saveFileValidationResult(filingEntry, status);
+            transactionService.updateTransactionResources(transaction, filingEntry.getAccountsFilingId(),
+                    filingEntry.getPackageType().toString(),
+                    status.resultApi().data().accountType());
+        }
+
+        return ResponseEntity.ok(status);
+    }
+
+    private boolean isSuccessfulValidationResult(final AccountsValidatorStatusApi status) {
+        final var result = status.resultApi();
+        if (result == null || result.fileValidationStatusApi() != AccountsValidatorValidationStatusApi.OK) {
+            return false;
+        }
+
+        final var data = result.data();
+        return data != null
+                && data.accountType() != null
+                && data.accountType().matches("\\d+");
     }
 
     @PutMapping
@@ -82,11 +91,10 @@ public class TransactionController {
                                                  throws UriValidationException, EntryNotFoundException {
         
         final AccountsFilingEntry entry = accountsFilingService.getFilingEntry(accountsFilingId);
+        final Transaction transaction = transactionService.getRequiredTransaction(transactionId, accountsFilingId);
         accountsFilingService.savePackageType(entry, packageType.type());
-        final Optional<Transaction> updatedTransaction = transactionService.updateTransactionResources(transactionId, accountsFilingId, packageType.type(), entry.getAccountsType());
-        if (updatedTransaction.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+        transactionService.updateTransactionResources(transaction, accountsFilingId, packageType.type(),
+                entry.getAccountsType());
         return ResponseEntity.noContent().build();
     }
 
