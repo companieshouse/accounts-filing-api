@@ -120,6 +120,14 @@ class WebMvcConfigTest {
         verifyNoDownstreamCalls();
     }
 
+    @Test
+    void companyIsRejectedAsFilingIdOnFilingRoutes() throws Exception {
+        mockMvc.perform(authenticate(Route.VALIDATION,
+                        Route.VALIDATION.request(TRANSACTION_ID, "company", FILE_ID)))
+                .andExpect(status().isBadRequest());
+        verifyNoDownstreamCalls();
+    }
+
     private static Stream<Arguments> malformedFilingIds() {
         return Stream.of(Route.values()).filter(route -> route != Route.COMPANY)
                 .flatMap(route -> Stream.of("accounts-filing-id", "g123456789abcdef01234567")

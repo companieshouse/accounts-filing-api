@@ -29,7 +29,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/transactions/*/accounts-filing/{accountsFilingId}/**",
             "/private/transactions/*/accounts-filing/{accountsFilingId}/**" };
     // The company-confirmation route has no accountsFilingId path variable.
-    private static final String COMPANY_CONFIRM_URI = "/transactions/*/accounts-filing/company/**";
+    private static final String COMPANY_CONFIRM_URI = "/transactions/*/accounts-filing/company/*/confirm";
     private static final String FILE_URI = "/transactions/*/accounts-filing/*/file/{fileId}/status";
     private static final String PRIVATE_URI = "/private/**";
     private static final String COSTS_URI = "/transactions/*/accounts-filing/*/costs";
