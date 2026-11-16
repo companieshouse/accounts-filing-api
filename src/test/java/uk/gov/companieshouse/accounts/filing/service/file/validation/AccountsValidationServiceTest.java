@@ -74,7 +74,7 @@ class AccountsValidationServiceTest {
     void appliesAmendedFilingConfigurationMatrix(boolean enableAll, boolean allowCic,
             PackageTypeApi packageType, boolean expectedAllowed) {
         when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(enableAll);
-        when(amendedPackageConfiguration.allowCICAmendedPackages()).thenReturn(allowCic);
+        when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(allowCic);
 
         var filingEntry = new AccountsFilingEntry("accountsFilingId");
         filingEntry.setPackageType(packageType);
@@ -100,7 +100,7 @@ class AccountsValidationServiceTest {
         @ValueSource(strings = {"51", "54", "59", "66", "68"})
         void rejectsAmendedAccountsWhenAmendedPackagesAreDisabled(String accountType) {
             when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(false);
-            when(amendedPackageConfiguration.allowCICAmendedPackages()).thenReturn(false);
+            when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(false);
 
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
             filingEntry.setPackageType(PackageTypeApi.CIC);
@@ -168,7 +168,7 @@ class AccountsValidationServiceTest {
         @ValueSource(strings = {"51"})
         void allowsAmendedAccountsWhenAmendedPackagesEnabled(String accountType) {
             when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(true);
-            when(amendedPackageConfiguration.allowCICAmendedPackages()).thenReturn(true);
+            when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(true);
 
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
             filingEntry.setPackageType(PackageTypeApi.CIC);

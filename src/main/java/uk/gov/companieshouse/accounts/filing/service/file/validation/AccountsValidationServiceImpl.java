@@ -152,6 +152,6 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
     }
 
     private boolean areCICAmendedPackagesAllowed() {
-        return amendedPackageConfiguration.allowCICAmendedPackages();
+        return amendedPackageConfiguration.cicAmendedPackagesEnabled();
     }
 }

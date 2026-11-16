@@ -174,7 +174,7 @@ class PackageAccountIT {
             AccountsFilingEntry dbEntry = AccountsFilingEntryBuilder.builder()
                 .withAccountsFilingId(ACCOUNTS_FILING_ID)
                 .withFileId(FILE_ID)
-                .withPackageType(PackageTypeApi.GROUP_PACKAGE_400)
+                .withPackageType(PackageTypeApi.CIC)
                 .withTransactionId(TRANSACTION_ID)
                 .withCompanyNumber(COMPANY_NUMBER)
                 .withCompanyName(COMPANY_NAME)

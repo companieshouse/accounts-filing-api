@@ -21,7 +21,7 @@ accounts. Incomplete or failed validation does not refresh transaction resources
 
 Amended accounts are identified by the supported amended values in the
 `AccountsType` enum, not by a numeric threshold. Both feature flags default to
-`false`. Once the amendment gate is corrected, setting
-`FEATURE_FLAG_ENABLE_CIC_AMENDED_PACKAGES_22102026=true` will allow amended CIC
-packages only, while setting `FEATURE_FLAG_ENABLE_ALL_AMENDED_PACKAGES_22102026=true`
-will allow amended packages of all types.
+`false`. Amended filings are allowed only when both
+`FEATURE_FLAG_ENABLE_ALL_AMENDED_PACKAGES_22102026` and
+`FEATURE_FLAG_CIC_AMENDED_PACKAGES_ENABLED_22102026` are `true`, and the package
+type is CIC. All other amended filings, including non-CIC packages, are rejected.
