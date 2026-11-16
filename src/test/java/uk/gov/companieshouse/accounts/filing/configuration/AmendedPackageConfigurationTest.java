@@ -19,7 +19,7 @@ class AmendedPackageConfigurationTest {
     private AmendedPackageConfiguration configuration;
 
     @Nested
-    @TestPropertySource ("classpath:application.properties")
+    @TestPropertySource(properties = {"feature.flag.amended.default-enable-amended-packages=true"})
     @DisplayName("Enabled revised packages")
     class Enabled {
         @Test

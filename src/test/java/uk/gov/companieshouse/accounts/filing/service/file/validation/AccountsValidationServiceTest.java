@@ -7,12 +7,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,15 +20,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import uk.gov.companieshouse.accounts.filing.configuration.AmendedPackageConfiguration;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
-import uk.gov.companieshouse.accounts.filing.exceptionhandler.AmendedFilingDisabledException;
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.*;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
@@ -62,20 +60,50 @@ class AccountsValidationServiceTest {
     @InjectMocks
     AccountsValidationServiceImpl service;
 
+    @ParameterizedTest
+    @CsvSource({
+            "true, true, CIC, true",
+            "true, false, CIC, false",
+            "false, true, CIC, false",
+            "false, false, CIC, false",
+            "true, true, GROUP_PACKAGE_400, false",
+            "true, false, GROUP_PACKAGE_400, false",
+            "false, true, GROUP_PACKAGE_400, false",
+            "false, false, GROUP_PACKAGE_400, false"
+    })
+    void appliesAmendedFilingConfigurationMatrix(boolean enableAll, boolean allowCic,
+            PackageTypeApi packageType, boolean expectedAllowed) {
+        when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(enableAll);
+        when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(allowCic);
+
+        var filingEntry = new AccountsFilingEntry("accountsFilingId");
+        filingEntry.setPackageType(packageType);
+        var data = createAccountsValidatorDataApi("2026-01-30", "51", "0");
+        var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
+                AccountsValidatorValidationStatusApi.OK, data);
+
+        if (expectedAllowed) {
+            service.saveFileValidationResult(filingEntry, status);
+            verify(accountsFilingRepository).save(filingEntry);
+        } else {
+            assertThrows(AmendedFilingDisabledException.class,
+                    () -> service.saveFileValidationResult(filingEntry, status));
+            verify(accountsFilingRepository, never()).save(filingEntry);
+        }
+    }
+
     @Nested
     @DisplayName("Disallow amended accounts")
     class DisallowAmendedAccounts {
 
-        @BeforeEach
-        void setup() {
-            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(false);
-        }
-
         @ParameterizedTest
-        @ValueSource(strings = {"50", "51", "99", "050", "2147483648"})
+        @ValueSource(strings = {"51", "54", "59", "66", "68"})
         void rejectsAmendedAccountsWhenAmendedPackagesAreDisabled(String accountType) {
+            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(false);
+            when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(false);
+
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
-            filingEntry.setPackageType(PackageTypeApi.UKSEF);
+            filingEntry.setPackageType(PackageTypeApi.CIC);
             var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
             var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
                     AccountsValidatorValidationStatusApi.OK, data);
@@ -136,16 +164,14 @@ class AccountsValidationServiceTest {
     @Nested
     @DisplayName("Allowed amended accounts")
     class AmendedAccounts {
-        @BeforeEach
-        void setup() {
-            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(true);
-        }
-
         @ParameterizedTest
-        @ValueSource(strings = {"50", "51", "99"})
+        @ValueSource(strings = {"51"})
         void allowsAmendedAccountsWhenAmendedPackagesEnabled(String accountType) {
+            when(amendedPackageConfiguration.defaultEnableAmendedPackages()).thenReturn(true);
+            when(amendedPackageConfiguration.cicAmendedPackagesEnabled()).thenReturn(true);
+
             var filingEntry = new AccountsFilingEntry("accountsFilingId");
-            filingEntry.setPackageType(PackageTypeApi.GROUP_PACKAGE_400);
+            filingEntry.setPackageType(PackageTypeApi.CIC);
             var data = createAccountsValidatorDataApi("2026-01-30", accountType, "0");
             var status = createAccountsValidatorStatusApi("fileId", "accounts.zip", "complete",
                     AccountsValidatorValidationStatusApi.OK, data);
@@ -307,6 +333,35 @@ class AccountsValidationServiceTest {
         Optional<AccountsValidatorStatusApi> optionalResponse = service.validationStatusResult(fileId);
 
         assertThat(optionalResponse, is(Optional.empty()));
+    }
+
+    @Test
+    @DisplayName("Return an empty optional when the validator API responds with 404")
+    void testValidationStatusResultNotFound() throws ApiErrorResponseException, URIValidationException {
+        String fileId = "fileId";
+        ApiErrorResponseException responseException = mock(ApiErrorResponseException.class);
+        when(responseException.getStatusCode()).thenReturn(404);
+        when(api.getValidationCheck(fileId)).thenThrow(responseException);
+
+        Optional<AccountsValidatorStatusApi> result = service.validationStatusResult(fileId);
+
+        Assertions.assertTrue(result.isEmpty());
+        verify(api).getValidationCheck(fileId);
+        verifyNoInteractions(logger);
+    }
+
+    @Test
+    @DisplayName("Wrap validator URI validation failures and preserve the cause")
+    void testValidationStatusResultInvalidUri() throws ApiErrorResponseException, URIValidationException {
+        String fileId = "fileId";
+        URIValidationException cause = mock(URIValidationException.class);
+        when(api.getValidationCheck(fileId)).thenThrow(cause);
+
+        UriValidationException exception = assertThrows(UriValidationException.class,
+                () -> service.validationStatusResult(fileId));
+
+        Assertions.assertSame(cause, exception.getCause());
+        verify(api).getValidationCheck(fileId);
     }
 
     @Test

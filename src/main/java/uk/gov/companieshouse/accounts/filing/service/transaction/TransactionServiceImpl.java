@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.accounts.filing.exceptionhandler.EntryNotFoundException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ExternalServiceException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.ResponseException;
 import uk.gov.companieshouse.accounts.filing.exceptionhandler.UriValidationException;
+import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.api.error.ApiErrorResponseException;
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
@@ -29,10 +31,32 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final Logger logger;
 
+    private final TransactionTransformer accountsFilingTransformer;
+
     @Autowired
-    public TransactionServiceImpl(final TransactionAPI transactionAPI, final Logger logger) {
+    public TransactionServiceImpl(final TransactionAPI transactionAPI, final Logger logger,
+                                  final TransactionTransformer accountsFilingTransformer) {
         this.logger = logger;
         this.transactionAPI = transactionAPI;
+        this.accountsFilingTransformer = accountsFilingTransformer;
+    }
+
+    @Override
+    public Transaction getRequiredTransaction(final String transactionId, final String accountsFilingId) {
+        return getTransaction(transactionId).orElseThrow(() -> {
+            final var message = "Transaction not found when updating accounts filing resources.";
+            logger.errorContext(transactionId, message, null, ImmutableConverter.toMutableMap(Map.of(
+                    "accountsFilingId", accountsFilingId)));
+            return new EntryNotFoundException(message);
+        });
+    }
+
+    @Override
+    public void updateTransactionResources(final Transaction transaction, final String accountsFilingId,
+                                           final String packageType, final String accountsType) {
+        accountsFilingTransformer.setupTransactionResources(transaction, accountsFilingId, packageType,
+                accountsType);
+        updateTransaction(transaction);
     }
 
     @Override

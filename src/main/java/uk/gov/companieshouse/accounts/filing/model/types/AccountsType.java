@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.model.types;
 
+import java.util.Arrays;
+
 public enum AccountsType {
     UNKNOWN("00", "UNKNOWN"),
 
@@ -53,6 +55,15 @@ public enum AccountsType {
             }
         }
         return UNKNOWN;
+    }
+
+    public static boolean isAmended(final String accountsType) {
+        if (accountsType == null) {
+            return false;
+        }
+        return Arrays.stream(values())
+                .filter(type -> type.name().endsWith("_AMENDED"))
+                .anyMatch(type -> type.getStemCode().equals(accountsType) || type.getType().equals(accountsType));
     }
 
 }

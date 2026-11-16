@@ -1,12 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
-import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +44,7 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             AccountsFilingRepository requestFilingRepository,
             AccountsValidatorAPI accountsValidatorAPI,
             AmendedPackageConfiguration amendedPackageConfiguration
-        ) {
+    ) {
         this.logger = logger;
         this.requestFilingRepository = requestFilingRepository;
         this.accountsValidatorAPI = accountsValidatorAPI;
@@ -83,10 +78,17 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         AccountsValidatorDataApi data = accountStatus.resultApi().data();
         if (data != null) {
             String accountType = data.accountType();
-            if (isAmendedPackagedDisallowed() && isAccountTypeAmended(accountType)) {
-                throw new AmendedFilingDisabledException();
-            }
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
+
+            if (AccountsType.isAmended(accountType)) {
+                boolean amendedPackagesEnabled = areAmendedPackagesEnabled();
+                boolean cicAmendedPackagesAllowed = areCICAmendedPackagesAllowed();
+                if (!(amendedPackagesEnabled
+                        && cicAmendedPackagesAllowed
+                        && packageType == PackageTypeApi.CIC)) {
+                    throw new AmendedFilingDisabledException();
+                }
+            }
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
             if(PackageTypeApi.OVERSEAS != packageType) {
                 accountsFilingEntry.setMadeUpDate(data.balanceSheetDate());
@@ -145,12 +147,11 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         }
     }
 
-    private boolean isAccountTypeAmended(String accountType) {
-        return accountType != null && accountType.matches("\\d+")
-                && new BigInteger(accountType).compareTo(BigInteger.valueOf(50)) >= 0;
+    private boolean areAmendedPackagesEnabled() {
+        return amendedPackageConfiguration.defaultEnableAmendedPackages();
     }
 
-    private boolean isAmendedPackagedDisallowed() {
-        return !amendedPackageConfiguration.defaultEnableAmendedPackages();
+    private boolean areCICAmendedPackagesAllowed() {
+        return amendedPackageConfiguration.cicAmendedPackagesEnabled();
     }
 }

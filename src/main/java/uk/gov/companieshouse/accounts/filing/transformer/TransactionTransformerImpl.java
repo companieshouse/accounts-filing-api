@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import uk.gov.companieshouse.accounts.filing.model.types.AccountsType;
 import uk.gov.companieshouse.accounts.filing.utils.mapping.ImmutableConverter;
 import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.transaction.Resource;
@@ -18,7 +19,7 @@ public class TransactionTransformerImpl implements TransactionTransformer {
 
 
     @Override
-    public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType) {
+    public void setupTransactionResources(final Transaction transaction, final String accountsFilingId, final String packageType, String accountsType) {
         
         final var uri = String.format("/transactions/%s/accounts-filing/%s", transaction.getId(), accountsFilingId);
         
@@ -28,7 +29,9 @@ public class TransactionTransformerImpl implements TransactionTransformer {
                 "validation_status", uri+"/validation-status"
             )
         );
-        if(PackageTypeApi.CIC.toString().equals(packageType) || PackageTypeApi.OVERSEAS.toString().equals(packageType)){
+        if (accountsType != null && !AccountsType.isAmended(accountsType)
+                && (PackageTypeApi.CIC.toString().equals(packageType)
+                    || PackageTypeApi.OVERSEAS.toString().equals(packageType))) {
             links.put("costs", uri + "/costs");
         }
         final Resource resource = new Resource();
