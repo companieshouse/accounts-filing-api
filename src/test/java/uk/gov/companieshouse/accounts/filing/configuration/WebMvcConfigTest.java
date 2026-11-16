@@ -51,8 +51,12 @@ import uk.gov.companieshouse.accounts.filing.service.costs.CostsService;
 import uk.gov.companieshouse.accounts.filing.service.file.validation.AccountsValidationService;
 import uk.gov.companieshouse.accounts.filing.service.transaction.TransactionService;
 import uk.gov.companieshouse.accounts.filing.transformer.TransactionTransformer;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorResultApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
+import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
 import uk.gov.companieshouse.api.model.filinggenerator.FilingApi;
+import uk.gov.companieshouse.api.model.felixvalidator.PackageTypeApi;
 import uk.gov.companieshouse.api.model.transaction.Transaction;
 import uk.gov.companieshouse.api.model.validationstatus.ValidationStatusResponse;
 import uk.gov.companieshouse.logging.Logger;
@@ -150,11 +154,13 @@ class WebMvcConfigTest {
     @ParameterizedTest
     @EnumSource(Route.class)
     void validIdsReachTheController(Route route) throws Exception {
-        AccountsFilingEntry entry = new AccountsFilingEntry(FILING_ID);
+        AccountsFilingEntry entry = new AccountsFilingEntry(
+                FILING_ID, null, null, PackageTypeApi.CIC, TRANSACTION_ID, null, null, null);
         switch (route) {
             case PACKAGE -> {
                 when(accountsFilingService.getFilingEntry(FILING_ID)).thenReturn(entry);
-                when(transactionService.getTransaction(TRANSACTION_ID)).thenReturn(Optional.of(new Transaction()));
+                when(transactionService.getRequiredTransaction(TRANSACTION_ID, FILING_ID))
+                        .thenReturn(new Transaction());
             }
             case VALIDATION -> {
                 when(accountsFilingService.getAccountsFilingEntryForIDAndTransaction(TRANSACTION_ID, FILING_ID))
@@ -169,8 +175,14 @@ class WebMvcConfigTest {
             }
             case FILE -> {
                 when(accountsValidationService.validationStatusResult(FILE_ID)).thenReturn(Optional.of(
-                        new AccountsValidatorStatusApi(FILE_ID, "accounts.zip", "complete", null)));
+                        new AccountsValidatorStatusApi(FILE_ID, "accounts.zip", "complete",
+                                new AccountsValidatorResultApi(
+                                        new AccountsValidatorDataApi("2026-01-30", "01", "0"),
+                                        AccountsValidatorValidationStatusApi.OK))));
                 when(accountsValidationService.getFilingEntry(FILING_ID)).thenReturn(entry);
+                entry.setPackageType(PackageTypeApi.CIC);
+                when(transactionService.getRequiredTransaction(TRANSACTION_ID, FILING_ID))
+                        .thenReturn(new Transaction());
             }
             case COMPANY -> when(companyService.saveCompanyNumberAndTransactionId(
                     "01234567", TRANSACTION_ID, "Test Company")).thenReturn(new CompanyResponse(FILING_ID));
@@ -187,11 +199,16 @@ class WebMvcConfigTest {
         switch (route) {
             case PACKAGE -> {
                 verify(accountsFilingService).savePackageType(entry, "Welsh");
-                verify(transactionService).updateTransaction(any(Transaction.class));
+                verify(transactionService).updateTransactionResources(any(Transaction.class), eq(FILING_ID),
+                        eq("Welsh"), eq(entry.getAccountsType()));
             }
             case VALIDATION -> verify(accountsFilingService).validateAccountsFilingEntry(entry);
             case COSTS -> verify(costsService).calculateCosts(entry);
-            case FILE -> verify(accountsValidationService).saveFileValidationResult(eq(entry), any());
+            case FILE -> {
+                verify(accountsValidationService).saveFileValidationResult(eq(entry), any());
+                verify(transactionService).updateTransactionResources(any(Transaction.class), eq(FILING_ID),
+                        eq(PackageTypeApi.CIC.toString()), eq("01"));
+            }
             case COMPANY -> verify(companyService).saveCompanyNumberAndTransactionId(
                     "01234567", TRANSACTION_ID, "Test Company");
             case PRIVATE -> verify(filingGeneratorMapper).mapToFilingApi(entry);
