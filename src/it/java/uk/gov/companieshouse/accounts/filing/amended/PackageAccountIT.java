@@ -1,8 +1,19 @@
 package uk.gov.companieshouse.accounts.filing.amended;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.noContent;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.patch;
+import static com.github.tomakehurst.wiremock.client.WireMock.patchRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetAllRequests;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.when;
 
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +28,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,6 +41,8 @@ import uk.gov.companieshouse.accounts.filing.builder.AccountsFilingEntryBuilder;
 import uk.gov.companieshouse.accounts.filing.builder.AccountsValidatorResultApiBuilder;
 import uk.gov.companieshouse.accounts.filing.model.AccountsFilingEntry;
 import uk.gov.companieshouse.accounts.filing.repository.AccountsFilingRepository;
+import uk.gov.companieshouse.accounts.filing.service.api.ApiClientService;
+import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorDataApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorStatusApi;
 import uk.gov.companieshouse.api.model.accountvalidator.AccountsValidatorValidationStatusApi;
@@ -41,6 +56,7 @@ class PackageAccountIT {
     private static final String VALIDATION_STATUS_URI = "/account-validator/validate/check/";
     private static final String URI_TO_FILE_STATUS = "/transactions/{transactionId}/accounts-filing/{accountsFilingId}/file/{fileId}/status";
     private static final String TRANSACTION_ID = "1234-1234-1234";
+    private static final String PRIVATE_TRANSACTION_URI = "/private/transactions/" + TRANSACTION_ID;
     private static final String ACCOUNTS_FILING_ID = "accounts-filing-id";
     private static final String FILE_ID = "01234567-1234-1234-1234-012345678910";
     private static final String COMPANY_NAME = "Example Company Limited";
@@ -68,12 +84,33 @@ class PackageAccountIT {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    @Autowired
+    @MockitoSpyBean
     private AccountsFilingRepository accountsFilingRepository;
+
+    @MockitoBean
+    private ApiClientService apiClientService;
+
+    @Autowired
+    private InternalApiClient internalApiClient;
 
     @BeforeEach
     void setUp() {
         mongoTemplate.getDb().drop();
+        resetAllRequests();
+        when(apiClientService.getInternalApiClient()).thenReturn(internalApiClient);
+        stubFor(get(PRIVATE_TRANSACTION_URI)
+            .willReturn(ok()
+                .withHeader(CONTENT_TYPE_HEADER, JSON_CONTENT_TYPE)
+                .withBody("{\"id\":\"" + TRANSACTION_ID + "\",\"resources\":{}}")));
+        stubFor(patch(PRIVATE_TRANSACTION_URI).willReturn(noContent()));
+    }
+
+    private void verifyAllowedUpdate(final String accountType) {
+        verify(1, getRequestedFor(urlEqualTo(PRIVATE_TRANSACTION_URI)));
+        verify(1, patchRequestedFor(urlEqualTo(PRIVATE_TRANSACTION_URI)));
+        AccountsFilingEntry savedEntry = accountsFilingRepository.findById(ACCOUNTS_FILING_ID).orElseThrow();
+        assertEquals(accountType, savedEntry.getAccountsType());
+        assertEquals(VALIDATOR_BALANCE_SHEET_DATE, savedEntry.getMadeUpDate());
     }
 
     @Nested
@@ -124,11 +161,12 @@ class PackageAccountIT {
             .exchange()
             .expectStatus()
             .isEqualTo(HttpStatus.SC_OK);
+            verifyAllowedUpdate(accountType);
         }
 
 
         @ParameterizedTest(name = "Account Type {0}")
-        @ValueSource(strings = {"50", "58"})
+        @ValueSource(strings = {"51", "58"})
         @DisplayName("Test when the result status of file validation returns an amended account type" 
             + " should return 200 when amend accounts are allowed")
         void testShouldReturn200WhenAmendedAccountTypeAreAllowed(final String accountType) {
@@ -172,6 +210,7 @@ class PackageAccountIT {
             .header(AUTHORISED_TOKEN_PERMISSIONS_HEADER, AUTHORISED_TOKEN_PERMISSIONS).exchange()
             .expectStatus()
             .isEqualTo(HttpStatus.SC_OK);
+            verifyAllowedUpdate(accountType);
         }
     }
 
@@ -224,10 +263,11 @@ class PackageAccountIT {
             .exchange()
             .expectStatus()
             .isEqualTo(HttpStatus.SC_OK);
+            verifyAllowedUpdate(accountType);
         }
 
         @ParameterizedTest(name = "Account Type {0}")
-        @ValueSource(strings = {"50", "58"})
+        @ValueSource(strings = {"51", "58"})
         @DisplayName("Test when the result status of file validation returns an amended account type should return 503")
         void testShouldReturn503WhenAccountTypeOver50IsReturned(final String accountType) {
 
@@ -271,7 +311,10 @@ class PackageAccountIT {
             .expectStatus()
             .isEqualTo(HttpStatus.SC_SERVICE_UNAVAILABLE);
 
-
+            verify(getRequestedFor(urlEqualTo(PRIVATE_TRANSACTION_URI)));
+            verify(0, patchRequestedFor(urlEqualTo(PRIVATE_TRANSACTION_URI)));
+            org.mockito.Mockito.verify(accountsFilingRepository, never()).save(any(AccountsFilingEntry.class));
+            assertEquals(dbEntry, accountsFilingRepository.findById(ACCOUNTS_FILING_ID).orElseThrow());
         }
     }
 

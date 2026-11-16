@@ -12,15 +12,16 @@ In order to run the API locally you'll need the following installed on your mach
 1. Run `make`
 2. Run `./start.sh`
 
-## Revised filing feature flags
+## Amended filing feature flags
 
 Transaction resources are created when the package type is saved, without a costs
 link. A successful file-validation result with a numeric accounts type refreshes
 the resources; costs links are then included only for non-amended CIC and overseas
 accounts. Incomplete or failed validation does not refresh transaction resources.
 
-Set `FEATURE_FLAG_DISABLE_REVISED_FILING_22102026=true` to block revised filings
-(numeric validator account types of 50 or greater). Set
-`FEATURE_FLAG_ALLOW_CIC_REVISED_FILING_22102026=true` to allow revised CIC packages
-while keeping other revised packages blocked. Both flags default to `false`;
-when the disable flag is `false`, revised filings remain permitted for all packages.
+Amended accounts are identified by the supported amended values in the
+`AccountsType` enum, not by a numeric threshold. Both feature flags default to
+`false`. Once the amendment gate is corrected, setting
+`FEATURE_FLAG_ENABLE_CIC_AMENDED_PACKAGES_22102026=true` will allow amended CIC
+packages only, while setting `FEATURE_FLAG_ENABLE_ALL_AMENDED_PACKAGES_22102026=true`
+will allow amended packages of all types.
