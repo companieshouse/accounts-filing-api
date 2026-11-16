@@ -1,6 +1,5 @@
 package uk.gov.companieshouse.accounts.filing.service.file.validation;
 
-import java.math.BigInteger;
 import java.util.*;
 
 import org.springframework.http.HttpStatus;
@@ -81,9 +80,14 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
             String accountType = data.accountType();
             PackageTypeApi packageType = accountsFilingEntry.getPackageType();
 
-            if (isAmendedPackagedDisallowed() && AccountsType.isAmended(accountType) && (isCICAmendedPackagedDisallowed()
-                    && packageType != PackageTypeApi.CIC)) {
-                throw new AmendedFilingDisabledException();
+            if (AccountsType.isAmended(accountType)) {
+                boolean amendedPackagesEnabled = areAmendedPackagesEnabled();
+                boolean cicAmendedPackagesAllowed = areCICAmendedPackagesAllowed();
+                if (!(amendedPackagesEnabled
+                        && cicAmendedPackagesAllowed
+                        && packageType == PackageTypeApi.CIC)) {
+                    throw new AmendedFilingDisabledException();
+                }
             }
             setFilingEntryAccountsType(accountsFilingEntry, data, packageType);
             if(PackageTypeApi.OVERSEAS != packageType) {
@@ -143,11 +147,11 @@ public class AccountsValidationServiceImpl implements AccountsValidationService 
         }
     }
 
-    private boolean isAmendedPackagedDisallowed() {
-        return !amendedPackageConfiguration.defaultEnableAmendedPackages();
+    private boolean areAmendedPackagesEnabled() {
+        return amendedPackageConfiguration.defaultEnableAmendedPackages();
     }
 
-    private boolean isCICAmendedPackagedDisallowed() {
-        return !amendedPackageConfiguration.allowCICAmendedPackages();
+    private boolean areCICAmendedPackagesAllowed() {
+        return amendedPackageConfiguration.allowCICAmendedPackages();
     }
 }
