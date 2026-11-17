@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -29,6 +30,10 @@ public class FileIdInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler) {
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+
         final Map<String, String> pathVariables = (Map<String, String>) request
                 .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         final var fileId = pathVariables.get(Constants.FILE_ID_KEY);

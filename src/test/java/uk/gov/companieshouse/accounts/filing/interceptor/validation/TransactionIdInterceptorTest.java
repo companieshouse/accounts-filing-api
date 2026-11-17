@@ -3,6 +3,7 @@ package uk.gov.companieshouse.accounts.filing.interceptor.validation;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -14,7 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import uk.gov.companieshouse.accounts.filing.utils.constant.Constants;
@@ -31,6 +34,9 @@ class TransactionIdInterceptorTest {
     @Mock
     private Logger logger;
 
+    @Mock
+    private HandlerMethod mockHandler;
+
     private TransactionIdInterceptor transactionIdInterceptor;
 
     @BeforeEach
@@ -42,7 +48,6 @@ class TransactionIdInterceptorTest {
     @DisplayName("Validate transaction id in path")
     void testPreHandle() {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
         var pathParameters = new HashMap<String, String>();
         pathParameters.put(Constants.TRANSACTION_ID_KEY, TRANSACTION_ID);
 
@@ -56,7 +61,6 @@ class TransactionIdInterceptorTest {
     @DisplayName("Validate blank transaction id in path return 400")
     void testPreHandleFailedEnterNull() {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
         var pathParameters = new HashMap<String, String>();
         pathParameters.put(Constants.TRANSACTION_ID_KEY, null);
 
@@ -72,7 +76,6 @@ class TransactionIdInterceptorTest {
     @DisplayName("Validate transaction id with invalid chars in path return 400")
     void testPreHandleFailedEnterBlank() {
         MockHttpServletResponse mockHttpServletResponse = new MockHttpServletResponse();
-        Object mockHandler = new Object();
         var pathParameters = new HashMap<String, String>();
         pathParameters.put(Constants.TRANSACTION_ID_KEY, " ".repeat(24));
 
@@ -81,5 +84,16 @@ class TransactionIdInterceptorTest {
         
         assertFalse(transactionIdInterceptor.preHandle(mockHttpServletRequest, mockHttpServletResponse, mockHandler));
         assertEquals(400, mockHttpServletResponse.getStatus());
+    }
+
+    @Test
+    void skipsResourceHandlerWithoutReadingPathVariables() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        assertTrue(transactionIdInterceptor.preHandle(
+                mockHttpServletRequest, response, new ResourceHttpRequestHandler()));
+
+        assertEquals(200, response.getStatus());
+        verifyNoInteractions(mockHttpServletRequest, logger);
     }
 }

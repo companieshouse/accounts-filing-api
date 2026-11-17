@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.accounts.filing.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -31,6 +33,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.handler.MappedInterceptor;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 import uk.gov.companieshouse.accounts.filing.controller.CompanyController;
@@ -238,6 +241,19 @@ class WebMvcConfigTest {
     @Test
     void healthcheckDoesNotRequireAuthenticationOrIds() throws Exception {
         mockMvc.perform(get("/accounts-filing/healthcheck")).andExpect(status().isOk());
+        verifyNoDownstreamCalls();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/transactions/" + TRANSACTION_ID + "/accounts-filing/" + FILING_ID + "/does-not-exist",
+            "/transactions/" + TRANSACTION_ID + "/accounts-filing/" + FILING_ID + "/validation-status/",
+            "/transactions/" + TRANSACTION_ID + "/does-not-exist"
+    })
+    void authenticatedUnmatchedRoutesReturn404(String path) throws Exception {
+        mockMvc.perform(get(path).header(PERMISSIONS_HEADER, PERMISSIONS))
+                .andExpect(result -> assertInstanceOf(ResourceHttpRequestHandler.class, result.getHandler()))
+                .andExpect(status().isNotFound());
         verifyNoDownstreamCalls();
     }
 
